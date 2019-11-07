@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">TravelGroup</string>
+    <string name="title_activity_login">Sign in</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="register">REGISTER</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_username_hint">Tên đăng nhập</string>
+    <string name="login_password_hint">Mật khẩu</string>
+    <string name="signup_login_hint">Đã có tài khoản ? Đăng nhập ngay.</string>
+    <string name="login_signup_hint">Chưa có tài khoản ? Đăng ký ngay.</string>
 </resources>
