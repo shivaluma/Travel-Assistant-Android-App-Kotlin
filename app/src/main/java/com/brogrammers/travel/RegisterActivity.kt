@@ -105,9 +105,7 @@ class RegisterActivity : AppCompatActivity() {
 
                         if (errorCount > 0) {
                             for (msg in errorList) {
-
-
-                                if (msg.msg.toString() == "email") {
+                                if (msg.param.toString() == "email") {
                                     textregisterEmail.error = msg.msg.toString()
                                 }
                                 else if (msg.param.toString() == "phone") {
