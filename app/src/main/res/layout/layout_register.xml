@@ -20,25 +20,17 @@
             android:text="@string/register"
             android:layout_marginTop="@dimen/loginViewsMargin"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/parent"
-            android:layout_marginTop="@dimen/signup_text_margin_top">
 
-            <EditText
-                style="@style/modifiedEditText"
-                android:hint="Tên đăng nhập"
-                android:inputType="text"
-                android:maxLines="1" />
-        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/parent"
             android:layout_marginTop="@dimen/signup_text_margin_top">
 
             <EditText
+                android:id="@+id/textregisterPhone"
                 style="@style/modifiedEditText"
                 android:hint="Số điện thoại"
-                android:inputType="text"
+                android:inputType="phone"
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -46,6 +38,7 @@
             style="@style/parent"
             android:layout_marginTop="@dimen/signup_text_margin_top">
             <EditText
+                android:id="@+id/textregisterEmail"
                 style="@style/modifiedEditText"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
@@ -56,6 +49,7 @@
             style="@style/parent"
             android:layout_marginTop="@dimen/signup_text_margin_top">
             <EditText
+                android:id="@+id/textregisterPassword"
                 style="@style/modifiedEditText"
                 android:hint="@string/login_password_hint"
                 android:maxLines="1"
@@ -63,7 +57,9 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
+            android:id="@+id/btnRegister"
             style="@style/loginButton"
+            android:layout_marginTop="30dp"
             android:layout_gravity="center"
             android:text="Đăng ký" />
 
