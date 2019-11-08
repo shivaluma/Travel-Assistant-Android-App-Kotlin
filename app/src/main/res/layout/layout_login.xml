@@ -23,11 +23,11 @@
             android:layout_marginTop="@dimen/loginViewsMargin"/>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputEmail"
+            android:id="@+id/inputUserEmail"
             style="@style/parent"
             android:layout_marginTop="@dimen/loginViewsMargin">
             <EditText
-                android:id="@+id/editTextEmail"
+                android:id="@+id/editTextEmailPhone"
                 style="@style/modifiedEditText"
                 android:inputType="textPersonName"
                 android:maxLines="1"
@@ -35,7 +35,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputPassword"
+            android:id="@+id/inputPassword"
             style="@style/parent"
             android:layout_marginTop="@dimen/loginViewsMargin">
             <EditText
@@ -56,7 +56,7 @@
             android:layout_marginTop="10dp"/>
 
         <Button
-            android:id="@+id/cirLoginButton"
+            android:id="@+id/btnLogin"
             style="@style/loginButton"
             android:text="Đăng nhập"
             android:layout_gravity="center_horizontal"

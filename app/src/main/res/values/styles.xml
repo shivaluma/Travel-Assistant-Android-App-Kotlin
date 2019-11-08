@@ -58,5 +58,12 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="FacebookLoginButton">
+        <item name="android:background">@drawable/ic_facebook</item>
+        <item name="android:layout_margin">0dp</item>
+
+        <item name="android:layout_gravity">center_horizontal</item>
+    </style>
+
 
 </resources>
