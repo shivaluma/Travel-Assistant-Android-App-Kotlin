@@ -1,10 +1,13 @@
 package com.brogrammers.travel
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.google.gson.JsonObject
@@ -69,13 +72,12 @@ class LoginActivity : AppCompatActivity() {
                     }
                     else {
                         Toast.makeText(applicationContext, "Đăng nhập thành công!", Toast.LENGTH_LONG).show()
+                        updateTokenToStorage(response.body()!!.token)
                         startActivity(Intent(applicationContext,NavigationBottomActivity::class.java))
                         finish()
                     }
                 }
             })
-
-
         }
 
     }
@@ -95,6 +97,13 @@ class LoginActivity : AppCompatActivity() {
         startActivityForResult(Intent(this,RegisterActivity::class.java),6969)
     }
 
+    fun updateTokenToStorage(token: String) {
+        val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
+        val editor = sharePref.edit()
+        Log.d("Token", token)
+        editor.putString("token", token)
+    }
+
     private interface ApiServiceLogin {
         @POST("/user/login")
         fun postData(
@@ -102,5 +111,7 @@ class LoginActivity : AppCompatActivity() {
         ): Call<PostResponseLogin>
     }
 
-    data class PostResponseLogin(val message:String)
+    data class PostResponseLogin(val message:String, val userId:Int, val token:String)
+
+
 }
