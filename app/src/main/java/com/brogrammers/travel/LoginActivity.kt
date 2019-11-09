@@ -154,7 +154,17 @@ class LoginActivity : AppCompatActivity() {
             })
         }
 
-
+        btnLoginGoogleInterface.setOnClickListener {
+            firebaseAuth = FirebaseAuth.getInstance()
+            configureGoogleSignIn()
+            mGoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build()
+            mGoogleSignInClient = GoogleSignIn.getClient(this, mGoogleSignInOptions)
+            val signInIntent: Intent = mGoogleSignInClient.signInIntent
+            startActivityForResult(signInIntent, 69)
+        }
 
     }
 
