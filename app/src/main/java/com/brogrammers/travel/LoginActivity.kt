@@ -17,11 +17,13 @@ import com.facebook.FacebookException
 import com.facebook.FacebookSdk
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.auth.api.Auth
+import com.google.android.gms.auth.api.signin.*
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.common.api.Scope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.gson.JsonObject
@@ -36,13 +38,16 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import java.util.*
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks,
+GoogleApiClient.OnConnectionFailedListener {
+
+
 
     val BASE_URL = "http://35.197.153.192:3000"
     var cbManager : CallbackManager ?= null
-    private lateinit var firebaseAuth: FirebaseAuth
-    lateinit var mGoogleSignInClient: GoogleSignInClient
-    lateinit var mGoogleSignInOptions: GoogleSignInOptions
+    var mGoogleApiClient:GoogleApiClient ?= null
+    var serverClientID = "1013546197046-9v7r3u73jmnvi0o82avm93k3aqkllmne.apps.googleusercontent.com"
+    var gso : GoogleSignInOptions ?= null
 
     val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
@@ -53,7 +58,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
         val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
-           val editor = sharePref.edit()
+        val editor = sharePref.edit()
 
 
         setContentView(R.layout.activity_login)
@@ -107,11 +112,6 @@ class LoginActivity : AppCompatActivity() {
         }
 
         btnFacebookInterface.setOnClickListener {
-            btnLoginFacebook.performClick()
-        }
-
-        btnLoginFacebook.setOnClickListener {
-
             cbManager = CallbackManager.Factory.create()
             LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile","email"))
             LoginManager.getInstance().registerCallback(cbManager, object : FacebookCallback<LoginResult> {
@@ -155,18 +155,22 @@ class LoginActivity : AppCompatActivity() {
         }
 
         btnLoginGoogleInterface.setOnClickListener {
-            firebaseAuth = FirebaseAuth.getInstance()
-            configureGoogleSignIn()
-            mGoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build()
-            mGoogleSignInClient = GoogleSignIn.getClient(this, mGoogleSignInOptions)
-            val signInIntent: Intent = mGoogleSignInClient.signInIntent
+           gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestScopes(Scope(Scopes.DRIVE_APPFOLDER))
+            .requestServerAuthCode(serverClientID)
+            .requestEmail()
+            .build()
+
+             mGoogleApiClient = GoogleApiClient.Builder(this)
+            .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+            .addApi(Auth.GOOGLE_SIGN_IN_API, gso!!)
+            .build()
+            val signInIntent : Intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient)
             startActivityForResult(signInIntent, 69)
         }
-
     }
+
+
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -176,15 +180,21 @@ class LoginActivity : AppCompatActivity() {
                 editTextPassword.setText(data?.getStringExtra("passwrd"))
             }
         }
-        if (requestCode == 69) {
-            val task: com.google.android.gms.tasks.Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
-            try {
-                val account = task.getResult(ApiException::class.java)
-                firebaseAuthWithGoogle(account!!)
-            } catch (e: ApiException) {
-                Toast.makeText(this, "Google sign in failed:(", Toast.LENGTH_LONG).show()
+        if(requestCode == 69){
+            var result : GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
+            Log.d("alo alo", "onActivityResult:GET_AUTH_CODE:success:" + result.getStatus().isSuccess())
+
+            if(result.isSuccess()){
+                Toast.makeText(applicationContext, "Gud!", Toast.LENGTH_LONG).show()
+                var acct : GoogleSignInAccount = result.signInAccount!!
+                var authCode : String = acct.serverAuthCode!!
+                Log.d("thaiduiocc", authCode)
+            }
+            else {
+                Toast.makeText(applicationContext, "Fail!", Toast.LENGTH_LONG).show()
             }
         }
+
         super.onActivityResult(requestCode, resultCode, data)
         cbManager?.onActivityResult(requestCode,resultCode,data)
     }
@@ -200,53 +210,20 @@ class LoginActivity : AppCompatActivity() {
         editor.putString("token", token)
     }
 
-    fun checkTokenAlive(token: String) {
-        
+    override fun onConnected(p0: Bundle?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
-        val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
-        firebaseAuth.signInWithCredential(credential).addOnCompleteListener {
-            if (it.isSuccessful) {
-                val jsonObject = JsonObject()
-                jsonObject.addProperty("accessToken", acct.idToken.toString())
-                val service = retrofit.create(ApiServiceGGLogin::class.java)
-                val call = service.postData(jsonObject)
-
-                call.enqueue(object : Callback<PostResponseGGLogin> {
-
-                    override fun onFailure(call: Call<PostResponseGGLogin>, t: Throwable) {
-                        Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
-                    }
-
-                    override fun onResponse(
-                        call: Call<PostResponseGGLogin>,
-                        response: Response<PostResponseGGLogin>
-                    ) {
-                        if (response.message() == "Not Found") {
-                            Toast.makeText(applicationContext, "Đăng nhập thất bại!", Toast.LENGTH_LONG).show()
-                        }
-                        else {
-                            Toast.makeText(applicationContext, "Đăng nhập thành công!", Toast.LENGTH_LONG).show()
-                            updateTokenToStorage(response.body()!!.token)
-                            startActivity(Intent(applicationContext,NavigationBottomActivity::class.java))
-                            finish()
-                        }
-                    }
-                })
-            } else {
-                Toast.makeText(this, "Google sign in failed :(", Toast.LENGTH_LONG).show()
-            }
-        }
+    override fun onConnectionSuspended(p0: Int) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun configureGoogleSignIn() {
-        mGoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
-        mGoogleSignInClient = GoogleSignIn.getClient(this, mGoogleSignInOptions)
+    override fun onConnectionFailed(p0: ConnectionResult) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
+
+
+
 
     private interface ApiServiceLogin {
         @POST("/user/login")
