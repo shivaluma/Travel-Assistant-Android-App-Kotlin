@@ -156,15 +156,20 @@ GoogleApiClient.OnConnectionFailedListener {
 
 
         btnLoginGoogleInterface.setOnClickListener {
-           gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestServerAuthCode(serverClientID)
-            .requestEmail()
-            .build()
+           if (gso == null) {
+               gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                   .requestServerAuthCode(serverClientID)
+                   .requestEmail()
+                   .build()
+           }
 
-             mGoogleApiClient = GoogleApiClient.Builder(this)
-            .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-            .addApi(Auth.GOOGLE_SIGN_IN_API, gso!!)
-            .build()
+            if (mGoogleApiClient == null) {
+                mGoogleApiClient = GoogleApiClient.Builder(this)
+                    .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso!!)
+                    .build()
+            }
+
             val signInIntent : Intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient)
             startActivityForResult(signInIntent, 69)
         }
@@ -191,7 +196,7 @@ GoogleApiClient.OnConnectionFailedListener {
                 Toast.makeText(applicationContext, "Fail!", Toast.LENGTH_LONG).show()
             }
         }
-        cbManager!!.onActivityResult(requestCode, resultCode, data)
+        cbManager?.onActivityResult(requestCode, resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
 
     }
