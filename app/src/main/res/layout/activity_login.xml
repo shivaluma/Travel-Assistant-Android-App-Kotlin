@@ -101,23 +101,25 @@
                         android:background="@drawable/ic_facebook" />
                     <com.facebook.login.widget.LoginButton
                         android:id="@+id/btnLoginFacebook"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="30dp"
-                        android:visibility="gone"
+                        android:visibility="invisible"
                         android:layout_marginBottom="30dp"
                         style="@style/FacebookLoginButton"/>
                     <ImageView
                         android:layout_width="40dp"
                         android:layout_height="match_parent" />
                     <ImageButton
-                        android:id="@+id/btnLoginGoogle"
+                        android:id="@+id/btnLoginGoogleInterface"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
                         android:background="@drawable/ic_google_plus"
                         />
+
+
 
 
                 </LinearLayout>

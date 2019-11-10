@@ -52,14 +52,7 @@
                     layout="@layout/layout_register"/>
 
             </LinearLayout>
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="30dp"
-                android:layout_marginLeft="10dp"
-                android:src="@android:drawable/ic_menu_close_clear_cancel" />
+
         </RelativeLayout>
 
     </ScrollView>
