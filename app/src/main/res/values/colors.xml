@@ -11,4 +11,8 @@
 
     <!--colros for card-->
     <color name="whiteCardColor">#fff</color>
+    <color name="white">#fff</color>
+    <color name="alone">#fafafa</color>
+    <color name="black">#000</color>
+    <color name="gray">#d3d3d3</color>
 </resources>

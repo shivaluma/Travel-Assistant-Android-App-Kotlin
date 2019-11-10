@@ -156,7 +156,6 @@ GoogleApiClient.OnConnectionFailedListener {
 
         btnLoginGoogleInterface.setOnClickListener {
            gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestScopes(Scope(Scopes.DRIVE_APPFOLDER))
             .requestServerAuthCode(serverClientID)
             .requestEmail()
             .build()

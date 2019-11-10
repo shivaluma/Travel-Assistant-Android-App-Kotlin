@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "721382290633",
+    "firebase_url": "https://travel-assistant-604e3.firebaseio.com",
+    "project_id": "travel-assistant-604e3",
+    "storage_bucket": "travel-assistant-604e3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:721382290633:android:3ca34ab46f9b731ba80918",
+        "android_client_info": {
+          "package_name": "com.brogrammers.travel"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "721382290633-jpc7fsiovd60129hoflja3tvhdhl54vo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.brogrammers.travel",
+            "certificate_hash": "e1c1caefdda7e357f06fe9a09349370762028f4e"
+          }
+        },
+        {
+          "client_id": "721382290633-4bu1tl2sumet6pq20pcm04i4f7uiocjb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJUNm9JnhGmYmUH798RrRA_Aa8OO5fa5Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "721382290633-4bu1tl2sumet6pq20pcm04i4f7uiocjb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
