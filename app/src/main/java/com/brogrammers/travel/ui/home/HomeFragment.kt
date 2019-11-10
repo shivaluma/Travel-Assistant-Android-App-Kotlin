@@ -60,7 +60,7 @@ class HomeFragment : Fragment() {
         homeViewModel =
             ViewModelProviders.of(this).get(HomeViewModel::class.java)
         val sharePref : SharedPreferences = this.activity!!.getSharedPreferences("logintoken", Context.MODE_PRIVATE)
-        token = sharePref.getString("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyNiwicGhvbmUiOiIiLCJlbWFpbCI6InNoaXZhbHVtYUBnbWFpbC5jb20iLCJleHAiOjE1NzU5NTI3NjczMzgsImFjY291bnQiOiJ1c2VyIiwiaWF0IjoxNTczMzYwNzY3fQ.5ePIV_RiAKuXKLnTKiuxFLcUH3IV16Sf7vdU6FmN47g")!!
+        token = sharePref.getString("token", "nnn")!!
 
 
         val service = retrofit.create(ApiGetTours::class.java)

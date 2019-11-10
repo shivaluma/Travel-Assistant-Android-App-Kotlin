@@ -59,8 +59,6 @@ GoogleApiClient.OnConnectionFailedListener {
         supportActionBar?.hide()
         val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
         val editor = sharePref.edit()
-
-
         setContentView(R.layout.activity_login)
 
         btnLogin.setOnClickListener {
@@ -205,8 +203,9 @@ GoogleApiClient.OnConnectionFailedListener {
     fun updateTokenToStorage(token: String) {
         val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
         val editor = sharePref.edit()
-        Log.d("Token", token)
+
         editor.putString("token", token)
+        editor.apply()
     }
 
     override fun onConnected(p0: Bundle?) {
