@@ -91,7 +91,6 @@ GoogleApiClient.OnConnectionFailedListener {
             jsonObject.addProperty("password", password)
 
 
-
             val service = retrofit.create(ApiServiceLogin::class.java)
 
             val call = service.postData(jsonObject)
