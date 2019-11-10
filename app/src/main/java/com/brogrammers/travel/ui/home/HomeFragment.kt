@@ -12,6 +12,7 @@ import android.widget.BaseAdapter
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -22,6 +23,7 @@ import com.brogrammers.travel.RegisterActivity
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
 import kotlinx.android.synthetic.main.tourview.*
@@ -32,6 +34,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
+import java.text.SimpleDateFormat
 import java.util.*
 
 import kotlin.collections.ArrayList
@@ -58,6 +61,7 @@ class HomeFragment : Fragment() {
             ViewModelProviders.of(this).get(HomeViewModel::class.java)
         val sharePref : SharedPreferences = this.activity!!.getSharedPreferences("logintoken", Context.MODE_PRIVATE)
         token = sharePref.getString("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyNiwicGhvbmUiOiIiLCJlbWFpbCI6InNoaXZhbHVtYUBnbWFpbC5jb20iLCJleHAiOjE1NzU5NTI3NjczMzgsImFjY291bnQiOiJ1c2VyIiwiaWF0IjoxNTczMzYwNzY3fQ.5ePIV_RiAKuXKLnTKiuxFLcUH3IV16Sf7vdU6FmN47g")!!
+
 
         val service = retrofit.create(ApiGetTours::class.java)
 
@@ -89,8 +93,6 @@ class HomeFragment : Fragment() {
         })
 
 
-
-
         return root
     }
 
@@ -109,9 +111,17 @@ class HomeFragment : Fragment() {
             var myView = layoutInflater.inflate(R.layout.tourview, null)
             var myTour = listTourArr[position]
             myView.titleItem.text = myTour.name
-            Log.d("cacca", "IM HERE")
-            myView.dateItem.text = (myTour.startDate.toString() + " - " + myTour.endDate.toString())
-            myView.peopleItem.text = (myTour.aduls.toString() + " adults" + " " + myTour.childs.toString() + " childs")
+            myView.dateItem.text = (convertLongToTime(myTour.startDate!!) + " - " + convertLongToTime(myTour.endDate!!))
+            var people = ""
+            if (myTour.aduls.toString() != "null") {
+                people += myTour.aduls.toString() + " adults"
+            }
+
+            if (myTour.childs.toString() != "null") {
+                if (!people.isEmpty()) people += " - "
+                people += myTour.childs.toString() + " childs"
+            }
+            myView.peopleItem.text = people
             myView.costItem.text = (myTour.minCost.toString() + " - " + myTour.maxCost.toString())
             return myView
         }
@@ -127,6 +137,13 @@ class HomeFragment : Fragment() {
         override fun getCount(): Int {
             return listTourArr.size
         }
+
+        fun convertLongToTime(time: Long): String {
+            val date = Date(time)
+            val format = SimpleDateFormat("dd.MM.yyyy")
+            return format.format(date)
+        }
+
 
     }
 
