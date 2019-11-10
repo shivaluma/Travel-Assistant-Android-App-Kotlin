@@ -60,7 +60,7 @@ GoogleApiClient.OnConnectionFailedListener {
         val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
         val editor = sharePref.edit()
         setContentView(R.layout.activity_login)
-
+        LoginManager.getInstance().logOut()
         btnLogin.setOnClickListener {
             val emailPhone = editTextEmailPhone.text.toString()
             val password = editTextPassword.text.toString()
@@ -128,11 +128,11 @@ GoogleApiClient.OnConnectionFailedListener {
                             call: Call<PostResponseFBLogin>,
                             response: Response<PostResponseFBLogin>
                         ) {
-                            Log.d("fbmesg", response.message())
                             if (response.code() != 200) {
                                 Toast.makeText(applicationContext, "Đăng nhập thất bại!", Toast.LENGTH_LONG).show()
                             }
                             else {
+                                LoginManager.getInstance().logOut()
                                 Toast.makeText(applicationContext, "Đăng nhập thành công!", Toast.LENGTH_LONG).show()
                                 updateTokenToStorage(response.body()!!.token)
                                 startActivity(Intent(applicationContext,NavigationBottomActivity::class.java))
@@ -143,14 +143,17 @@ GoogleApiClient.OnConnectionFailedListener {
                 }
 
                 override fun onCancel() {
-
+                    Toast.makeText(applicationContext, "Đăng nhập thất bại!", Toast.LENGTH_LONG).show()
                 }
 
                 override fun onError(error: FacebookException?) {
-
+                    Log.d("errrr", error.toString())
+                    Toast.makeText(applicationContext, "Đăng nhập thất bại!", Toast.LENGTH_LONG).show()
                 }
             })
         }
+
+
 
         btnLoginGoogleInterface.setOnClickListener {
            gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -179,21 +182,18 @@ GoogleApiClient.OnConnectionFailedListener {
         }
         if(requestCode == 69){
             var result : GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-            Log.d("alo alo", "onActivityResult:GET_AUTH_CODE:success:" + result.getStatus().isSuccess())
 
             if(result.isSuccess()){
-                Toast.makeText(applicationContext, "Gud!", Toast.LENGTH_LONG).show()
                 var acct : GoogleSignInAccount = result.signInAccount!!
                 var authCode : String = acct.serverAuthCode!!
-                Log.d("thaiduiocc", authCode)
             }
             else {
                 Toast.makeText(applicationContext, "Fail!", Toast.LENGTH_LONG).show()
             }
         }
-
+        cbManager!!.onActivityResult(requestCode, resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
-        cbManager?.onActivityResult(requestCode,resultCode,data)
+
     }
 
     fun viewRegisterClicked(view: View) {
