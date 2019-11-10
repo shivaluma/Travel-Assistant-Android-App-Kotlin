@@ -29,6 +29,12 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.gson.JsonObject
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.layout_login.*
+import okhttp3.FormBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import org.json.JSONException
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -36,6 +42,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
+import java.io.IOException
 import java.util.*
 
 class LoginActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks,
@@ -46,8 +53,10 @@ GoogleApiClient.OnConnectionFailedListener {
     val BASE_URL = "http://35.197.153.192:3000"
     var cbManager : CallbackManager ?= null
     var mGoogleApiClient:GoogleApiClient ?= null
-    var serverClientID = "1013546197046-9v7r3u73jmnvi0o82avm93k3aqkllmne.apps.googleusercontent.com"
+    var serverClientID = "1013546197046-2amvjqr03i3po0u9qructlrj8vr2knbf.apps.googleusercontent.com"
+    var clientSecret = "fjVoYy4505lqYHrsUf4mTdEH"
     var gso : GoogleSignInOptions ?= null
+    var mGoogleSignInClient: GoogleSignInClient? = null
 
     val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
@@ -156,22 +165,26 @@ GoogleApiClient.OnConnectionFailedListener {
 
 
         btnLoginGoogleInterface.setOnClickListener {
+
            if (gso == null) {
                gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                   .requestScopes(Scope(Scopes.DRIVE_APPFOLDER))
                    .requestServerAuthCode(serverClientID)
                    .requestEmail()
                    .build()
+               mGoogleSignInClient = GoogleSignIn.getClient(this,gso!!)
            }
 
-            if (mGoogleApiClient == null) {
-                mGoogleApiClient = GoogleApiClient.Builder(this)
-                    .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso!!)
-                    .build()
-            }
+//            if (mGoogleApiClient == null ) {
+//                mGoogleApiClient = GoogleApiClient.Builder(this)
+//                    .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+//                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso!!)
+//                    .build()
+//            }
 
-            val signInIntent : Intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient)
+            val signInIntent : Intent = mGoogleSignInClient!!.signInIntent
             startActivityForResult(signInIntent, 69)
+
         }
     }
 
@@ -186,15 +199,77 @@ GoogleApiClient.OnConnectionFailedListener {
             }
         }
         if(requestCode == 69){
-            var result : GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
+//            var result : GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
+//            if(result.isSuccess){
+//                var acct : GoogleSignInAccount = result.signInAccount!!
+//                var authCode : String = acct.serverAuthCode!!
+//            }
+//            else {
+//                Toast.makeText(applicationContext, "Fail!", Toast.LENGTH_LONG).show()
+//            }
 
-            if(result.isSuccess()){
-                var acct : GoogleSignInAccount = result.signInAccount!!
-                var authCode : String = acct.serverAuthCode!!
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            Log.d("Sign In: ", task.toString())
+            try {
+                val account = task.getResult(ApiException::class.java)
+                val idToken = account!!.serverAuthCode
+                Log.d("Sign In: ", idToken.toString())
+                var client : OkHttpClient = OkHttpClient()
+                var requestBody : RequestBody  = FormBody.Builder()
+                .add("grant_type", "authorization_code")
+                .add("client_id", serverClientID)
+                .add("client_secret", clientSecret)
+                .add("redirect_uri","")
+                .add("code", idToken!!)
+            .build()
+            var request: Request =  Request.Builder()
+            .url("https://www.googleapis.com/oauth2/v4/token")
+            .post(requestBody)
+            .build()
+        client.newCall(request).enqueue( object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) {
+                Log.e("errr", e.toString())
             }
-            else {
-                Toast.makeText(applicationContext, "Fail!", Toast.LENGTH_LONG).show()
+
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                try {
+                var jsonObject2: JSONObject  = JSONObject(response.body()!!.string())
+                var ggaccesstoken: String = jsonObject2.get("access_token").toString()
+                    Log.d("ggacc", ggaccesstoken)
+                    val jsonObject = JsonObject()
+                    jsonObject.addProperty("accessToken", ggaccesstoken)
+                    val service = retrofit.create(ApiServiceGGLogin::class.java)
+                    val call = service.postData(jsonObject)
+                    call.enqueue(object : Callback<PostResponseGGLogin> {
+                        override fun onFailure(call: Call<PostResponseGGLogin>, t: Throwable) {
+                            Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                        }
+                        override fun onResponse(
+                            call: Call<PostResponseGGLogin>,
+                            response: Response<PostResponseGGLogin>
+                        ) {
+                            if (response.code() != 200) {
+                                Toast.makeText(applicationContext, "Đăng nhập thất bại!", Toast.LENGTH_LONG).show()
+                            }
+                            else {
+                                LoginManager.getInstance().logOut()
+                                Toast.makeText(applicationContext, "Đăng nhập thành công!", Toast.LENGTH_LONG).show()
+                                updateTokenToStorage(response.body()!!.token)
+                                startActivity(Intent(applicationContext,NavigationBottomActivity::class.java))
+                                finish()
+                            }
+                        }
+                    })
+
+            } catch (e : JSONException) {
+                e.printStackTrace()
             }
+            }
+        })
+            } catch (e: ApiException) {
+                Log.d("Sign In: ", "signInResult:failed code=" + e.statusCode)
+            }
+
         }
         cbManager?.onActivityResult(requestCode, resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
