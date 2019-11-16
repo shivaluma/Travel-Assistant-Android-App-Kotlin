@@ -91,7 +91,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     lateinit var locationCallback: LocationCallback
     lateinit var mLocationRequest: LocationRequest
 
-
+    var mStopPointArrayList = ArrayList<stopPoint>()
 
     internal var mGoogleApiClient: GoogleApiClient? = null
     internal var mCurrLocationMarker: Marker? = null
@@ -827,6 +827,78 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    fun searchLocation(location: String) {
+        var addressList: List<Address>? = null
+
+        if (location == null || location == "") {
+            Toast.makeText(applicationContext, "provide location", Toast.LENGTH_SHORT).show()
+        } else {
+            val geoCoder = Geocoder(this)
+            try {
+                addressList = geoCoder.getFromLocationName(location, 1)
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            if (addressList!!.isEmpty()) {
+                Toast.makeText(applicationContext, "Khong tim thay dia diem nay", Toast.LENGTH_LONG)
+                    .show()
+            } else {
+                val address = addressList[0]
+                val latLng = LatLng(address.latitude, address.longitude)
+                googleMap.addMarker(MarkerOptions().position(latLng).title(location))
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+                googleMap.animateCamera(CameraUpdateFactory.zoomTo(15.0f))
+                Toast.makeText(
+                    applicationContext,
+                    address.latitude.toString() + " " + address.longitude,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
+        }
+    }
+
+
+    inner class stopPointAdapter : BaseAdapter {
+
+        var listTourArr = ArrayList<stopPoint>()
+        var context: Context? = null
+
+        constructor(listTourArr: ArrayList<stopPoint>, context: Context) : super() {
+            this.listTourArr = listTourArr
+            this.context = context
+        }
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+            //dua item vao
+            var myView = layoutInflater.inflate(R.layout.stoppointinfo, null)
+            var myStopPint = listTourArr[position]
+            myView.showSTPName.text = myStopPint.name
+            myView.showSTPType.text = myStopPint.type
+            myView.showSTPAddr.text = myStopPint.address
+            myView.showProvince.text = provinceArrayList.get(myStopPint.provinceID!!)
+            if (!myStopPint.arrivalAt.toString().isNullOrEmpty()) {
+                myView.showArrive.text = longToDateTime(myStopPint.arrivalAt!!)
+            }
+            if (!myStopPint.leaveAt.toString().isNullOrEmpty()) {
+                myView.showLeave.text = longToDateTime(myStopPint.leaveAt!!)
+            }
+            return myView
+        }
+
+        override fun getItem(position: Int): Any {
+            return listTourArr[position]
+        }
+
+        override fun getItemId(position: Int): Long {
+            return position.toLong()
+        }
+
+        override fun getCount(): Int {
+            return listTourArr.size
+        }
+
+    }
 
 
 
