@@ -23,4 +23,7 @@
     <string name="fb_login_protocol_scheme">fb2390005314662020</string>
 
     <string name="server_client_id">1013546197046-9v7r3u73jmnvi0o82avm93k3aqkllmne.apps.googleusercontent.com</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

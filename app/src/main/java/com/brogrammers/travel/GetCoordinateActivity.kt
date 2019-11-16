@@ -199,106 +199,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         mPlacesClient = Places.createClient(this)
         token = AutocompleteSessionToken.newInstance()
 
-        btnFloatFinish.setOnClickListener {
-            if (!hasStartPoint || !hasEndPoint) {
-                Toast.makeText(
-                    applicationContext,
-                    "No Start/Stop Point is defined",
-                    Toast.LENGTH_LONG
-                ).show()
-            } else {
-                val sharePref: SharedPreferences =
-                    this.getSharedPreferences("logintoken", Context.MODE_PRIVATE)
-                var logintoken = sharePref.getString("token", "nnn")!!
-                var extras: Bundle = intent.extras!!
-                val jsonObject = JsonObject()
-                jsonObject.addProperty("name", extras.getString("iTourName"))
-                jsonObject.addProperty("startDate", extras.getLong("iStartDate"))
-                jsonObject.addProperty("endDate", extras.getLong("iEndDate"))
-                jsonObject.addProperty("sourceLat", LastStartPointLatLng.latitude)
-                jsonObject.addProperty("sourceLong", LastStartPointLatLng.longitude)
-                jsonObject.addProperty("destLat", LastEndPointLatLng.latitude)
-                jsonObject.addProperty("destLong", LastEndPointLatLng.longitude)
-                jsonObject.addProperty("isPrivate", extras.getBoolean("iIsPrivate"))
-                jsonObject.addProperty("adults", extras.getInt("iAdultNum"))
-                jsonObject.addProperty("childs", extras.getInt("iChildNum"))
-                jsonObject.addProperty("minCost", extras.getInt("iMinCost"))
-                jsonObject.addProperty("maxCost", extras.getInt("iMaxCost"))
-                if (!extras.getString("iImage").isNullOrEmpty()) {
-                    jsonObject.addProperty("avatar", extras.getString("iImage"))
-                }
 
-
-                val service = retrofit.create(ApiServiceAddTour::class.java)
-
-                val call = service.postData(logintoken, jsonObject)
-
-                call.enqueue(object : Callback<PostResponseCreateTour> {
-                    override fun onFailure(call: Call<PostResponseCreateTour>, t: Throwable) {
-                        Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
-                    }
-
-                    override fun onResponse(
-                        call: Call<PostResponseCreateTour>,
-                        response: Response<PostResponseCreateTour>
-                    ) {
-                        if (response.code() == 200) {
-                            Toast.makeText(
-                                applicationContext,
-                                "Create Tour Successfully",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            deleteStartEndPoint(mStopPointArrayList)
-                            val stpJsonObj = JsonObject()
-                            stpJsonObj.addProperty("tourId", response.body()!!.id.toString())
-                            val arrlistJson = Gson().toJson(mStopPointArrayList)
-                            val parser = JsonParser()
-                            val jsonStopPint = parser.parse(arrlistJson)
-                            stpJsonObj.add("stopPoints", jsonStopPint)
-                            val servicestp = retrofit.create(ApiServiceAddTourStopPoint::class.java)
-                            val callstp = servicestp.postData(logintoken, stpJsonObj)
-                            callstp.enqueue(object : Callback<tourList> {
-                                override fun onFailure(call: Call<tourList>, t: Throwable) {
-                                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG)
-                                        .show()
-                                }
-
-                                override fun onResponse(
-                                    call: Call<tourList>,
-                                    response: Response<tourList>
-                                ) {
-                                    Toast.makeText(
-                                        applicationContext,
-                                        "Add Stop Point Successfully",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    Log.d("resres", response.message())
-                                    Log.d("resres", stpJsonObj.toString())
-                                }
-                            })
-                        } else {
-                            Log.d("resres", response.message())
-                            Log.d("resres", response.code().toString())
-                            Log.d("resres", response.errorBody().toString())
-
-                            try {
-                                var temp = JSONObject(response.errorBody()!!.string())
-                                Log.d("resres", temp.getString("message"))
-                            } catch (e: JSONException) {
-                                e.printStackTrace()
-                            } catch (e: IOException) {
-                                e.printStackTrace()
-                            }
-                            Toast.makeText(
-                                applicationContext,
-                                "Create Tour Error",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                })
-            }
-        }
 
         btnFloatGetListPoint.setOnClickListener {
             val inflater: LayoutInflater =
@@ -863,5 +764,181 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     }
 
 
+    inner class stopPointAdapter : BaseAdapter {
+
+        var listTourArr = ArrayList<stopPoint>()
+        var context: Context? = null
+
+        constructor(listTourArr: ArrayList<stopPoint>, context: Context) : super() {
+            this.listTourArr = listTourArr
+            this.context = context
+        }
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+            //dua item vao
+            var myView = layoutInflater.inflate(R.layout.stoppointinfo, null)
+            var myStopPint = listTourArr[position]
+            myView.showSTPName.text = myStopPint.name
+            myView.showSTPType.text = myStopPint.type
+            myView.showSTPAddr.text = myStopPint.address
+            myView.showProvince.text = provinceArrayList.get(myStopPint.provinceID!!)
+            if (!myStopPint.arrivalAt.toString().isNullOrEmpty()) {
+                myView.showArrive.text = longToDateTime(myStopPint.arrivalAt!!)
+            }
+            if (!myStopPint.leaveAt.toString().isNullOrEmpty()) {
+                myView.showLeave.text = longToDateTime(myStopPint.leaveAt!!)
+            }
+            return myView
+        }
+
+        override fun getItem(position: Int): Any {
+            return listTourArr[position]
+        }
+
+        override fun getItemId(position: Int): Long {
+            return position.toLong()
+        }
+
+        override fun getCount(): Int {
+            return listTourArr.size
+        }
+
+    }
+
+    inner class stopPoint {
+        var name: String = ""
+        var type: String = ""
+        var address: String = ""
+        var provinceID: Int? = null
+        var lat: Double? = null
+        var long: Double? = null
+        var minCost: Int? = null
+        var maxCost: Int? = null
+        var arrivalAt: Long? = null
+        var leaveAt: Long? = null
+        var serviceTypeId: Int? = null
+    }
+
+
+    private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
+        return ContextCompat.getDrawable(context, vectorResId)?.run {
+            setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+            val bitmap =
+                Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+            draw(Canvas(bitmap))
+            BitmapDescriptorFactory.fromBitmap(bitmap)
+        }
+    }
+
+    private fun setOnClickTime(time: EditText) {
+        var mcurrentTime = Calendar.getInstance()
+        val timeSetListener = TimePickerDialog.OnTimeSetListener { timePicker, hour, minute ->
+            mcurrentTime.set(Calendar.HOUR_OF_DAY, hour)
+            mcurrentTime.set(Calendar.MINUTE, minute)
+            time.setText(SimpleDateFormat("HH:mm").format(mcurrentTime.time))
+        }
+        TimePickerDialog(
+            this,
+            timeSetListener,
+            mcurrentTime.get(Calendar.HOUR_OF_DAY),
+            mcurrentTime.get(Calendar.MINUTE),
+            true
+        ).show()
+    }
+
+
+    private fun setOnClickDate(date: EditText) {
+        var mcurrentTime = Calendar.getInstance()
+        val dateSetListener = DatePickerDialog.OnDateSetListener { datePicker, year, month, day ->
+            mcurrentTime.set(Calendar.DAY_OF_MONTH, day)
+            mcurrentTime.set(Calendar.MONTH, month)
+            mcurrentTime.set(Calendar.YEAR, year)
+            date.setText(SimpleDateFormat("dd/MM/yyyy").format(mcurrentTime.time))
+        }
+        DatePickerDialog(
+            this,
+            dateSetListener,
+            mcurrentTime.get(Calendar.YEAR),
+            mcurrentTime.get(Calendar.MONTH),
+            mcurrentTime.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    fun getProvinceID(province: String): Int {
+        return provinceArrayList.indexOf(province)
+    }
+
+
+    private interface ApiServiceAddTour {
+        @POST("/tour/create")
+        fun postData(
+            @Header("Authorization") Authorization: String,
+            @Body body: JsonObject
+        ): Call<PostResponseCreateTour>
+    }
+
+    private interface ApiServiceAddStopPointToTour {
+        @POST("/tour/set-stop-points")
+        fun postData(
+            @Header("Authorization") Authorization: String,
+            @Body body: JsonObject
+        ): Call<PostResponseCreateTour>
+    }
+
+    data class PostResponseCreateTour(
+        val hostId: String,
+        val name: String,
+        val id: Int,
+        val message: myError
+    )
+
+    data class PostResponseAddSTP(
+        val tourId: String,
+        val name: String,
+        val lat: Double,
+        val long: Double,
+        val arrivalAt: Long,
+        val leaveAt: Long,
+        val minCost: Int,
+        val maxCost: Int,
+        val serviceTypeId: Int,
+        val id: Int
+    )
+
+    inner class errorlist {
+        var location: String? = null
+        var param: String? = null
+        var msg: String? = null
+    }
+
+    inner class myError {
+        var message: ArrayList<errorlist>? = null
+    }
+
+    inner class tourList {
+        var arr: ArrayList<PostResponseAddSTP>? = null
+        var message: String? = null
+    }
+
+    private interface ApiServiceAddTourStopPoint {
+        @POST("/tour/set-stop-points")
+        fun postData(
+            @Header("Authorization") Authorization: String,
+            @Body body: JsonObject
+        ): Call<tourList>
+    }
+
+    fun deleteStartEndPoint(arr: ArrayList<stopPoint>) {
+        arr.removeIf { item -> (item.type == "Start Point" || item.type == "End Point") }
+    }
+
+    fun longToDateTime(time: Long): String {
+        var zero: Long = 0
+        if (time == zero) return ""
+        var instant: Instant = Instant.ofEpochMilli(time)
+        var date: LocalDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime()
+        var formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy")
+        return date.format(formatter)
+    }
 
 }

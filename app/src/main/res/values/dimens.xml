@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!--dimes for design 3-->
     <dimen name="headerTextSize">20sp</dimen>
     <dimen name="newsMoreTextSize">12sp</dimen>
@@ -9,5 +9,10 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!-- Overriding Default Bottom Navigation sizes-->
+    <dimen name="design_bottom_navigation_text_size" tools:override="true">10sp</dimen>
+    <dimen name="design_bottom_navigation_active_text_size" tools:override="true">10sp</dimen>
+    <dimen name="design_bottom_navigation_height" tools:override="true">40dp</dimen>
 
 </resources>

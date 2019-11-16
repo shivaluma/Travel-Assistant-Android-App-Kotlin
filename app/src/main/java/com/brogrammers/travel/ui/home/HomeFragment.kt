@@ -5,21 +5,14 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ListView
-import android.widget.TextView
-import android.widget.Toast
+import android.view.*
+import android.widget.*
 import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.brogrammers.travel.LoginActivity
-import com.brogrammers.travel.NavigationBottomActivity
-import com.brogrammers.travel.R
-import com.brogrammers.travel.RegisterActivity
+import com.brogrammers.travel.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
@@ -65,7 +58,10 @@ class HomeFragment : Fragment() {
 
         val service = retrofit.create(ApiGetTours::class.java)
 
-        val call = service.getTours(token,10,1,"",false)
+        val call = service.getTours(token,10,1,"",true)
+
+
+
 
 
         call.enqueue(object : Callback<getToursResult> {
@@ -84,7 +80,7 @@ class HomeFragment : Fragment() {
                 }
                 else {
                     listTours.addAll(response.body()!!.tours)
-
+                    tourNumber.text = response.body()!!.total.toString()
                     var tourAdapter = myTourAdapter(listTours, context!!)
                     var lv : ListView = root.tourListView
                     lv.adapter = tourAdapter
@@ -92,9 +88,14 @@ class HomeFragment : Fragment() {
             }
         })
 
+        val addNewBtn = root.findViewById<FloatingActionButton>(R.id.floatingaddnew)
+        addNewBtn.setOnClickListener {
+            startActivity(Intent(activity, CreateTourActivity::class.java))
+        }
 
         return root
     }
+
 
     inner class myTourAdapter : BaseAdapter {
 
@@ -111,7 +112,9 @@ class HomeFragment : Fragment() {
             var myView = layoutInflater.inflate(R.layout.tourview, null)
             var myTour = listTourArr[position]
             myView.titleItem.text = myTour.name
-            myView.dateItem.text = (convertLongToTime(myTour.startDate!!) + " - " + convertLongToTime(myTour.endDate!!))
+            if (myTour.startDate != null && myTour.endDate != null) {
+                myView.dateItem.text = (convertLongToTime(myTour.startDate!!) + " - " + convertLongToTime(myTour.endDate!!))
+            }
             var people = ""
             if (myTour.aduls.toString() != "null") {
                 people += myTour.aduls.toString() + " adults"
