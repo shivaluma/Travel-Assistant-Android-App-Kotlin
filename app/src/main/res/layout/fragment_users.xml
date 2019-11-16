@@ -51,26 +51,17 @@
                     />
 
                 <Button style="@style/Widget.AppCompat.Button.Colored"
-                    android:id="@+id/btnLoginAccount"
-                    android:backgroundTint="@color/colorPrimaryDark"
-                    android:textColor="@color/whiteTextColor"
-                    android:layout_toLeftOf="@+id/buttonRegisterAccount"
+                    android:id="@+id/btnLogoutAccount"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:textColor="@color/white"
+                    android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Đăng nhập"
+                    android:text="LogOut"
 
                     />
-                <Button style="@style/Widget.AppCompat.Button.Colored"
-                    android:id="@+id/buttonRegisterAccount"
-                    android:backgroundTint="@color/colorPrimaryDark"
-                    android:textColor="@color/whiteTextColor"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Đăng kí"
-                    />
+
 
 
             </RelativeLayout>
