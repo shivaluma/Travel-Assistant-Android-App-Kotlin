@@ -9,6 +9,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import android.location.Address
 import android.location.Geocoder
@@ -29,6 +30,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -92,7 +96,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     lateinit var mLocationRequest: LocationRequest
 
     var mStopPointArrayList = ArrayList<stopPoint>()
-
+    var mPolyLineArrayList = ArrayList<Polyline>()
     internal var mGoogleApiClient: GoogleApiClient? = null
     internal var mCurrLocationMarker: Marker? = null
 
@@ -199,7 +203,106 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         mPlacesClient = Places.createClient(this)
         token = AutocompleteSessionToken.newInstance()
 
+        btnFloatFinish.setOnClickListener {
+            if (!hasStartPoint || !hasEndPoint) {
+                Toast.makeText(
+                    applicationContext,
+                    "No Start/Stop Point is defined",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                val sharePref: SharedPreferences =
+                    this.getSharedPreferences("logintoken", Context.MODE_PRIVATE)
+                var logintoken = sharePref.getString("token", "nnn")!!
+                var extras: Bundle = intent.extras!!
+                val jsonObject = JsonObject()
+                jsonObject.addProperty("name", extras.getString("iTourName"))
+                jsonObject.addProperty("startDate", extras.getLong("iStartDate"))
+                jsonObject.addProperty("endDate", extras.getLong("iEndDate"))
+                jsonObject.addProperty("sourceLat", LastStartPointLatLng.latitude)
+                jsonObject.addProperty("sourceLong", LastStartPointLatLng.longitude)
+                jsonObject.addProperty("destLat", LastEndPointLatLng.latitude)
+                jsonObject.addProperty("destLong", LastEndPointLatLng.longitude)
+                jsonObject.addProperty("isPrivate", extras.getBoolean("iIsPrivate"))
+                jsonObject.addProperty("adults", extras.getInt("iAdultNum"))
+                jsonObject.addProperty("childs", extras.getInt("iChildNum"))
+                jsonObject.addProperty("minCost", extras.getInt("iMinCost"))
+                jsonObject.addProperty("maxCost", extras.getInt("iMaxCost"))
+                if (!extras.getString("iImage").isNullOrEmpty()) {
+                    jsonObject.addProperty("avatar", extras.getString("iImage"))
+                }
 
+
+                val service = retrofit.create(ApiServiceAddTour::class.java)
+
+                val call = service.postData(logintoken, jsonObject)
+
+                call.enqueue(object : Callback<PostResponseCreateTour> {
+                    override fun onFailure(call: Call<PostResponseCreateTour>, t: Throwable) {
+                        Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                    }
+
+                    override fun onResponse(
+                        call: Call<PostResponseCreateTour>,
+                        response: Response<PostResponseCreateTour>
+                    ) {
+                        if (response.code() == 200) {
+                            Toast.makeText(
+                                applicationContext,
+                                "Create Tour Successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            deleteStartEndPoint(mStopPointArrayList)
+                            val stpJsonObj = JsonObject()
+                            stpJsonObj.addProperty("tourId", response.body()!!.id.toString())
+                            val arrlistJson = Gson().toJson(mStopPointArrayList)
+                            val parser = JsonParser()
+                            val jsonStopPint = parser.parse(arrlistJson)
+                            stpJsonObj.add("stopPoints", jsonStopPint)
+                            val servicestp = retrofit.create(ApiServiceAddTourStopPoint::class.java)
+                            val callstp = servicestp.postData(logintoken, stpJsonObj)
+                            callstp.enqueue(object : Callback<tourList> {
+                                override fun onFailure(call: Call<tourList>, t: Throwable) {
+                                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG)
+                                        .show()
+                                }
+
+                                override fun onResponse(
+                                    call: Call<tourList>,
+                                    response: Response<tourList>
+                                ) {
+                                    Toast.makeText(
+                                        applicationContext,
+                                        "Add Stop Point Successfully",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    Log.d("resres", response.message())
+                                    Log.d("resres", stpJsonObj.toString())
+                                }
+                            })
+                        } else {
+                            Log.d("resres", response.message())
+                            Log.d("resres", response.code().toString())
+                            Log.d("resres", response.errorBody().toString())
+
+                            try {
+                                var temp = JSONObject(response.errorBody()!!.string())
+                                Log.d("resres", temp.getString("message"))
+                            } catch (e: JSONException) {
+                                e.printStackTrace()
+                            } catch (e: IOException) {
+                                e.printStackTrace()
+                            }
+                            Toast.makeText(
+                                applicationContext,
+                                "Create Tour Error",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                })
+            }
+        }
 
         btnFloatGetListPoint.setOnClickListener {
             val inflater: LayoutInflater =
@@ -641,7 +744,19 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                     }
                     mStopPointArrayList.add(stoppint)
 
-
+                    if (mStopPointArrayList.size >= 2) {
+                        sortTheListStopPoint()
+                        for (i in mPolyLineArrayList) { i.remove() }
+                        mPolyLineArrayList.clear()
+                        for (i in 0..mStopPointArrayList.size-2) {
+                            var line: Polyline = googleMap.addPolyline(PolylineOptions()
+                                .add(LatLng(mStopPointArrayList[i].lat!!,mStopPointArrayList[i].long!!),LatLng(mStopPointArrayList[i+1].lat!!,mStopPointArrayList[i+1].long!!))
+                                .width(5.0f)
+                                .color(Color.RED))
+                            mPolyLineArrayList.add(line)
+                        }
+                    }
+                    
                     // Dismiss the popup window
                     popupWindow.dismiss()
                 }
@@ -699,15 +814,15 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onProviderEnabled(provider: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onProviderDisabled(provider: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onConnected(p0: Bundle?) {
@@ -725,11 +840,11 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     }
 
     override fun onConnectionSuspended(p0: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onConnectionFailed(p0: ConnectionResult) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //To change body of created functions use File | Settings | File Templates.
     }
 
     fun searchLocation(location: String) {
@@ -941,4 +1056,26 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         return date.format(formatter)
     }
 
+    fun sortTheListStopPoint() {
+
+        var startPoint = stopPoint()
+        var endPoint = stopPoint()
+        var hasStart = false
+        var hasEnd = false
+        for (i in mStopPointArrayList) {
+            if (i.type == "Start Point") {
+                startPoint = i
+                hasStart = true
+            }
+            if (i.type == "End Point") {
+                endPoint = i
+                hasEnd = true
+            }
+        }
+
+        deleteStartEndPoint(mStopPointArrayList)
+        if (hasStart) mStopPointArrayList.add(0,startPoint)
+
+        if (hasEnd) mStopPointArrayList.add(endPoint)
+    }
 }
