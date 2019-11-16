@@ -67,7 +67,11 @@ GoogleApiClient.OnConnectionFailedListener {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
         val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
-        val editor = sharePref.edit()
+        val apptoken = sharePref.getString("token", "notoken")
+        if (apptoken != "notoken") {
+            startActivity(Intent(applicationContext,NavigationBottomActivity::class.java))
+            finish()
+        }
         setContentView(R.layout.activity_login)
         LoginManager.getInstance().logOut()
         btnLogin.setOnClickListener {
@@ -89,6 +93,7 @@ GoogleApiClient.OnConnectionFailedListener {
             val jsonObject = JsonObject()
             jsonObject.addProperty("emailPhone", emailPhone)
             jsonObject.addProperty("password", password)
+
 
 
             val service = retrofit.create(ApiServiceLogin::class.java)
