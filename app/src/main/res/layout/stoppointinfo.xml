@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:padding="10dp"
+    android:layout_margin="10dp"
+    android:background="@drawable/rowborder"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/namestppoint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name : "
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/namestppoint"
+            android:text="Quang Ngai Da Best"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:id="@+id/showSTPName"
+            android:textSize="16sp"
+            />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/typestppoint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Type : "
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/typestppoint"
+            android:text="First Point"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:id="@+id/showSTPType"
+            android:textSize="16sp"
+            />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/addrstppoint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Addr : "
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/addrstppoint"
+            android:text="Quang Ngai"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:id="@+id/showSTPAddr"
+            android:textSize="16sp"
+            />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/province"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Province : "
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/province"
+            android:text="Quang Ngai"
+            android:textColor="@color/white"
+            android:paddingRight="5dp"
+            android:textStyle="bold"
+            android:id="@+id/showProvince"
+            android:textSize="16sp"
+            />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/arriveat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Arrive : "
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/arriveat"
+            android:text=""
+            android:textColor="@color/white"
+            android:paddingRight="5dp"
+            android:textStyle="bold"
+            android:id="@+id/showArrive"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/leaveat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Leave : "
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/leaveat"
+            android:text=""
+            android:textColor="@color/white"
+            android:paddingRight="5dp"
+            android:textStyle="bold"
+            android:id="@+id/showLeave"
+            android:textSize="16sp"
+            />
+    </RelativeLayout>
+
+
+</LinearLayout>

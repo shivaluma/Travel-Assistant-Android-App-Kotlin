@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_margin="20dp"
+    android:padding="10dp"
+    android:orientation="vertical"
+    android:background="@drawable/imageborder"
+    android:layout_height="wrap_content">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageButton
+            android:id="@+id/btnCloseStopPointList"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_close_black_24dp"
+            android:background="@null"
+            android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/stplv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minWidth="310dp"
+        android:padding="10dp"
+        android:background="@drawable/imageborder"
+        android:orientation="vertical">
+    </ListView>
+</LinearLayout>
+
