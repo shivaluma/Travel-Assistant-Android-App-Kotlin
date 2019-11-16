@@ -65,6 +65,19 @@
 
 
         </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.mancj.materialsearchbar.MaterialSearchBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:mt_placeholder="Search for Tours"
+                android:background="@null"
+                app:mt_navIconEnabled="true"/>
+        </RelativeLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
