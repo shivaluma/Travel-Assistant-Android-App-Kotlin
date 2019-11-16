@@ -107,10 +107,7 @@ class CreateTourActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         if (requestCode == GALLERY_REQUEST_CODE) {
-            if (data == null) {
-
-            }
-            else {
+            if (data != null) {
                 val selectedImage = data!!.data
                 image_view.setImageURI(selectedImage)
                 val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, selectedImage)
