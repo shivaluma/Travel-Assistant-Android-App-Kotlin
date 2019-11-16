@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/root_layout"
+    tools:context=".GetCoordinateActivity">
+
+
+    <fragment
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:name="com.google.android.gms.maps.SupportMapFragment"/>
+
+    <com.mancj.materialsearchbar.MaterialSearchBar
+        style="@style/MaterialSearchBarLight"
+
+        app:mt_speechMode="false"
+        app:mt_hint="Đại học KHTN"
+        app:mt_maxSuggestionsCount="6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:id="@+id/searchMapBar"
+        android:elevation="5dp"
+        android:outlineProvider="bounds"
+        app:mt_placeholder="Tìm địa điểm.."/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="20dp"
+        android:src="@drawable/ic_check_black_24dp"
+        android:clickable="true"
+        android:id="@+id/btnFloatFinish"
+        />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="100dp"
+        android:src="@drawable/ic_view_list_black_24dp"
+        android:clickable="true"
+
+        android:id="@+id/btnFloatGetListPoint"
+        />
+
+</RelativeLayout>
