@@ -58,9 +58,7 @@ class HomeFragment : Fragment() {
 
         val service = retrofit.create(ApiGetTours::class.java)
 
-        val call = service.getTours(token,10,1,"",true)
-
-
+        val call = service.getTours(token,20,1,"createdOn",true)
 
 
 

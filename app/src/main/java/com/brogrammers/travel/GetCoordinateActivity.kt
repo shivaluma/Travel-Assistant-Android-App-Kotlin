@@ -271,13 +271,26 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                                     call: Call<tourList>,
                                     response: Response<tourList>
                                 ) {
-                                    Toast.makeText(
-                                        applicationContext,
-                                        "Add Stop Point Successfully",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    Log.d("resres", response.message())
-                                    Log.d("resres", stpJsonObj.toString())
+                                    if (response.code() == 200) {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Add Stop Point Successfully",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        Log.d("resres", response.message())
+                                        Log.d("resres", stpJsonObj.toString())
+                                        val intent = Intent(applicationContext, NavigationBottomActivity::class.java)
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        startActivity(intent)
+                                        finish()
+                                    }
+                                    else {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            response.message().toString(),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
                             })
                         } else {

@@ -57,7 +57,7 @@ class HistoryFragment : Fragment() {
         val sharePref : SharedPreferences = this.activity!!.getSharedPreferences("logintoken", Context.MODE_PRIVATE)
         token = sharePref.getString("token", "nnn")!!
         val service = retrofit.create(ApiGetTours::class.java)
-        val call = service.getTours(token,1,"10")
+        val call = service.getTours(token,1,"100")
 
         call.enqueue(object : Callback<getToursResult> {
             override fun onFailure(call: Call<getToursResult>, t: Throwable) {
