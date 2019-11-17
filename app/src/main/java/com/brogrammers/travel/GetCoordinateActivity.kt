@@ -207,7 +207,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             if (!hasStartPoint || !hasEndPoint) {
                 Toast.makeText(
                     applicationContext,
-                    "No Start/Stop Point is defined",
+                    "No Start/End Point is defined",
                     Toast.LENGTH_LONG
                 ).show()
             } else {
@@ -247,11 +247,15 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                         response: Response<PostResponseCreateTour>
                     ) {
                         if (response.code() == 200) {
+                            Log.d("resres", "Add tour")
+                            Log.d("resres", response.code().toString() + response.message())
+                            Log.d("resres", response.body().toString())
                             Toast.makeText(
                                 applicationContext,
                                 "Create Tour Successfully",
                                 Toast.LENGTH_SHORT
                             ).show()
+
                             deleteStartEndPoint(mStopPointArrayList)
                             val stpJsonObj = JsonObject()
                             stpJsonObj.addProperty("tourId", response.body()!!.id.toString())
@@ -277,8 +281,10 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                                             "Add Stop Point Successfully",
                                             Toast.LENGTH_SHORT
                                         ).show()
-                                        Log.d("resres", response.message())
+                                        Log.d("resres", "Add stop point")
+                                        Log.d("resres", response.code().toString() + response.message())
                                         Log.d("resres", stpJsonObj.toString())
+                                        Log.d("resres", response.body().toString())
                                         val intent = Intent(applicationContext, NavigationBottomActivity::class.java)
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                                         startActivity(intent)
@@ -1043,10 +1049,10 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         var message: ArrayList<errorlist>? = null
     }
 
-    inner class tourList {
-        var arr: ArrayList<PostResponseAddSTP>? = null
-        var message: String? = null
-    }
+    data class tourList (
+        var arr: ArrayList<PostResponseAddSTP>,
+        var message: String
+    )
 
     private interface ApiServiceAddTourStopPoint {
         @POST("/tour/set-stop-points")
