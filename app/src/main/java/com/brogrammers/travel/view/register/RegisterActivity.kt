@@ -1,33 +1,26 @@
 package com.brogrammers.travel
 
+
 import android.app.Activity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.brogrammers.travel.network.model.ApiServiceRegister
+import com.brogrammers.travel.network.model.WebAccess
 import com.google.gson.Gson
-import kotlinx.android.synthetic.main.layout_login.*
-import kotlinx.android.synthetic.main.layout_register.*
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
-
-
-import retrofit2.http.POST
-import retrofit2.http.Body
-import retrofit2.converter.gson.GsonConverterFactory
-
-import retrofit2.*
-
-
-
+import kotlinx.android.synthetic.main.layout_register.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class RegisterActivity : AppCompatActivity() {
 
-    private val BASE_URL = "http://35.197.153.192:3000"
-    private var responseCode = 404
+
     private var phone = ""
     private var email = ""
     private var password = ""
@@ -64,60 +57,64 @@ class RegisterActivity : AppCompatActivity() {
             jsonObject.addProperty("email", email)
             jsonObject.addProperty("password", password)
 
-            val retrofit = Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
 
-            val service = retrofit.create(ApiService::class.java)
+            val service = WebAccess.retrofit.create(ApiServiceRegister::class.java)
 
             val call = service.postData(jsonObject)
 
-            call.enqueue(object : Callback<PostResponse> {
-                override fun onFailure(call: Call<PostResponse>, t: Throwable) {
-                    Toast.makeText(getApplicationContext(), t.message, Toast.LENGTH_LONG).show()
+            call.enqueue(object : Callback<ResponseRegister> {
+                override fun onFailure(call: Call<ResponseRegister>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
                 }
 
                 override fun onResponse(
-                    call: Call<PostResponse>,
-                    response: Response<PostResponse>
+                    call: Call<ResponseRegister>,
+                    response: Response<ResponseRegister>
                 ) {
-                    responseCode = response.code()
+                    val responseCode = response.code()
                     if (responseCode == 200) {
-                        Toast.makeText(getApplicationContext(), "Đăng ký thành công. Hãy đăng nhập.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            applicationContext,
+                            "Đăng ký thành công. Hãy đăng nhập.",
+                            Toast.LENGTH_LONG
+                        ).show()
                         val data = Intent()
                         data.putExtra("usrname", phone)
                         data.putExtra("passwrd", password)
-                        setResult(Activity.RESULT_OK,data)
+                        setResult(Activity.RESULT_OK, data)
                         finish()
-                    }
-                    else if (responseCode == 400) {
+                    } else if (responseCode == 400) {
                         Toast.makeText(
-                            getApplicationContext(),
+                            applicationContext,
                             "Thông tin không hợp lệ.",
                             Toast.LENGTH_LONG
                         ).show()
                         val gson = Gson()
-                        val type = object : TypeToken<PostResponse>() {}.type
-                        val errorResponse: PostResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
+                        val type = object : TypeToken<ResponseRegister>() {}.type
+                        val errorResponse: ResponseRegister? =
+                            gson.fromJson(response.errorBody()!!.charStream(), type)
                         val errorCount = errorResponse!!.error
-                        val errorList : ArrayList<message> = errorResponse.message
+                        val errorList: ArrayList<message> = errorResponse.message
 
                         if (errorCount > 0) {
                             for (msg in errorList) {
                                 if (msg.param.toString() == "email") {
-                                    textregisterEmail.error = msg.msg.toString()
-                                }
-                                else if (msg.param.toString() == "phone") {
+                                    textregisterEmail.error = msg.msg
+                                } else if (msg.param.toString() == "phone") {
 
-                                    textregisterPhone.error = msg.msg.toString()
-                                }
-                                else if (msg.param.toString() == "password") {
+                                    textregisterPhone.error = msg.msg
+                                } else if (msg.param.toString() == "password") {
 
-                                    textregisterPassword.error = msg.msg.toString()
+                                    textregisterPassword.error = msg.msg
                                 }
                             }
                         }
+                    } else {
+                        Toast.makeText(
+                            applicationContext,
+                            "Co loi xay ra tu API.",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
             })
@@ -134,20 +131,4 @@ class RegisterActivity : AppCompatActivity() {
     fun alreadyHaveAccount(view: View) {
         finish()
     }
-
-    private interface ApiService {
-        @POST("/user/register")
-        fun postData(
-            @Body body: JsonObject
-        ): Call<PostResponse>
-    }
-
-    inner class message {
-        var location:String ?= null
-        var param:String ?= null
-        var msg:String ?= null
-        var value:String ?= null
-    }
-
-    data class PostResponse(val error:Int, val message:ArrayList<message>)
 }

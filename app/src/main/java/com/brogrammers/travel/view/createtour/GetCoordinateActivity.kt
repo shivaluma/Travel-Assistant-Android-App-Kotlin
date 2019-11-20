@@ -5,7 +5,6 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -16,33 +15,35 @@ import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.transition.Slide
 import android.transition.TransitionManager
-import android.util.Base64
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.android.volley.Request
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
+import com.brogrammers.travel.manager.Constant
+import com.brogrammers.travel.network.model.ApiServiceAddStopPointToTour
+import com.brogrammers.travel.network.model.ApiServiceCreateTour
+import com.brogrammers.travel.network.model.WebAccess
+import com.brogrammers.travel.util.util
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.*
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.tasks.Task
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
@@ -50,32 +51,20 @@ import com.google.android.libraries.places.api.model.TypeFilter
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.gson.Gson
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.jaredrummler.materialspinner.MaterialSpinner
 import com.mancj.materialsearchbar.MaterialSearchBar
 import kotlinx.android.synthetic.main.activity_get_coordinate.*
-import kotlinx.android.synthetic.main.stoppoint.*
-import kotlinx.android.synthetic.main.stoppoint.view.*
 import kotlinx.android.synthetic.main.stoppointinfo.view.*
 import org.json.JSONException
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.Header
-import retrofit2.http.POST
 import java.io.IOException
-import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -104,102 +93,20 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
     var hasStartPoint = false
     var hasEndPoint = false
-    var StartPointPos = -1
-    var EndPointPos = -1
     lateinit var LastStartPointLatLng: LatLng
     lateinit var LastEndPointLatLng: LatLng
     lateinit var LastStartMarker: Marker
     lateinit var LastEndMarker: Marker
-    val BASE_URL = "http://35.197.153.192:3000"
-    var provinceArrayList = ArrayList<String>()
-    val retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_get_coordinate)
-
         supportActionBar!!.hide()
-
-
-
-        provinceArrayList.addAll(
-            arrayOf(
-                "Hồ Chí Minh",
-                "Hà Nội",
-                "Đà Nẵng",
-                "Bình Dương",
-                "Đồng Nai",
-                "Khánh Hòa",
-                "Hải Phòng",
-                "Long An",
-                "Quảng Nam",
-                "Bà Rịa Vũng Tàu",
-                "Đắk Lắk",
-                "Cần Thơ",
-                "Bình Thuận  ",
-                "Lâm Đồng",
-                "Thừa Thiên Huế",
-                "Kiên Giang",
-                "Bắc Ninh",
-                "Quảng Ninh",
-                "Thanh Hóa",
-                "Nghệ An",
-                "Hải Dương",
-                "Gia Lai",
-                "Bình Phước",
-                "Hưng Yên",
-                "Bình Định",
-                "Tiền Giang",
-                "Thái Bình",
-                "Bắc Giang",
-                "Hòa Bình",
-                "An Giang",
-                "Vĩnh Phúc",
-                "Tây Ninh",
-                "Thái Nguyên",
-                "Lào Cai",
-                "Nam Định",
-                "Quảng Ngãi",
-                "Bến Tre",
-                "Đắk Nông",
-                "Cà Mau",
-                "Vĩnh Long",
-                "Ninh Bình",
-                "Phú Thọ",
-                "Ninh Thuận",
-                "Phú Yên",
-                "Hà Nam",
-                "Hà Tĩnh",
-                "Đồng Tháp",
-                "Sóc Trăng",
-                "Kon Tum",
-                "Quảng Bình",
-                "Quảng Trị",
-                "Trà Vinh",
-                "Hậu Giang",
-                "Sơn La",
-                "Bạc Liêu",
-                "Yên Bái",
-                "Tuyên Quang",
-                "Điện Biên",
-                "Lai Châu",
-                "Lạng Sơn",
-                "Hà Giang",
-                "Bắc Kạn",
-                "Cao Bằng"
-            )
-        )
-
-
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        Places.initialize(this, "AIzaSyBoa_7qIh5KKyAt4oqVFcs7dTTH-Vc534E")
+        Places.initialize(this, Constant.ggMapApiKey)
         mPlacesClient = Places.createClient(this)
         token = AutocompleteSessionToken.newInstance()
 
@@ -214,6 +121,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 val sharePref: SharedPreferences =
                     this.getSharedPreferences("logintoken", Context.MODE_PRIVATE)
                 var logintoken = sharePref.getString("token", "nnn")!!
+
                 var extras: Bundle = intent.extras!!
                 val jsonObject = JsonObject()
                 jsonObject.addProperty("name", extras.getString("iTourName"))
@@ -233,18 +141,18 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 }
 
 
-                val service = retrofit.create(ApiServiceAddTour::class.java)
+                val service = WebAccess.retrofit.create(ApiServiceCreateTour::class.java)
 
                 val call = service.postData(logintoken, jsonObject)
 
-                call.enqueue(object : Callback<PostResponseCreateTour> {
-                    override fun onFailure(call: Call<PostResponseCreateTour>, t: Throwable) {
+                call.enqueue(object : Callback<ResponseCreateTour> {
+                    override fun onFailure(call: Call<ResponseCreateTour>, t: Throwable) {
                         Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
                     }
 
                     override fun onResponse(
-                        call: Call<PostResponseCreateTour>,
-                        response: Response<PostResponseCreateTour>
+                        call: Call<ResponseCreateTour>,
+                        response: Response<ResponseCreateTour>
                     ) {
                         if (response.code() == 200) {
                             Log.d("resres", "Add tour")
@@ -263,17 +171,21 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                             val parser = JsonParser()
                             val jsonStopPint = parser.parse(arrlistJson)
                             stpJsonObj.add("stopPoints", jsonStopPint)
-                            val servicestp = retrofit.create(ApiServiceAddTourStopPoint::class.java)
+                            val servicestp =
+                                WebAccess.retrofit.create(ApiServiceAddStopPointToTour::class.java)
                             val callstp = servicestp.postData(logintoken, stpJsonObj)
-                            callstp.enqueue(object : Callback<tourList> {
-                                override fun onFailure(call: Call<tourList>, t: Throwable) {
+                            callstp.enqueue(object : Callback<ResponseAddStopPoint> {
+                                override fun onFailure(
+                                    call: Call<ResponseAddStopPoint>,
+                                    t: Throwable
+                                ) {
                                     Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG)
                                         .show()
                                 }
 
                                 override fun onResponse(
-                                    call: Call<tourList>,
-                                    response: Response<tourList>
+                                    call: Call<ResponseAddStopPoint>,
+                                    response: Response<ResponseAddStopPoint>
                                 ) {
                                     if (response.code() == 200) {
                                         Toast.makeText(
@@ -282,15 +194,20 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                                             Toast.LENGTH_SHORT
                                         ).show()
                                         Log.d("resres", "Add stop point")
-                                        Log.d("resres", response.code().toString() + response.message())
+                                        Log.d(
+                                            "resres",
+                                            response.code().toString() + response.message()
+                                        )
                                         Log.d("resres", stpJsonObj.toString())
                                         Log.d("resres", response.body().toString())
-                                        val intent = Intent(applicationContext, NavigationBottomActivity::class.java)
+                                        val intent = Intent(
+                                            applicationContext,
+                                            NavigationBottomActivity::class.java
+                                        )
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                                         startActivity(intent)
                                         finish()
-                                    }
-                                    else {
+                                    } else {
                                         Toast.makeText(
                                             applicationContext,
                                             response.message().toString(),
@@ -428,25 +345,25 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                         .build()
                 mPlacesClient.findAutocompletePredictions(predictionsRequest)
                     .addOnCompleteListener { task ->
-                        if (task.isSuccessful()) {
+                        if (task.isSuccessful) {
                             var predictionsResponse: FindAutocompletePredictionsResponse =
-                                task.getResult()!!
+                                task.result!!
                             if (predictionsResponse != null) {
                                 mListAutoCompletePredition =
-                                    predictionsResponse.getAutocompletePredictions()
+                                    predictionsResponse.autocompletePredictions
                                 var suggestionsList = ArrayList<String>()
                                 for (i in 0 until mListAutoCompletePredition.size - 1) {
                                     var prediction: AutocompletePrediction =
                                         mListAutoCompletePredition.get(i)
-                                    suggestionsList.add(prediction.getFullText(null).toString());
+                                    suggestionsList.add(prediction.getFullText(null).toString())
                                 }
                                 searchMapBar.updateLastSuggestions(suggestionsList)
-                                if (!searchMapBar.isSuggestionsVisible()) {
+                                if (!searchMapBar.isSuggestionsVisible) {
                                     searchMapBar.showSuggestionsList()
                                 }
                             }
                         } else {
-                            Log.i("mytag", "prediction fetching task unsuccessful");
+                            Log.i("mytag", "prediction fetching task unsuccessful")
                         }
                     }
             }
@@ -468,11 +385,11 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
                 buildGoogleApiClient()
-                googleMap!!.isMyLocationEnabled = true
+                googleMap.isMyLocationEnabled = true
             }
         } else {
             buildGoogleApiClient()
-            googleMap!!.isMyLocationEnabled = true
+            googleMap.isMyLocationEnabled = true
         }
 
         googleMap.setOnMapClickListener {
@@ -559,12 +476,12 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
             var timeArrive = view.findViewById<EditText>(R.id.editTimeArrive)
             timeArrive.setOnClickListener {
-                setOnClickTime(timeArrive)
+                util.setOnClickTime(timeArrive,this)
             }
 
             var timeLeave = view.findViewById<EditText>(R.id.editTimeLeave)
             timeLeave.setOnClickListener {
-                setOnClickTime(timeLeave)
+                util.setOnClickTime(timeLeave, this)
             }
 
             var dateArrive = view.findViewById<EditText>(R.id.editDateArrive)
@@ -572,11 +489,11 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
 
             dateArrive.setOnClickListener {
-                setOnClickDate(dateArrive)
+                util.setOnClickDate(dateArrive, this)
             }
 
             dateLeave.setOnClickListener {
-                setOnClickDate(dateLeave)
+                util.setOnClickDate(dateLeave, this)
             }
 
 
@@ -630,49 +547,40 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 if (namefield.text.isNullOrEmpty()) {
                     namefield.error = "Required*"
                     namefield.requestFocus()
-                }
-                else if (addressfield.text.isNullOrEmpty()) {
+                } else if (addressfield.text.isNullOrEmpty()) {
                     addressfield.requestFocus()
                     addressfield.error = "Required*"
-                }
-                else if (timearrfield.text.isNullOrEmpty()) {
+                } else if (timearrfield.text.isNullOrEmpty()) {
                     timearrfield.error = "Required*"
                     timearrfield.requestFocus()
-                }
-                else if (datearrfield.text.isNullOrEmpty()) {
+                } else if (datearrfield.text.isNullOrEmpty()) {
                     datearrfield.error = "Required*"
                     datearrfield.requestFocus()
-                }
-                else if (timeleavefield.text.isNullOrEmpty()) {
+                } else if (timeleavefield.text.isNullOrEmpty()) {
                     timeleavefield.error = "Required*"
                     timeleavefield.requestFocus()
-                }
-                else if (dateleavefield.text.isNullOrEmpty()) {
+                } else if (dateleavefield.text.isNullOrEmpty()) {
                     dateleavefield.error = "Required*"
                     dateleavefield.requestFocus()
-                }
-                else {
-                    stoppint.name = view.findViewById<EditText>(R.id.editStopPointName).text.toString()
+                } else {
+                    stoppint.name =
+                        view.findViewById<EditText>(R.id.editStopPointName).text.toString()
                     stoppint.address = view.findViewById<EditText>(R.id.editAddress).text.toString()
                     val type = view.findViewById<MaterialSpinner>(R.id.spinnerType).text.toString()
                     stoppint.type = type
                     stoppint.lat = latlng.latitude
                     stoppint.long = latlng.longitude
-                    val timeArrive = view.findViewById<EditText>(R.id.editTimeArrive).text.toString()
-                    val dateArrive = view.findViewById<EditText>(R.id.editDateArrive).text.toString()
+                    val timeArrive =
+                        view.findViewById<EditText>(R.id.editTimeArrive).text.toString()
+                    val dateArrive =
+                        view.findViewById<EditText>(R.id.editDateArrive).text.toString()
                     val timeLeave = view.findViewById<EditText>(R.id.editTimeLeave).text.toString()
                     val dateLeave = view.findViewById<EditText>(R.id.editDateLeave).text.toString()
                     var arriveTime: Long = 0
                     var leaveTime: Long = 0
                     if (timeArrive.isNotEmpty() && dateArrive.isNotEmpty()) {
-                        arriveTime = LocalDateTime.parse(
-                            timeArrive + " " + dateArrive,
-                            DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy")
-                        ).toInstant(ZoneOffset.ofTotalSeconds(0)).toEpochMilli()
-                        leaveTime = LocalDateTime.parse(
-                            timeLeave + " " + dateLeave,
-                            DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy")
-                        ).toInstant(ZoneOffset.ofTotalSeconds(0)).toEpochMilli()
+                        arriveTime = util.datetimeToLong(timeArrive + " " + dateArrive)
+                        leaveTime = util.datetimeToLong(timeLeave + " " + dateLeave)
                     }
                     stoppint.arrivalAt = arriveTime
                     stoppint.leaveAt = leaveTime
@@ -686,106 +594,77 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                     if (maxCostStr.isNotEmpty()) {
                         stoppint.maxCost = maxCostStr.toInt()
                     }
-
-
                     val province =
                         view.findViewById<MaterialSpinner>(R.id.spinnerProvince).text.toString()
-                    stoppint.provinceID = getProvinceID(province)
+                    stoppint.provinceID = util.getProvinceID(province)
                     if (type == "Start Point") {
                         if (hasStartPoint) {
-                            mStopPointArrayList.removeAt(StartPointPos)
+                            mStopPointArrayList.removeAt(0)
                             LastStartMarker.remove()
                         }
 
-                        LastStartMarker = googleMap.addMarker(
-                            MarkerOptions()
-                                .position(latlng)
-                                .icon(bitmapDescriptorFromVector(this, R.drawable.ic_startpoint))
-                                .title(stoppint.name)
-                        )
-                        StartPointPos = mStopPointArrayList.size
+                        LastStartMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_startpoint)
+
                         LastStartPointLatLng = latlng
                         hasStartPoint = true
                     } else if (type == "End Point") {
                         if (hasEndPoint) {
-                            mStopPointArrayList.removeAt(EndPointPos)
+                            mStopPointArrayList.removeAt(mStopPointArrayList.size - 1)
                             LastEndMarker.remove()
                         }
-                        LastEndMarker = googleMap.addMarker(
-                            MarkerOptions()
-                                .position(latlng)
-                                .icon(bitmapDescriptorFromVector(this, R.drawable.ic_endpoint))
-                                .title(stoppint.name)
-                        )
-                        EndPointPos = mStopPointArrayList.size
+                        LastEndMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_endpoint)
                         LastEndPointLatLng = latlng
                         hasEndPoint = true
                     } else if (type == "Restaurant") {
-                        googleMap.addMarker(
-                            MarkerOptions()
-                                .position(latlng)
-                                .icon(bitmapDescriptorFromVector(this, R.drawable.ic_food))
-                                .title(stoppint.name)
-                        )
+                        addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_restaurant)
                         stoppint.serviceTypeId = 1
                     } else if (type == "Hotel") {
-                        googleMap.addMarker(
-                            MarkerOptions()
-                                .position(latlng)
-                                .icon(bitmapDescriptorFromVector(this, R.drawable.ic_hotel))
-                                .title(stoppint.name)
-                        )
+                        addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_hotel)
                         stoppint.serviceTypeId = 2
                     } else if (type == "Rest Station") {
-                        googleMap.addMarker(
-                            MarkerOptions()
-                                .position(latlng)
-                                .icon(bitmapDescriptorFromVector(this, R.drawable.ic_bedtime))
-                                .title(stoppint.name)
-                        )
+                        addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_bedtime)
                         stoppint.serviceTypeId = 3
                     } else if (type == "Others") {
-                        googleMap.addMarker(
-                            MarkerOptions()
-                                .position(latlng)
-                                .icon(bitmapDescriptorFromVector(this, R.drawable.ic_pin))
-                                .title(stoppint.name)
-                        )
+                        addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_pin)
                         stoppint.serviceTypeId = 4
                     } else {
-                        googleMap.addMarker(
-                            MarkerOptions()
-                                .position(latlng)
-                                .icon(bitmapDescriptorFromVector(this, R.drawable.ic_pin))
-                                .title(stoppint.name)
-                        )
+                        addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_pin)
                         stoppint.serviceTypeId = 4
                     }
                     mStopPointArrayList.add(stoppint)
 
                     if (mStopPointArrayList.size >= 2) {
                         sortTheListStopPoint()
-                        for (i in mPolyLineArrayList) { i.remove() }
+                        for (i in mPolyLineArrayList) {
+                            i.remove()
+                        }
                         mPolyLineArrayList.clear()
-                        for (i in 0..mStopPointArrayList.size-2) {
-                            var line: Polyline = googleMap.addPolyline(PolylineOptions()
-                                .add(LatLng(mStopPointArrayList[i].lat!!,mStopPointArrayList[i].long!!),LatLng(mStopPointArrayList[i+1].lat!!,mStopPointArrayList[i+1].long!!))
-                                .width(5.0f)
-                                .color(Color.RED))
+                        for (i in 0..mStopPointArrayList.size - 2) {
+                            var line: Polyline = googleMap.addPolyline(
+                                PolylineOptions()
+                                    .add(
+                                        LatLng(
+                                            mStopPointArrayList[i].lat!!,
+                                            mStopPointArrayList[i].long!!
+                                        ),
+                                        LatLng(
+                                            mStopPointArrayList[i + 1].lat!!,
+                                            mStopPointArrayList[i + 1].long!!
+                                        )
+                                    )
+                                    .width(5.0f)
+                                    .color(Color.RED)
+                            )
                             mPolyLineArrayList.add(line)
                         }
                     }
-                    
+
                     // Dismiss the popup window
                     popupWindow.dismiss()
                 }
 
 
-
-
-
             }
-
 
 
             // Finally, show the popup window on app
@@ -915,12 +794,12 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             myView.showSTPName.text = myStopPint.name
             myView.showSTPType.text = myStopPint.type
             myView.showSTPAddr.text = myStopPint.address
-            myView.showProvince.text = provinceArrayList.get(myStopPint.provinceID!!)
+            myView.showProvince.text = Constant.provinceList.get(myStopPint.provinceID!!)
             if (!myStopPint.arrivalAt.toString().isNullOrEmpty()) {
-                myView.showArrive.text = longToDateTime(myStopPint.arrivalAt!!)
+                myView.showArrive.text = util.longToDateTime(myStopPint.arrivalAt!!)
             }
             if (!myStopPint.leaveAt.toString().isNullOrEmpty()) {
-                myView.showLeave.text = longToDateTime(myStopPint.leaveAt!!)
+                myView.showLeave.text = util.longToDateTime(myStopPint.leaveAt!!)
             }
             return myView
         }
@@ -964,119 +843,25 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         }
     }
 
-    private fun setOnClickTime(time: EditText) {
-        var mcurrentTime = Calendar.getInstance()
-        val timeSetListener = TimePickerDialog.OnTimeSetListener { timePicker, hour, minute ->
-            mcurrentTime.set(Calendar.HOUR_OF_DAY, hour)
-            mcurrentTime.set(Calendar.MINUTE, minute)
-            time.setText(SimpleDateFormat("HH:mm").format(mcurrentTime.time))
-        }
-        TimePickerDialog(
-            this,
-            timeSetListener,
-            mcurrentTime.get(Calendar.HOUR_OF_DAY),
-            mcurrentTime.get(Calendar.MINUTE),
-            true
-        ).show()
+
+    fun addMarker(ggMap : GoogleMap, pos : LatLng, name: String, drawable: Int): Marker {
+        return ggMap.addMarker(
+            MarkerOptions()
+                .position(pos)
+                .icon(bitmapDescriptorFromVector(this, drawable))
+                .title(name)
+        )
     }
 
 
-    private fun setOnClickDate(date: EditText) {
-        var mcurrentTime = Calendar.getInstance()
-        val dateSetListener = DatePickerDialog.OnDateSetListener { datePicker, year, month, day ->
-            mcurrentTime.set(Calendar.DAY_OF_MONTH, day)
-            mcurrentTime.set(Calendar.MONTH, month)
-            mcurrentTime.set(Calendar.YEAR, year)
-            date.setText(SimpleDateFormat("dd/MM/yyyy").format(mcurrentTime.time))
-        }
-        DatePickerDialog(
-            this,
-            dateSetListener,
-            mcurrentTime.get(Calendar.YEAR),
-            mcurrentTime.get(Calendar.MONTH),
-            mcurrentTime.get(Calendar.DAY_OF_MONTH)
-        ).show()
-    }
 
-    fun getProvinceID(province: String): Int {
-        return provinceArrayList.indexOf(province)
-    }
-
-
-    private interface ApiServiceAddTour {
-        @POST("/tour/create")
-        fun postData(
-            @Header("Authorization") Authorization: String,
-            @Body body: JsonObject
-        ): Call<PostResponseCreateTour>
-    }
-
-    private interface ApiServiceAddStopPointToTour {
-        @POST("/tour/set-stop-points")
-        fun postData(
-            @Header("Authorization") Authorization: String,
-            @Body body: JsonObject
-        ): Call<PostResponseCreateTour>
-    }
-
-    data class PostResponseCreateTour(
-        val hostId: String,
-        val name: String,
-        val id: Int,
-        val message: myError
-    )
-
-    data class PostResponseAddSTP(
-        val tourId: String,
-        val name: String,
-        val lat: Double,
-        val long: Double,
-        val arrivalAt: Long,
-        val leaveAt: Long,
-        val minCost: Int,
-        val maxCost: Int,
-        val serviceTypeId: Int,
-        val id: Int
-    )
-
-    inner class errorlist {
-        var location: String? = null
-        var param: String? = null
-        var msg: String? = null
-    }
-
-    inner class myError {
-        var message: ArrayList<errorlist>? = null
-    }
-
-    data class tourList (
-        var arr: ArrayList<PostResponseAddSTP>,
-        var message: String
-    )
-
-    private interface ApiServiceAddTourStopPoint {
-        @POST("/tour/set-stop-points")
-        fun postData(
-            @Header("Authorization") Authorization: String,
-            @Body body: JsonObject
-        ): Call<tourList>
-    }
 
     fun deleteStartEndPoint(arr: ArrayList<stopPoint>) {
         arr.removeIf { item -> (item.type == "Start Point" || item.type == "End Point") }
     }
 
-    fun longToDateTime(time: Long): String {
-        var zero: Long = 0
-        if (time == zero) return ""
-        var instant: Instant = Instant.ofEpochMilli(time)
-        var date: LocalDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime()
-        var formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy")
-        return date.format(formatter)
-    }
 
     fun sortTheListStopPoint() {
-
         var startPoint = stopPoint()
         var endPoint = stopPoint()
         var hasStart = false
@@ -1093,7 +878,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         }
 
         deleteStartEndPoint(mStopPointArrayList)
-        if (hasStart) mStopPointArrayList.add(0,startPoint)
+        if (hasStart) mStopPointArrayList.add(0, startPoint)
 
         if (hasEnd) mStopPointArrayList.add(endPoint)
     }
