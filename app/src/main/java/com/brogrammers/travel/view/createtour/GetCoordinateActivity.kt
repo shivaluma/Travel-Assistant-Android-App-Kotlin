@@ -602,9 +602,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                             mStopPointArrayList.removeAt(0)
                             LastStartMarker.remove()
                         }
-
                         LastStartMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_startpoint)
-
                         LastStartPointLatLng = latlng
                         hasStartPoint = true
                     } else if (type == "End Point") {

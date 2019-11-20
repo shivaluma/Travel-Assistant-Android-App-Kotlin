@@ -6,13 +6,14 @@
     android:orientation="vertical"
     android:layout_marginStart="20dp"
     android:layout_marginEnd="20dp"
-    android:background="@color/alone">
+    android:background="@color/white">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >
         <TextView
+            android:id="@+id/bannerText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -22,12 +23,24 @@
             android:layout_centerVertical="true"
             android:textColor="@color/colorPrimary" />
 
-<!--        <SearchView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_centerVertical="true"-->
-<!--            android:iconifiedByDefault="true"-->
-<!--            android:layout_alignParentEnd="true" />-->
+        <SearchView
+            android:id="@+id/searchTours"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/configButton"
+            android:layout_centerVertical="true"
+            android:gravity="center_vertical"/>
+
+        <ImageButton
+            android:id="@+id/configButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/ic_settings_black_24dp"
+            android:background="@null"
+            android:layout_centerVertical="true"
+            android:gravity="center_vertical" />
+
     </RelativeLayout>
 
 
@@ -66,7 +79,6 @@
 
         </RelativeLayout>
 
-        
 
         <View
             android:layout_width="match_parent"

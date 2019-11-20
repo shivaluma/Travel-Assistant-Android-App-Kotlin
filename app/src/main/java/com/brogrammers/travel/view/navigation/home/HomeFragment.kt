@@ -3,14 +3,16 @@ package com.brogrammers.travel.ui.home
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
+import android.transition.Slide
+import android.transition.TransitionManager
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ListView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.brogrammers.travel.CreateTourActivity
@@ -20,6 +22,8 @@ import com.brogrammers.travel.model.Tour
 import com.brogrammers.travel.network.model.ApiServiceGetTours
 import com.brogrammers.travel.network.model.WebAccess
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.android.synthetic.main.activity_get_coordinate.*
+import kotlinx.android.synthetic.main.activity_get_coordinate.view.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
 import kotlinx.android.synthetic.main.tourview.view.*
@@ -35,7 +39,8 @@ class HomeFragment : Fragment() {
     var token: String = ""
     private lateinit var homeViewModel: HomeViewModel
     var listTour = ArrayList<Tour>()
-
+    var rowPerPage: Int = 10
+    var pageNum: Int = 1
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,38 +54,90 @@ class HomeFragment : Fragment() {
             this.activity!!.getSharedPreferences("logintoken", Context.MODE_PRIVATE)
         token = sharePref.getString("token", "nnn")!!
 
-        val service = WebAccess.retrofit.create(ApiServiceGetTours::class.java)
-        val call = service.getTours(token, 20, 1, "createdOn", true)
-        call.enqueue(object : Callback<ResponseListTours> {
-            override fun onFailure(call: Call<ResponseListTours>, t: Throwable) {
-                Toast.makeText(activity!!.applicationContext, t.message, Toast.LENGTH_LONG).show()
-            }
-
-            override fun onResponse(
-                call: Call<ResponseListTours>,
-                response: Response<ResponseListTours>
-            ) {
-                Log.d("cacca", response.body()!!.total.toString())
-                Log.d("cacca", response.body()!!.tours.toString())
-                if (response.code() != 200) {
-                    Toast.makeText(
-                        activity!!.applicationContext,
-                        "Load list tours failed",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    listTour.addAll(response.body()!!.tours)
-                    tourNumber.text = response.body()!!.total.toString()
-                    var tourAdapter = myTourAdapter(listTour, context!!)
-                    var lv: ListView = root.tourListView
-                    lv.adapter = tourAdapter
-                }
-            }
-        })
+        ApiRequest(root,rowPerPage,pageNum)
 
         val addNewBtn = root.findViewById<FloatingActionButton>(R.id.floatingaddnew)
         addNewBtn.setOnClickListener {
             startActivity(Intent(activity, CreateTourActivity::class.java))
+        }
+
+        val sv = root.findViewById<SearchView>(R.id.searchTours)
+        val bntext = root.findViewById<TextView>(R.id.bannerText)
+        val btnConfig = root.findViewById<ImageButton>(R.id.configButton)
+        sv.setOnSearchClickListener {
+            sv.maxWidth= Int.MAX_VALUE
+            bntext.visibility = View.GONE
+        }
+
+        sv.setOnCloseListener(object: SearchView.OnCloseListener {
+            override fun onClose(): Boolean {
+                bntext.visibility = View.VISIBLE
+                return false
+            }
+        })
+
+        btnConfig.setOnClickListener {
+            val inflater: LayoutInflater =
+                activity!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val view = inflater.inflate(R.layout.tourview_setting, null)
+
+            val popupWindow = PopupWindow(
+                view, // Custom view to show in popup window
+                LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
+                LinearLayout.LayoutParams.WRAP_CONTENT // Window height
+            ,true
+            )
+
+            // Set an elevation for the popup window
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                popupWindow.elevation = 10.0F
+            }
+
+
+            // If API level 23 or higher then execute the code
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // Create a new slide animation for popup window enter transition
+                val slideIn = Slide()
+                slideIn.slideEdge = Gravity.TOP
+                popupWindow.enterTransition = slideIn
+
+                // Slide animation for popup window exit transition
+                val slideOut = Slide()
+                slideOut.slideEdge = Gravity.TOP
+                popupWindow.exitTransition = slideOut
+
+            }
+
+            // Get the widgets reference from custom view
+            //val tv = view.findViewById<TextView>(R.id.text_view)
+            val buttonPopup = view.findViewById<ImageButton>(R.id.btnCloseConfig)
+            val buttonApply = view.findViewById<Button>(R.id.btnTourViewApply)
+
+            // Set a click listener for popup's button widget
+            buttonPopup.setOnClickListener {
+                // Dismiss the popup window
+                Toast.makeText(this.context, "Cancelled", Toast.LENGTH_SHORT).show()
+                popupWindow.dismiss()
+            }
+
+            buttonApply.setOnClickListener {
+                var seekbar = view.findViewById<SeekBar>(R.id.seekBar)
+                rowPerPage = seekbar.progress*5 + 10
+                listTour.clear()
+                ApiRequest(root,rowPerPage,pageNum)
+                Toast.makeText(this.context, "Applied", Toast.LENGTH_SHORT).show()
+                popupWindow.dismiss()
+            }
+
+
+            // Finally, show the popup window on app
+            TransitionManager.beginDelayedTransition(root as ViewGroup)
+            popupWindow.showAtLocation(
+                root, // Location to display popup window
+                Gravity.TOP, // Exact position of layout to display popup
+                0, // X offset
+                0 // Y offset
+            )
         }
 
         return root
@@ -141,5 +198,34 @@ class HomeFragment : Fragment() {
 
     }
 
+
+    fun ApiRequest(root: View, rowPerPage: Int, pageNum: Int) {
+        val service = WebAccess.retrofit.create(ApiServiceGetTours::class.java)
+        val call = service.getTours(token, rowPerPage, pageNum, "createdOn", true)
+        call.enqueue(object : Callback<ResponseListTours> {
+            override fun onFailure(call: Call<ResponseListTours>, t: Throwable) {
+                Toast.makeText(activity!!.applicationContext, t.message, Toast.LENGTH_LONG).show()
+            }
+
+            override fun onResponse(
+                call: Call<ResponseListTours>,
+                response: Response<ResponseListTours>
+            ) {
+                if (response.code() != 200) {
+                    Toast.makeText(
+                        activity!!.applicationContext,
+                        "Load list tours failed",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    listTour.addAll(response.body()!!.tours)
+                    tourNumber.text = response.body()!!.total.toString()
+                    var tourAdapter = myTourAdapter(listTour, context!!)
+                    var lv: ListView = root.tourListView
+                    lv.adapter = tourAdapter
+                }
+            }
+        })
+    }
 
 }
