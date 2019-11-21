@@ -22,6 +22,7 @@ import com.brogrammers.travel.model.Tour
 import com.brogrammers.travel.network.model.ApiServiceGetTours
 import com.brogrammers.travel.network.model.WebAccess
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.jaredrummler.materialspinner.MaterialSpinner
 import kotlinx.android.synthetic.main.activity_get_coordinate.*
 import kotlinx.android.synthetic.main.activity_get_coordinate.view.*
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -41,6 +42,8 @@ class HomeFragment : Fragment() {
     var listTour = ArrayList<Tour>()
     var rowPerPage: Int = 10
     var pageNum: Int = 1
+    var orderBy : String ?= null
+    var isDesc : Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,7 +57,7 @@ class HomeFragment : Fragment() {
             this.activity!!.getSharedPreferences("logintoken", Context.MODE_PRIVATE)
         token = sharePref.getString("token", "nnn")!!
 
-        ApiRequest(root,rowPerPage,pageNum)
+        ApiRequest(root,rowPerPage,pageNum,orderBy,isDesc)
 
         val addNewBtn = root.findViewById<FloatingActionButton>(R.id.floatingaddnew)
         addNewBtn.setOnClickListener {
@@ -88,6 +91,9 @@ class HomeFragment : Fragment() {
             ,true
             )
 
+            val spnOrder = view.findViewById<MaterialSpinner>(R.id.spinnerOrderBy)
+            spnOrder.setItems("id","name", "minCost", "maxCost", "startDate", "endDate")
+
             // Set an elevation for the popup window
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 popupWindow.elevation = 10.0F
@@ -120,11 +126,34 @@ class HomeFragment : Fragment() {
                 popupWindow.dismiss()
             }
 
+            var seekbar = view.findViewById<SeekBar>(R.id.seekBar)
+            var seekbarCurrentValue = view.findViewById<TextView>(R.id.seekBarCurrentRow)
+            seekbar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    rowPerPage = progress*5 + 10
+                    seekbarCurrentValue.text = rowPerPage.toString()
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+                }
+            })
+
+            var isDescCheck = view.findViewById<CheckBox>(R.id.isDescCb)
+
             buttonApply.setOnClickListener {
-                var seekbar = view.findViewById<SeekBar>(R.id.seekBar)
-                rowPerPage = seekbar.progress*5 + 10
                 listTour.clear()
-                ApiRequest(root,rowPerPage,pageNum)
+                orderBy = spnOrder.text.toString()
+                isDesc = isDescCheck.isChecked
+                ApiRequest(root,rowPerPage,pageNum,orderBy,isDesc)
                 Toast.makeText(this.context, "Applied", Toast.LENGTH_SHORT).show()
                 popupWindow.dismiss()
             }
@@ -199,9 +228,9 @@ class HomeFragment : Fragment() {
     }
 
 
-    fun ApiRequest(root: View, rowPerPage: Int, pageNum: Int) {
+    fun ApiRequest(root: View, rowPerPage: Int, pageNum: Int, order: String?, isDes: Boolean) {
         val service = WebAccess.retrofit.create(ApiServiceGetTours::class.java)
-        val call = service.getTours(token, rowPerPage, pageNum, "createdOn", true)
+        val call = service.getTours(token, rowPerPage, pageNum, order, isDes)
         call.enqueue(object : Callback<ResponseListTours> {
             override fun onFailure(call: Call<ResponseListTours>, t: Throwable) {
                 Toast.makeText(activity!!.applicationContext, t.message, Toast.LENGTH_LONG).show()

@@ -41,7 +41,7 @@ interface ApiServiceGetTours {
         @Header("Authorization") token : String,
         @Query("rowPerPage") rowPerPage: Int,
         @Query("pageNum") pageNum: Int,
-        @Query("orderBy") orderBy: String,
+        @Query("orderBy") orderBy: String?,
         @Query("isDesc") isDesc: Boolean
     ): Call<ResponseListTours>
 }
