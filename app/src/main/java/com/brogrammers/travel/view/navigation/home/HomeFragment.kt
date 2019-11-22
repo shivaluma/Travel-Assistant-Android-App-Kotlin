@@ -1,5 +1,6 @@
 package com.brogrammers.travel.ui.home
 
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -28,6 +29,7 @@ import kotlinx.android.synthetic.main.activity_get_coordinate.view.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
 import kotlinx.android.synthetic.main.tourview.view.*
+import kotlinx.coroutines.delay
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -44,6 +46,8 @@ class HomeFragment : Fragment() {
     var pageNum: Int = 1
     var orderBy : String ?= null
     var isDesc : Boolean = false
+    lateinit var tourAdapter : myTourAdapter
+    lateinit var lv: ListView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -169,6 +173,29 @@ class HomeFragment : Fragment() {
             )
         }
 
+        tourAdapter = myTourAdapter(listTour, context!!)
+        lv = root.tourListView
+        lv.adapter = tourAdapter
+
+        lv.setOnScrollListener(object : AbsListView.OnScrollListener {
+            override fun onScroll(
+                view: AbsListView?,
+                firstVisibleItem: Int,
+                visibleItemCount: Int,
+                totalItemCount: Int
+            ) {
+                if(firstVisibleItem+visibleItemCount == totalItemCount && totalItemCount!=0)
+                {
+                    pageNum++
+                    ApiRequest(root,rowPerPage,pageNum,orderBy,isDesc)
+                }
+            }
+
+            override fun onScrollStateChanged(view: AbsListView?, scrollState: Int) {
+
+            }
+        })
+
         return root
     }
 
@@ -249,9 +276,8 @@ class HomeFragment : Fragment() {
                 } else {
                     listTour.addAll(response.body()!!.tours)
                     tourNumber.text = response.body()!!.total.toString()
-                    var tourAdapter = myTourAdapter(listTour, context!!)
-                    var lv: ListView = root.tourListView
-                    lv.adapter = tourAdapter
+                    tourAdapter.notifyDataSetChanged()
+
                 }
             }
         })

@@ -755,7 +755,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-            if (addressList!!.isEmpty()) {
+            if (addressList == null || addressList.isEmpty()) {
                 Toast.makeText(applicationContext, "Khong tim thay dia diem nay", Toast.LENGTH_LONG)
                     .show()
             } else {
