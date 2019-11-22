@@ -16,20 +16,25 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.brogrammers.travel.CreateTourActivity
 import com.brogrammers.travel.R
 import com.brogrammers.travel.ResponseListTours
 import com.brogrammers.travel.model.Tour
 import com.brogrammers.travel.network.model.ApiServiceGetTours
 import com.brogrammers.travel.network.model.WebAccess
+import com.brogrammers.travel.util.util
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.materialspinner.MaterialSpinner
 import kotlinx.android.synthetic.main.activity_get_coordinate.*
 import kotlinx.android.synthetic.main.activity_get_coordinate.view.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
+import kotlinx.android.synthetic.main.tourview.*
 import kotlinx.android.synthetic.main.tourview.view.*
 import kotlinx.coroutines.delay
+import org.jetbrains.anko.onScrollListener
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -46,8 +51,9 @@ class HomeFragment : Fragment() {
     var pageNum: Int = 1
     var orderBy : String ?= null
     var isDesc : Boolean = false
-    lateinit var tourAdapter : myTourAdapter
-    lateinit var lv: ListView
+    lateinit var tourAdapter : RecyclerViewAdapter
+    lateinit var lv: RecyclerView
+    lateinit var loaded: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -60,6 +66,15 @@ class HomeFragment : Fragment() {
         val sharePref: SharedPreferences =
             this.activity!!.getSharedPreferences("logintoken", Context.MODE_PRIVATE)
         token = sharePref.getString("token", "nnn")!!
+
+        loaded = root.findViewById<TextView>(R.id.tourLoaded)
+        tourAdapter = RecyclerViewAdapter(listTour)
+        val layoutManager = LinearLayoutManager(this.context)
+        layoutManager.orientation = LinearLayoutManager.VERTICAL
+        lv = root.findViewById<RecyclerView>(R.id.tourListView)
+        lv.layoutManager = layoutManager
+        lv.adapter = tourAdapter
+
 
         ApiRequest(root,rowPerPage,pageNum,orderBy,isDesc)
 
@@ -173,85 +188,85 @@ class HomeFragment : Fragment() {
             )
         }
 
-        tourAdapter = myTourAdapter(listTour, context!!)
-        lv = root.tourListView
-        lv.adapter = tourAdapter
+        lv.addOnScrollListener(object : RecyclerView.OnScrollListener(){
 
-        lv.setOnScrollListener(object : AbsListView.OnScrollListener {
-            override fun onScroll(
-                view: AbsListView?,
-                firstVisibleItem: Int,
-                visibleItemCount: Int,
-                totalItemCount: Int
-            ) {
-                if(firstVisibleItem+visibleItemCount == totalItemCount && totalItemCount!=0)
-                {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+
+
+                if (!recyclerView.canScrollVertically(1)) {
                     pageNum++
                     ApiRequest(root,rowPerPage,pageNum,orderBy,isDesc)
                 }
-            }
 
-            override fun onScrollStateChanged(view: AbsListView?, scrollState: Int) {
-
+                super.onScrolled(recyclerView, dx, dy)
             }
         })
+
 
         return root
     }
 
 
-    inner class myTourAdapter : BaseAdapter {
+    inner class RecyclerViewAdapter(data: ArrayList<Tour>) :
+        RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder>() {
 
-        var listTourArr = ArrayList<Tour>()
-        var context: Context? = null
+        var data = ArrayList<Tour>()
 
-        constructor(listTourArr: ArrayList<Tour>, context: Context) : super() {
-            this.listTourArr = listTourArr
-            this.context = context
+        init {
+            this.data = data
         }
 
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            //dua item vao
-            var myView = layoutInflater.inflate(R.layout.tourview, null)
-            var myTour = listTourArr[position]
-            myView.titleItem.text = myTour.name
-            if (myTour.startDate.toString().isNotEmpty() && myTour.endDate.toString().isNotEmpty()) {
-                myView.dateItem.text =
-                    (convertLongToTime(myTour.startDate) + " - " + convertLongToTime(myTour.endDate))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
+            val inflater = LayoutInflater.from(parent.context)
+            val view = inflater.inflate(R.layout.tourview, parent, false)
+            return RecyclerViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
+            val item = data.get(position)
+            holder.titleItem.text = item.name
+
+            //date
+
+            if (item.startDate > 0  && item.endDate > 0) {
+                dateItem.text =
+                    (util.longToDateTime(item.startDate) + " - " + util.longToDateTime(item.endDate))
             }
+
+            // people
             var people = ""
-            if (myTour.adults.toString() != "null") {
-                people += myTour.adults.toString() + " adults"
+            if (item.adults.toString() != "null") {
+                people += item.adults.toString() + " adults"
             }
 
-            if (myTour.childs.toString() != "null") {
+            if (item.childs.toString() != "null") {
                 if (!people.isEmpty()) people += " - "
-                people += myTour.childs.toString() + " childs"
+                people += item.childs.toString() + " childs"
             }
-            myView.peopleItem.text = people
-            myView.costItem.text = (myTour.minCost.toString() + " - " + myTour.maxCost.toString())
-            return myView
+            holder.peopleItem.text = people
+
+            // cost
+            holder.costItem.text = (item.minCost.toString() + " - " + item.maxCost.toString())
         }
 
-        override fun getItem(position: Int): Any {
-            return listTourArr[position]
-        }
-
-        override fun getItemId(position: Int): Long {
-            return position.toLong()
-        }
-
-        override fun getCount(): Int {
-            return listTourArr.size
-        }
-
-        fun convertLongToTime(time: Long): String {
-            val date = Date(time)
-            val format = SimpleDateFormat("dd.MM.yyyy")
-            return format.format(date)
+        override fun getItemCount(): Int {
+            return data.size
         }
 
 
+        inner class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            internal var titleItem: TextView
+            internal var dateItem: TextView
+            internal var peopleItem: TextView
+            internal var costItem: TextView
+
+            init {
+                titleItem = itemView.findViewById(R.id.titleItem) as TextView
+                dateItem = itemView.findViewById(R.id.dateItem) as TextView
+                peopleItem = itemView.findViewById(R.id.peopleItem) as TextView
+                costItem = itemView.findViewById(R.id.costItem) as TextView
+            }
+        }
     }
 
 
@@ -277,7 +292,7 @@ class HomeFragment : Fragment() {
                     listTour.addAll(response.body()!!.tours)
                     tourNumber.text = response.body()!!.total.toString()
                     tourAdapter.notifyDataSetChanged()
-
+                    loaded.text = listTour.size.toString()
                 }
             }
         })

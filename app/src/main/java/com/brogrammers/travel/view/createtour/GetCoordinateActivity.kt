@@ -877,7 +877,6 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
         deleteStartEndPoint(mStopPointArrayList)
         if (hasStart) mStopPointArrayList.add(0, startPoint)
-
         if (hasEnd) mStopPointArrayList.add(endPoint)
     }
 }

@@ -29,6 +29,12 @@ object util {
         return date.format(formatter)
     }
 
+    fun longToDate(time: Long): String {
+        val date = Date(time)
+        val format = java.text.SimpleDateFormat("dd.MM.yyyy")
+        return format.format(date)
+    }
+
     fun datetimeToLong(datetime: String): Long {
         return LocalDateTime.parse(
             datetime,
