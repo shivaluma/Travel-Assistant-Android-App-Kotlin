@@ -229,8 +229,8 @@ class HomeFragment : Fragment() {
             //date
 
             if (item.startDate > 0  && item.endDate > 0) {
-                dateItem.text =
-                    (util.longToDateTime(item.startDate) + " - " + util.longToDateTime(item.endDate))
+                holder.dateItem.text =
+                    (util.longToDate(item.startDate) + " - " + util.longToDate(item.endDate))
             }
 
             // people
