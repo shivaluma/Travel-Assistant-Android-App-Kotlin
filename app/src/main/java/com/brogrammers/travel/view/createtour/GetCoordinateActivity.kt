@@ -99,6 +99,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     lateinit var LastEndMarker: Marker
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_get_coordinate)
@@ -244,7 +245,6 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             val inflater: LayoutInflater =
                 getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val view = inflater.inflate(R.layout.stoppointlist, null)
-
             val lv = view.findViewById<ListView>(R.id.stplv)
             val stoppointadapter = stopPointAdapter(mStopPointArrayList, this)
             lv.adapter = stoppointadapter
@@ -546,6 +546,12 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
             }
 
+            // marker onclick
+
+
+
+
+
 
             // Set a click listener for popup's button widget
             buttonPopup.setOnClickListener {
@@ -609,12 +615,16 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                     val province =
                         view.findViewById<MaterialSpinner>(R.id.spinnerProvince).text.toString()
                     stoppint.provinceID = util.getProvinceID(province)
+
+                    val curMarker : Marker
+
                     if (type == "Start Point") {
                         if (hasStartPoint) {
                             mStopPointArrayList.removeAt(0)
                             LastStartMarker.remove()
                         }
                         LastStartMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_startpoint)
+                        curMarker = LastStartMarker
                         LastStartPointLatLng = latlng
                         hasStartPoint = true
                     } else if (type == "End Point") {
@@ -623,24 +633,28 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                             LastEndMarker.remove()
                         }
                         LastEndMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_endpoint)
+                        curMarker = LastEndMarker
                         LastEndPointLatLng = latlng
                         hasEndPoint = true
                     } else if (type == "Restaurant") {
-                        addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_restaurant)
+                        curMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_restaurant)
                         stoppint.serviceTypeId = 1
                     } else if (type == "Hotel") {
-                        addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_hotel)
+                        curMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_hotel)
                         stoppint.serviceTypeId = 2
                     } else if (type == "Rest Station") {
-                        addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_bedtime)
+                        curMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_bedtime)
                         stoppint.serviceTypeId = 3
                     } else if (type == "Others") {
-                        addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_pin)
+                        curMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_pin)
                         stoppint.serviceTypeId = 4
                     } else {
-                        addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_pin)
+                        curMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_pin)
                         stoppint.serviceTypeId = 4
                     }
+
+
+                    curMarker.tag = mStopPointArrayList.size
                     mStopPointArrayList.add(stoppint)
 
                     if (mStopPointArrayList.size >= 2) {
@@ -687,6 +701,57 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             )
 
         }
+
+        googleMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
+            override fun onMarkerClick(p0: Marker?): Boolean {
+                val inflater: LayoutInflater =
+                    getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+                val view = inflater.inflate(R.layout.popup_stoppointclick, null)
+                val popupWindow = PopupWindow(
+                    view, // Custom view to show in popup window
+                    LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
+                    LinearLayout.LayoutParams.WRAP_CONTENT // Window height
+                )
+
+                // Set an elevation for the popup window
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    popupWindow.elevation = 10.0F
+                }
+
+
+                // If API level 23 or higher then execute the code
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    // Create a new slide animation for popup window enter transition
+                    val slideIn = Slide()
+                    slideIn.slideEdge = Gravity.BOTTOM
+                    popupWindow.enterTransition = slideIn
+
+                    // Slide animation for popup window exit transition
+                    val slideOut = Slide()
+                    slideOut.slideEdge = Gravity.BOTTOM
+                    popupWindow.exitTransition = slideOut
+
+                }
+
+                // Set a dismiss listener for popup window
+                popupWindow.setOnDismissListener {
+                    Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
+                }
+
+
+                // Finally, show the popup window on app
+                TransitionManager.beginDelayedTransition(root_layout)
+                popupWindow.showAtLocation(
+                    root_layout, // Location to display popup window
+                    Gravity.BOTTOM, // Exact position of layout to display popup
+                    0, // X offset
+                    -20 // Y offset
+                )
+
+                return false
+            }
+        })
+
     }
 
     @Synchronized
