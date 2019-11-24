@@ -3,17 +3,19 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:background="@drawable/imageborder"
+
+        android:background="@color/white"
         android:divider="@color/black"
         android:showDividers="end"
 
         android:orientation="horizontal">
 
         <RelativeLayout
+            android:id="@+id/editSTP"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="80dp">
+            android:layout_height="80dp"
+            android:clickable="true">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -40,9 +42,11 @@
         android:background="@color/black" />
 
     <RelativeLayout
+        android:id="@+id/rateSTP"
         android:layout_width="0dp"
         android:layout_weight="1"
-        android:layout_height="80dp">
+        android:layout_height="80dp"
+        android:clickable="true">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -69,9 +73,11 @@
         android:background="@color/black" />
 
     <RelativeLayout
+        android:id="@+id/removeSTP"
         android:layout_width="0dp"
         android:layout_weight="1"
-        android:layout_height="80dp">
+        android:layout_height="80dp"
+        android:clickable="true">
 
         <LinearLayout
             android:layout_width="wrap_content"

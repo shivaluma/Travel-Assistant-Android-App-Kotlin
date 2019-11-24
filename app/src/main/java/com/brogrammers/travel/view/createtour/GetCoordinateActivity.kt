@@ -88,11 +88,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     var mPolyLineArrayList = ArrayList<Polyline>()
     internal var mGoogleApiClient: GoogleApiClient? = null
     internal var mCurrLocationMarker: Marker? = null
-
     lateinit var token: AutocompleteSessionToken
-
-    var hasStartPoint = false
-    var hasEndPoint = false
     lateinit var LastStartPointLatLng: LatLng
     lateinit var LastEndPointLatLng: LatLng
     lateinit var LastStartMarker: Marker
@@ -112,7 +108,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         token = AutocompleteSessionToken.newInstance()
 
         btnFloatFinish.setOnClickListener {
-            if (!hasStartPoint || !hasEndPoint) {
+            if (checkNoStartEndPoint()) {
                 Toast.makeText(
                     applicationContext,
                     "No Start/End Point is defined",
@@ -406,7 +402,6 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
         googleMap.setOnMapClickListener {
             val latlng = it
-            Toast.makeText(applicationContext, it.toString(), Toast.LENGTH_LONG).show()
             val inflater: LayoutInflater =
                 getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val view = inflater.inflate(R.layout.stoppoint, null)
@@ -619,23 +614,21 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                     val curMarker : Marker
 
                     if (type == "Start Point") {
-                        if (hasStartPoint) {
+                        if (mStopPointArrayList.size > 0 && mStopPointArrayList[0].type == "Start Point") {
                             mStopPointArrayList.removeAt(0)
                             LastStartMarker.remove()
                         }
                         LastStartMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_startpoint)
-                        curMarker = LastStartMarker
                         LastStartPointLatLng = latlng
-                        hasStartPoint = true
+                        curMarker = LastStartMarker
                     } else if (type == "End Point") {
-                        if (hasEndPoint) {
+                        if (mStopPointArrayList.size > 0 && mStopPointArrayList[mStopPointArrayList.size-1].type == "End Point") {
                             mStopPointArrayList.removeAt(mStopPointArrayList.size - 1)
                             LastEndMarker.remove()
                         }
                         LastEndMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_endpoint)
-                        curMarker = LastEndMarker
                         LastEndPointLatLng = latlng
-                        hasEndPoint = true
+                        curMarker = LastEndMarker
                     } else if (type == "Restaurant") {
                         curMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_restaurant)
                         stoppint.serviceTypeId = 1
@@ -656,40 +649,13 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
                     curMarker.tag = mStopPointArrayList.size
                     mStopPointArrayList.add(stoppint)
-
-                    if (mStopPointArrayList.size >= 2) {
-                        sortTheListStopPoint()
-                        for (i in mPolyLineArrayList) {
-                            i.remove()
-                        }
-                        mPolyLineArrayList.clear()
-                        for (i in 0..mStopPointArrayList.size - 2) {
-                            var line: Polyline = googleMap.addPolyline(
-                                PolylineOptions()
-                                    .add(
-                                        LatLng(
-                                            mStopPointArrayList[i].lat!!,
-                                            mStopPointArrayList[i].long!!
-                                        ),
-                                        LatLng(
-                                            mStopPointArrayList[i + 1].lat!!,
-                                            mStopPointArrayList[i + 1].long!!
-                                        )
-                                    )
-                                    .width(5.0f)
-                                    .color(Color.RED)
-                            )
-                            mPolyLineArrayList.add(line)
-                        }
-                    }
+                    sortTheListStopPoint()
+                    drawThePath()
 
                     // Dismiss the popup window
                     popupWindow.dismiss()
                 }
-
-
             }
-
 
             // Finally, show the popup window on app
             TransitionManager.beginDelayedTransition(root_layout)
@@ -745,8 +711,19 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                     root_layout, // Location to display popup window
                     Gravity.BOTTOM, // Exact position of layout to display popup
                     0, // X offset
-                    -20 // Y offset
+                    0 // Y offset
                 )
+
+
+                val remove = view.findViewById<RelativeLayout>(R.id.removeSTP)
+                remove.setOnClickListener {
+                    mStopPointArrayList.removeAt(p0!!.tag.toString().toInt())
+                    p0.remove()
+                    popupWindow.dismiss()
+                    drawThePath()
+                    Toast.makeText(applicationContext, "Deleted", Toast.LENGTH_LONG)
+                        .show()
+                }
 
                 return false
             }
@@ -955,5 +932,37 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         deleteStartEndPoint(mStopPointArrayList)
         if (hasStart) mStopPointArrayList.add(0, startPoint)
         if (hasEnd) mStopPointArrayList.add(endPoint)
+    }
+
+    fun checkNoStartEndPoint() : Boolean {
+        return (mStopPointArrayList.size < 2 || mStopPointArrayList[0].type != "Start Point" || mStopPointArrayList[mStopPointArrayList.size-1].type != "End Point")
+    }
+
+    fun drawThePath() {
+        mPolyLineArrayList.clear()
+        if (mStopPointArrayList.size >= 2) {
+
+            for (i in mPolyLineArrayList) {
+                i.remove()
+            }
+            for (i in 0..mStopPointArrayList.size - 2) {
+                var line: Polyline = googleMap.addPolyline(
+                    PolylineOptions()
+                        .add(
+                            LatLng(
+                                mStopPointArrayList[i].lat!!,
+                                mStopPointArrayList[i].long!!
+                            ),
+                            LatLng(
+                                mStopPointArrayList[i + 1].lat!!,
+                                mStopPointArrayList[i + 1].long!!
+                            )
+                        )
+                        .width(5.0f)
+                        .color(Color.RED)
+                )
+                mPolyLineArrayList.add(line)
+            }
+        }
     }
 }
