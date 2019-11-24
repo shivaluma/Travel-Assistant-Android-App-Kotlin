@@ -249,6 +249,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             val stoppointadapter = stopPointAdapter(mStopPointArrayList, this)
             lv.adapter = stoppointadapter
 
+
             val popupWindow = PopupWindow(
                 view, // Custom view to show in popup window
                 LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
@@ -300,6 +301,17 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 0, // X offset
                 0 // Y offset
             )
+
+
+            lv.setOnItemClickListener { _, view, position, id ->
+                popupWindow.dismiss()
+                googleMap.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(mStopPointArrayList[position].lat!!, mStopPointArrayList[position].long!!),
+                        15.0f
+                    )
+                )
+            }
         }
 
 

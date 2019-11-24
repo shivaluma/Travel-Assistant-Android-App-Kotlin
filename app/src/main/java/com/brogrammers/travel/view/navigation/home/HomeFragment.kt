@@ -189,15 +189,11 @@ class HomeFragment : Fragment() {
         }
 
         lv.addOnScrollListener(object : RecyclerView.OnScrollListener(){
-
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-
-
                 if (!recyclerView.canScrollVertically(1)) {
                     pageNum++
                     ApiRequest(root,rowPerPage,pageNum,orderBy,isDesc)
                 }
-
                 super.onScrolled(recyclerView, dx, dy)
             }
         })
