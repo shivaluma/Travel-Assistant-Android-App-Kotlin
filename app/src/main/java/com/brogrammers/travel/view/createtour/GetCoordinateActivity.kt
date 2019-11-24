@@ -647,9 +647,8 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                     }
 
 
-                    curMarker.tag = mStopPointArrayList.size
+                    curMarker.tag = stoppint.name+stoppint.address+stoppint.type
                     mStopPointArrayList.add(stoppint)
-                    sortTheListStopPoint()
                     drawThePath()
 
                     // Dismiss the popup window
@@ -717,7 +716,11 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
                 val remove = view.findViewById<RelativeLayout>(R.id.removeSTP)
                 remove.setOnClickListener {
-                    mStopPointArrayList.removeAt(p0!!.tag.toString().toInt())
+                    var index = findIndexByTag(p0!!.tag.toString())
+                    Log.d("indexd",index.toString())
+                    if (index > -1 ) {
+                        mStopPointArrayList.removeAt(index)
+                    }
                     p0.remove()
                     popupWindow.dismiss()
                     drawThePath()
@@ -939,12 +942,12 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     }
 
     fun drawThePath() {
+        sortTheListStopPoint()
+        for (i in mPolyLineArrayList) {
+            i.remove()
+        }
         mPolyLineArrayList.clear()
         if (mStopPointArrayList.size >= 2) {
-
-            for (i in mPolyLineArrayList) {
-                i.remove()
-            }
             for (i in 0..mStopPointArrayList.size - 2) {
                 var line: Polyline = googleMap.addPolyline(
                     PolylineOptions()
@@ -964,5 +967,16 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 mPolyLineArrayList.add(line)
             }
         }
+    }
+
+    fun findIndexByTag(tag : String): Int {
+        for (i in 0 .. mStopPointArrayList.size-1) {
+            Log.d("tagtag",tag)
+            Log.d("tagtag",mStopPointArrayList[i].name + mStopPointArrayList[i].address + mStopPointArrayList[i].type)
+            if (tag == (mStopPointArrayList[i].name + mStopPointArrayList[i].address + mStopPointArrayList[i].type)) {
+                return i
+            }
+        }
+        return -1
     }
 }
