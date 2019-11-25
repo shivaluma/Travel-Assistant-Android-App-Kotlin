@@ -57,6 +57,7 @@ import com.google.gson.JsonParser
 import com.jaredrummler.materialspinner.MaterialSpinner
 import com.mancj.materialsearchbar.MaterialSearchBar
 import kotlinx.android.synthetic.main.activity_get_coordinate.*
+import kotlinx.android.synthetic.main.stoppoint.*
 import kotlinx.android.synthetic.main.stoppointinfo.view.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -93,7 +94,6 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     lateinit var LastEndPointLatLng: LatLng
     lateinit var LastStartMarker: Marker
     lateinit var LastEndMarker: Marker
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -303,7 +303,10 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 popupWindow.dismiss()
                 googleMap.animateCamera(
                     CameraUpdateFactory.newLatLngZoom(
-                        LatLng(mStopPointArrayList[position].lat!!, mStopPointArrayList[position].long!!),
+                        LatLng(
+                            mStopPointArrayList[position].lat!!,
+                            mStopPointArrayList[position].long!!
+                        ),
                         15.0f
                     )
                 )
@@ -483,7 +486,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
             var timeArrive = view.findViewById<EditText>(R.id.editTimeArrive)
             timeArrive.setOnClickListener {
-                util.setOnClickTime(timeArrive,this)
+                util.setOnClickTime(timeArrive, this)
             }
 
             var timeLeave = view.findViewById<EditText>(R.id.editTimeLeave)
@@ -493,7 +496,8 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
             var dateArrive = view.findViewById<EditText>(R.id.editDateArrive)
             var dateLeave = view.findViewById<EditText>(R.id.editDateLeave)
-
+            val addressField = view.findViewById<EditText>(R.id.editAddress)
+            addressField.setText(getAddressByLocation(latlng!!))
 
             dateArrive.setOnClickListener {
                 util.setOnClickDate(dateArrive, this)
@@ -542,10 +546,6 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             }
 
             // marker onclick
-
-
-
-
 
 
             // Set a click listener for popup's button widget
@@ -611,43 +611,47 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                         view.findViewById<MaterialSpinner>(R.id.spinnerProvince).text.toString()
                     stoppint.provinceID = util.getProvinceID(province)
 
-                    val curMarker : Marker
+                    val curMarker: Marker
 
                     if (type == "Start Point") {
                         if (mStopPointArrayList.size > 0 && mStopPointArrayList[0].type == "Start Point") {
                             mStopPointArrayList.removeAt(0)
                             LastStartMarker.remove()
                         }
-                        LastStartMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_startpoint)
+                        LastStartMarker =
+                            addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_startpoint)
                         LastStartPointLatLng = latlng
                         curMarker = LastStartMarker
                     } else if (type == "End Point") {
-                        if (mStopPointArrayList.size > 0 && mStopPointArrayList[mStopPointArrayList.size-1].type == "End Point") {
+                        if (mStopPointArrayList.size > 0 && mStopPointArrayList[mStopPointArrayList.size - 1].type == "End Point") {
                             mStopPointArrayList.removeAt(mStopPointArrayList.size - 1)
                             LastEndMarker.remove()
                         }
-                        LastEndMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_endpoint)
+                        LastEndMarker =
+                            addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_endpoint)
                         LastEndPointLatLng = latlng
                         curMarker = LastEndMarker
                     } else if (type == "Restaurant") {
-                        curMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_restaurant)
+                        curMarker =
+                            addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_restaurant)
                         stoppint.serviceTypeId = 1
                     } else if (type == "Hotel") {
-                        curMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_hotel)
+                        curMarker = addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_hotel)
                         stoppint.serviceTypeId = 2
                     } else if (type == "Rest Station") {
-                        curMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_bedtime)
+                        curMarker =
+                            addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_bedtime)
                         stoppint.serviceTypeId = 3
                     } else if (type == "Others") {
-                        curMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_pin)
+                        curMarker = addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_pin)
                         stoppint.serviceTypeId = 4
                     } else {
-                        curMarker = addMarker(googleMap,latlng,stoppint.name,R.drawable.ic_pin)
+                        curMarker = addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_pin)
                         stoppint.serviceTypeId = 4
                     }
 
 
-                    curMarker.tag = stoppint.name+stoppint.address+stoppint.type
+                    curMarker.tag = stoppint.name + stoppint.address + stoppint.type
                     mStopPointArrayList.add(stoppint)
                     drawThePath()
 
@@ -717,8 +721,8 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 val remove = view.findViewById<RelativeLayout>(R.id.removeSTP)
                 remove.setOnClickListener {
                     var index = findIndexByTag(p0!!.tag.toString())
-                    Log.d("indexd",index.toString())
-                    if (index > -1 ) {
+                    Log.d("indexd", index.toString())
+                    if (index > -1) {
                         mStopPointArrayList.removeAt(index)
                     }
                     p0.remove()
@@ -899,7 +903,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     }
 
 
-    fun addMarker(ggMap : GoogleMap, pos : LatLng, name: String, drawable: Int): Marker {
+    fun addMarker(ggMap: GoogleMap, pos: LatLng, name: String, drawable: Int): Marker {
         return ggMap.addMarker(
             MarkerOptions()
                 .position(pos)
@@ -907,8 +911,6 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 .title(name)
         )
     }
-
-
 
 
     fun deleteStartEndPoint(arr: ArrayList<stopPoint>) {
@@ -937,8 +939,8 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         if (hasEnd) mStopPointArrayList.add(endPoint)
     }
 
-    fun checkNoStartEndPoint() : Boolean {
-        return (mStopPointArrayList.size < 2 || mStopPointArrayList[0].type != "Start Point" || mStopPointArrayList[mStopPointArrayList.size-1].type != "End Point")
+    fun checkNoStartEndPoint(): Boolean {
+        return (mStopPointArrayList.size < 2 || mStopPointArrayList[0].type != "Start Point" || mStopPointArrayList[mStopPointArrayList.size - 1].type != "End Point")
     }
 
     fun drawThePath() {
@@ -969,14 +971,36 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         }
     }
 
-    fun findIndexByTag(tag : String): Int {
-        for (i in 0 .. mStopPointArrayList.size-1) {
-            Log.d("tagtag",tag)
-            Log.d("tagtag",mStopPointArrayList[i].name + mStopPointArrayList[i].address + mStopPointArrayList[i].type)
+    fun findIndexByTag(tag: String): Int {
+        for (i in 0..mStopPointArrayList.size - 1) {
+            Log.d("tagtag", tag)
+            Log.d(
+                "tagtag",
+                mStopPointArrayList[i].name + mStopPointArrayList[i].address + mStopPointArrayList[i].type
+            )
             if (tag == (mStopPointArrayList[i].name + mStopPointArrayList[i].address + mStopPointArrayList[i].type)) {
                 return i
             }
         }
         return -1
+    }
+
+    fun getAddressByLocation(p: LatLng): String {
+        var geocoder = Geocoder(this)
+
+        var addresses = ArrayList<Address>() as List<Address>
+        try {
+            addresses = geocoder.getFromLocation(p.latitude, p.longitude, 1)
+            Log.d("addr",addresses.toString())
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+
+        Log.d("adad",addresses.toString())
+        val address = addresses.get(0)
+
+
+        return address.getAddressLine(0)
     }
 }
