@@ -987,20 +987,25 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
     fun getAddressByLocation(p: LatLng): String {
         var geocoder = Geocoder(this)
-
         var addresses = ArrayList<Address>() as List<Address>
         try {
             addresses = geocoder.getFromLocation(p.latitude, p.longitude, 1)
-            Log.d("addr",addresses.toString())
-        } catch (e: IOException) {
-            e.printStackTrace()
         }
-
-
-        Log.d("adad",addresses.toString())
+        catch (e : IOException) {
+            when{
+                e.message == "grpc failed" ->  {
+                    Toast.makeText(
+                        applicationContext,
+                        "grpc failed",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return ""
+                }
+                else -> throw e
+            }
+        }
+        Log.d("addr",addresses.toString())
         val address = addresses.get(0)
-
-
         return address.getAddressLine(0)
     }
 }
