@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.brogrammers.travel.CreateTourActivity
 import com.brogrammers.travel.R
 import com.brogrammers.travel.ResponseListTours
+import com.brogrammers.travel.manager.doAsync
 import com.brogrammers.travel.model.Tour
 import com.brogrammers.travel.network.model.ApiServiceGetTours
 import com.brogrammers.travel.network.model.WebAccess
@@ -54,6 +55,7 @@ class HomeFragment : Fragment() {
     lateinit var tourAdapter : RecyclerViewAdapter
     lateinit var lv: RecyclerView
     lateinit var loaded: TextView
+    var isQuerying = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -94,6 +96,20 @@ class HomeFragment : Fragment() {
         sv.setOnCloseListener(object: SearchView.OnCloseListener {
             override fun onClose(): Boolean {
                 bntext.visibility = View.VISIBLE
+                isQuerying = false
+                return false
+            }
+        })
+
+        sv.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                isQuerying = true
+                ApiRequest(root,rowPerPage,pageNum,orderBy,isDesc,query)
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+
                 return false
             }
         })
@@ -190,7 +206,7 @@ class HomeFragment : Fragment() {
 
         lv.addOnScrollListener(object : RecyclerView.OnScrollListener(){
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (!recyclerView.canScrollVertically(1)) {
+                if (!recyclerView.canScrollVertically(1) && !isQuerying) {
                     pageNum++
                     ApiRequest(root,rowPerPage,pageNum,orderBy,isDesc)
                 }
@@ -266,32 +282,58 @@ class HomeFragment : Fragment() {
     }
 
 
-    fun ApiRequest(root: View, rowPerPage: Int, pageNum: Int, order: String?, isDes: Boolean) {
-        val service = WebAccess.retrofit.create(ApiServiceGetTours::class.java)
-        val call = service.getTours(token, rowPerPage, pageNum, order, isDes)
-        call.enqueue(object : Callback<ResponseListTours> {
-            override fun onFailure(call: Call<ResponseListTours>, t: Throwable) {
-                Toast.makeText(activity!!.applicationContext, t.message, Toast.LENGTH_LONG).show()
+    fun ApiRequest(root: View, rowPerPage: Int, pageNum: Int, order: String?, isDes: Boolean, query: String = "") {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceGetTours::class.java)
+            var requestRow = rowPerPage
+            var requestPage = pageNum
+            if (query.isNotEmpty()) {
+                requestRow = 9999
+                requestPage = 0
             }
-
-            override fun onResponse(
-                call: Call<ResponseListTours>,
-                response: Response<ResponseListTours>
-            ) {
-                if (response.code() != 200) {
-                    Toast.makeText(
-                        activity!!.applicationContext,
-                        "Load list tours failed",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    listTour.addAll(response.body()!!.tours)
-                    tourNumber.text = response.body()!!.total.toString()
-                    tourAdapter.notifyDataSetChanged()
-                    loaded.text = listTour.size.toString()
+            val call = service.getTours(token, requestRow, requestPage, order, isDes)
+            call.enqueue(object : Callback<ResponseListTours> {
+                override fun onFailure(call: Call<ResponseListTours>, t: Throwable) {
+                    Toast.makeText(activity!!.applicationContext, t.message, Toast.LENGTH_LONG).show()
                 }
-            }
-        })
-    }
 
+                override fun onResponse(
+                    call: Call<ResponseListTours>,
+                    response: Response<ResponseListTours>
+                ) {
+                    if (response.code() != 200) {
+                        Toast.makeText(
+                            activity!!.applicationContext,
+                            "Load list tours failed",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+
+                        var total = response.body()!!.total
+                        if (query.isNotEmpty()) {
+                            listTour.clear()
+                        }
+                        listTour.addAll(response.body()!!.tours)
+                        if (query.isNotEmpty()) {
+                            val filterList = ArrayList<Tour>()
+                            var tourName = ""
+                            for (i in listTour) {
+                                if (!i.name.isNullOrEmpty()) {
+                                    if (i.name.contains(query)) {
+                                        filterList.add(i)
+                                    }
+                                }
+                            }
+                            listTour.clear()
+                            listTour.addAll(filterList)
+                            total = listTour.size
+                        }
+                        tourNumber.text = total.toString()
+                        tourAdapter.notifyDataSetChanged()
+                        loaded.text = listTour.size.toString()
+                    }
+                }
+            })
+        }.execute()
+    }
 }

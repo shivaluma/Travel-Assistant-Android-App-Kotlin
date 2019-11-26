@@ -21,6 +21,7 @@ import com.brogrammers.travel.CreateTourActivity
 import com.brogrammers.travel.R
 import com.brogrammers.travel.ResponseListHistoryTours
 import com.brogrammers.travel.ResponseListTours
+import com.brogrammers.travel.manager.doAsync
 import com.brogrammers.travel.model.Tour
 import com.brogrammers.travel.network.model.ApiServiceGetHistoryTours
 import com.brogrammers.travel.network.model.ApiServiceGetTours
@@ -269,32 +270,33 @@ class HistoryFragment : Fragment() {
 
 
     fun ApiRequest(root: View, pageNum : Int, pageSize: String) {
-        val service = WebAccess.retrofit.create(ApiServiceGetHistoryTours::class.java)
-        val call = service.getTours(token, pageNum, pageSize)
-        call.enqueue(object : Callback<ResponseListHistoryTours> {
-            override fun onFailure(call: Call<ResponseListHistoryTours>, t: Throwable) {
-                Toast.makeText(activity!!.applicationContext, t.message, Toast.LENGTH_LONG).show()
-            }
-
-            override fun onResponse(
-                call: Call<ResponseListHistoryTours>,
-                response: Response<ResponseListHistoryTours>
-            ) {
-                if (response.code() != 200) {
-                    Toast.makeText(
-                        activity!!.applicationContext,
-                        "Load list tours failed",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    listTour.addAll(response.body()!!.tours)
-                    tourNumber.text = response.body()!!.total.toString()
-                    tourAdapter.notifyDataSetChanged()
-                    loaded.text = listTour.size.toString()
-                    curLoaded = listTour.size
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceGetHistoryTours::class.java)
+            val call = service.getTours(token, pageNum, pageSize)
+            call.enqueue(object : Callback<ResponseListHistoryTours> {
+                override fun onFailure(call: Call<ResponseListHistoryTours>, t: Throwable) {
+                    Toast.makeText(activity!!.applicationContext, t.message, Toast.LENGTH_LONG).show()
                 }
-            }
-        })
-    }
 
+                override fun onResponse(
+                    call: Call<ResponseListHistoryTours>,
+                    response: Response<ResponseListHistoryTours>
+                ) {
+                    if (response.code() != 200) {
+                        Toast.makeText(
+                            activity!!.applicationContext,
+                            "Load list tours failed",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        listTour.addAll(response.body()!!.tours)
+                        tourNumber.text = response.body()!!.total.toString()
+                        tourAdapter.notifyDataSetChanged()
+                        loaded.text = listTour.size.toString()
+                        curLoaded = listTour.size
+                    }
+                }
+            })
+        }.execute()
+    }
 }
