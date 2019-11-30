@@ -1,5 +1,6 @@
 package com.brogrammers.travel
 
+import com.brogrammers.travel.model.StopPoint
 import com.brogrammers.travel.model.Tour
 import com.brogrammers.travel.ui.history.HistoryFragment
 import retrofit2.Call
@@ -38,6 +39,42 @@ data class AddStopPointResultOK(
     val id: Int
 )
 
+data class ResponseTourInfo (
+    var id : Int ,
+    var status : Int ,
+    var name : String ,
+    var minCost : Long ,
+    var maxCost : Long ,
+    var startDate: Long ,
+    var endDate: Long ,
+    var adults : Int ,
+    var childs : Int ,
+    var isPrivate: Boolean ,
+    var avatar : String,
+    var stopPoints : ArrayList<StopPoint>,
+    var members: ArrayList<member>,
+    var comments: ArrayList<comment>
+)
+
+data class ResponseSearchUser (
+    var total : Int ,
+    var users: ArrayList<UserInfo>,
+    var message: String
+)
+
+data class ResponseAddUserToTour (
+    var message: String
+)
+
+data class ResponseToInvitation (
+    var message: String
+)
+
+data class ResponseUserNotification (
+    var total: Int,
+    var tours: ArrayList<TourNotification>
+)
+
 // sub class
 data class message (
     val location:String,
@@ -52,4 +89,19 @@ data class errorlist (
     var param: String,
     var msg: String
 )
+
+data class member(var id: Int, var name:String,var phone: String, var avatar: String, var isHost : Boolean)
+data class comment(var id: Int, var name:String,var comment: String, var avatar: String)
+data class UserInfo(var id : Int?, var fullName: String?, var email: String?,var phone: String?, var gender: Int?,
+                var typeLogin : Int?, var avatar: String?, var dob: String?)
+
+data class TourNotification(var id: Int,var status: Int,var hostId: Int,var hostName: String,
+                            var hostPhone: String,var hostEmail: String,var hostAvatar: String,
+                            var name: String,var minCost : Long , var maxCost : Long ,
+                            var startDate: Long , var endDate: Long , var adults : Int ,
+                            var childs : Int , var isPrivate: Boolean , var avatar : String,
+                            var createOn: Long)
+
+
+
 

@@ -9,18 +9,13 @@ import android.os.Bundle
 import android.transition.Slide
 import android.transition.TransitionManager
 import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.brogrammers.travel.CreateTourActivity
-import com.brogrammers.travel.R
-import com.brogrammers.travel.ResponseListTours
+import com.brogrammers.travel.*
 import com.brogrammers.travel.manager.doAsync
 import com.brogrammers.travel.model.Tour
 import com.brogrammers.travel.network.model.ApiServiceGetTours
@@ -76,6 +71,8 @@ class HomeFragment : Fragment() {
         lv = root.findViewById<RecyclerView>(R.id.tourListView)
         lv.layoutManager = layoutManager
         lv.adapter = tourAdapter
+
+
 
 
         ApiRequest(root,rowPerPage,pageNum,orderBy,isDesc)
@@ -259,6 +256,16 @@ class HomeFragment : Fragment() {
 
             // cost
             holder.costItem.text = (item.minCost.toString() + " - " + item.maxCost.toString())
+
+
+            //onclick
+
+            holder.itemView.setOnClickListener {
+                val intent = Intent(context,TourInfoActivity::class.java)
+                intent.putExtra("token", token)
+                intent.putExtra("tourID", item.id)
+                startActivity(intent)
+            }
         }
 
         override fun getItemCount(): Int {

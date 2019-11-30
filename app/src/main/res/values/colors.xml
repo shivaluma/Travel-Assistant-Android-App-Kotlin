@@ -15,4 +15,6 @@
     <color name="alone">#fafafa</color>
     <color name="black">#000</color>
     <color name="gray">#d3d3d3</color>
+
+    <color name="star">#FFC107</color>
 </resources>

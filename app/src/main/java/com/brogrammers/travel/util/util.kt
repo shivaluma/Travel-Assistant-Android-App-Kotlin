@@ -79,4 +79,11 @@ object util {
             mcurrentTime.get(Calendar.DAY_OF_MONTH)
         ).show()
     }
+
+    fun StopPointTypeToString(type : Int): String {
+        if (type == 1) return "Restaurant"
+        if (type == 2) return "Hotel"
+        if (type == 3) return "Rest Station"
+        return "Others"
+    }
 }

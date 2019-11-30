@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_marginTop="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="50dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="30dp"
+        android:text=" : "
+        android:drawableLeft="@drawable/ic_map_black_24dp"
+
+        android:gravity="center_vertical"
+        android:textColor="@color/primaryTextColor"
+        android:textStyle="bold"
+        android:id="@+id/ididwda"
+        android:textSize="18sp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableRight="@drawable/ic_hotel"
+        android:drawablePadding="5dp"
+        android:text="3"
+        android:layout_marginStart="12dp"
+        android:gravity="center_vertical"
+        android:textSize="16sp"
+        android:textColor="@color/primaryTextColor"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/ididwda"
+        android:id="@+id/tourInfoHotelNum"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableRight="@drawable/ic_restaurant"
+        android:drawablePadding="5dp"
+        android:text="3"
+        android:layout_marginStart="12dp"
+        android:gravity="center_vertical"
+        android:textSize="16sp"
+        android:textColor="@color/primaryTextColor"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/tourInfoHotelNum"
+        android:id="@+id/tourInfoResNum"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableRight="@drawable/ic_bedtime"
+        android:drawablePadding="5dp"
+        android:text="3"
+        android:layout_marginStart="12dp"
+        android:gravity="center_vertical"
+        android:textSize="16sp"
+        android:textColor="@color/primaryTextColor"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/tourInfoResNum"
+        android:id="@+id/tourInfoRestNum" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableRight="@drawable/ic_pin"
+        android:text="3"
+        android:layout_marginStart="12dp"
+        android:gravity="center_vertical"
+        android:textSize="16sp"
+        android:textColor="@color/primaryTextColor"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/tourInfoRestNum"
+        android:id="@+id/tourInfoOtherNum" />
+
+</RelativeLayout>

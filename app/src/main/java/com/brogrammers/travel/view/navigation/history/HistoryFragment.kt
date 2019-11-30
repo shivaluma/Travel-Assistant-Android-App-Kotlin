@@ -17,10 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.brogrammers.travel.CreateTourActivity
-import com.brogrammers.travel.R
-import com.brogrammers.travel.ResponseListHistoryTours
-import com.brogrammers.travel.ResponseListTours
+import com.brogrammers.travel.*
 import com.brogrammers.travel.manager.doAsync
 import com.brogrammers.travel.model.Tour
 import com.brogrammers.travel.network.model.ApiServiceGetHistoryTours
@@ -246,6 +243,13 @@ class HistoryFragment : Fragment() {
 
             // cost
             holder.costItem.text = (item.minCost.toString() + " - " + item.maxCost.toString())
+
+            holder.itemView.setOnClickListener {
+                val intent = Intent(context, TourInfoActivity::class.java)
+                intent.putExtra("token", token)
+                intent.putExtra("tourID", item.id)
+                startActivity(intent)
+            }
         }
 
         override fun getItemCount(): Int {

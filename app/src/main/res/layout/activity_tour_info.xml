@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:orientation="vertical">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:src="@drawable/demoimage"
+            android:scaleType="centerCrop"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ha noi - Ho chi minh"
+            android:layout_marginTop="5dp"
+            android:textSize="20sp"
+            android:layout_marginStart="10dp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:id="@+id/tourInfoName"
+            />
+                <RatingBar
+                    android:id="@+id/tourRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:numStars="5"
+                    android:theme="@style/RatingBar"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginTop="5dp"
+                    android:scaleX="1.5"
+                    android:scaleY="1.5"
+                    android:stepSize="0.1"
+                    android:isIndicator="true" />
+
+                 <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                     android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="60dp"
+                        android:id="@+id/tourListMembers"
+                        android:layout_margin="10dp"
+                        android:background="@drawable/style_button_info"
+                        android:clickable="true">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Members"
+                            android:layout_marginTop="10dp"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:layout_centerHorizontal="true"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="3"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginBottom="10dp"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:textSize="18sp"
+                            android:layout_alignParentBottom="true"
+                            android:id="@+id/tourMemberNum"/>
+                    </RelativeLayout>
+                    <View
+                        android:layout_width="0.2dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="-1dp"
+                        android:layout_toRightOf="@id/tvText"
+                        android:background="@color/black"
+                        />
+                     <RelativeLayout
+                         android:layout_width="0dp"
+                         android:layout_weight="1"
+                         android:layout_height="60dp"
+                         android:id="@+id/tourListComments"
+                         android:layout_margin="10dp"
+                         android:background="@drawable/style_button_info"
+                         android:clickable="true">
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="Comments"
+                             android:layout_marginTop="10dp"
+                             android:textColor="@color/white"
+                             android:textStyle="bold"
+                             android:layout_centerHorizontal="true"/>
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="3"
+                             android:layout_centerHorizontal="true"
+                             android:layout_marginBottom="10dp"
+                             android:textColor="@color/white"
+                             android:textStyle="bold"
+                             android:textSize="18sp"
+                             android:layout_alignParentBottom="true"
+                             android:id="@+id/tourCommentNum"/>
+                     </RelativeLayout>
+                    <View
+                        android:layout_width="0.2dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="-1dp"
+                        android:layout_toRightOf="@id/tvText"
+                        android:background="@color/black"
+                        />
+                     <RelativeLayout
+                         android:layout_width="0dp"
+                         android:layout_weight="1"
+                         android:layout_height="60dp"
+                         android:id="@+id/tourListReviews"
+                         android:layout_margin="10dp"
+                         android:background="@drawable/style_button_info"
+                         android:clickable="true">
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="Reviews"
+                             android:layout_marginTop="10dp"
+                             android:textColor="@color/white"
+                             android:textStyle="bold"
+                             android:layout_centerHorizontal="true"/>
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="3"
+                             android:layout_centerHorizontal="true"
+                             android:layout_marginBottom="10dp"
+                             android:textColor="@color/white"
+                             android:textStyle="bold"
+                             android:textSize="18sp"
+                             android:layout_alignParentBottom="true"
+                             android:id="@+id/tourReviewsNum"/>
+                     </RelativeLayout>
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="DETAILS"
+                    android:layout_margin="10dp"
+                    android:padding="5dp"
+                    android:textColor="@color/white"
+                    android:drawableLeft="@drawable/ic_menu_white_24dp"
+                    android:gravity="center_vertical"
+                    android:drawablePadding="10dp"
+                    android:background="@drawable/style_title"
+                    android:textStyle="bold"
+                    android:textSize="20sp"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:background="@drawable/imageborder"
+                    android:padding="10dp"
+                    android:layout_margin="5dp"
+                    android:layout_height="70dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:text="Date"
+                        android:textColor="@color/black"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="12/12/2019 - 12/12/2019"
+                        android:textSize="16sp"
+                        android:layout_alignParentBottom="true"
+                        android:id="@+id/tourInfoDate"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_schedule_date_svgrepo_com"
+                        android:layout_alignParentEnd="true"/>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:background="@drawable/imageborder"
+                    android:padding="10dp"
+                    android:layout_margin="5dp"
+                    android:layout_height="70dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:text="People"
+                        android:textColor="@color/black"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3 Adults - 2 Childs"
+                        android:textSize="16sp"
+                        android:layout_alignParentBottom="true"
+                        android:id="@+id/tourInfoPeople"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_person_black_30dp"
+                        android:layout_alignParentEnd="true"/>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:background="@drawable/imageborder"
+                    android:padding="10dp"
+                    android:layout_margin="5dp"
+                    android:layout_height="70dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:text="Budget"
+                        android:textColor="@color/black"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1000 - 10000000"
+                        android:textSize="16sp"
+                        android:layout_alignParentBottom="true"
+                        android:id="@+id/tourInfoCost"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_monetization_on_black_30dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_alignParentEnd="true"/>
+                </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="STOP POINTS"
+            android:layout_margin="10dp"
+            android:padding="5dp"
+            android:textColor="@color/white"
+            android:drawableLeft="@drawable/ic_menu_white_24dp"
+            android:gravity="center_vertical"
+            android:drawablePadding="10dp"
+            android:background="@drawable/style_title"
+            android:textStyle="bold"
+            android:textSize="20sp"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableRight="@drawable/ic_restaurant_white"
+                android:text="3"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical"
+                android:padding="5dp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:background="@drawable/style_mini_item"
+                android:id="@+id/countRest"
+                android:textSize="18sp"
+                />
+            <TextView
+                android:id="@+id/countHotel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableRight="@drawable/ic_hotel"
+                android:layout_marginStart="20dp"
+                android:text="3"
+
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:drawablePadding="5dp"
+                android:padding="5dp"
+                android:background="@drawable/style_mini_item"
+                android:gravity="center_vertical"
+                android:textSize="18sp"
+                />
+            <TextView
+                android:id="@+id/countRes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableRight="@drawable/ic_bedtime"
+                android:layout_marginStart="20dp"
+                android:text="3"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical"
+                android:padding="5dp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:background="@drawable/style_mini_item"
+                android:textSize="18sp"
+                />
+            <TextView
+                android:id="@+id/countOthers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableRight="@drawable/ic_pin"
+                android:layout_marginStart="20dp"
+                android:text="3"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical"
+                android:padding="5dp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:background="@drawable/style_mini_item"
+                android:textSize="18sp"
+                />
+
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+
+            android:id="@+id/stopPointRecyclerView"
+            />
+
+    </LinearLayout>
+
+
+
+<!--<RelativeLayout-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    android:layout_margin="10dp">-->
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="vertical">-->
+
+
+<!--    <ImageView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="220dp"-->
+<!--        android:src="@drawable/demoimage"-->
+<!--        android:scaleType="centerCrop"/>-->
+
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Ha Noi - Ho Chi Minh"-->
+
+<!--            android:layout_alignParentBottom="true"-->
+<!--            android:layout_marginStart="3dp"-->
+<!--            android:textStyle="bold"-->
+<!--            android:textSize="26sp"-->
+<!--            android:id="@+id/tourInfoName"/>-->
+
+<!--        <RatingBar-->
+<!--            android:id="@+id/tourRating"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            style="?android:attr/ratingBarStyleSmall"-->
+<!--            android:numStars="5"-->
+<!--            android:theme="@style/RatingBar"-->
+<!--            android:stepSize="0.1"-->
+<!--            android:isIndicator="true" />-->
+
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="60dp"-->
+<!--            android:orientation="horizontal">-->
+
+<!--            <RelativeLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:layout_height="60dp"-->
+<!--                android:id="@+id/tourListMembers"-->
+<!--                android:clickable="true">-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Members"-->
+<!--                    android:layout_marginTop="10dp"-->
+<!--                    android:layout_centerHorizontal="true"/>-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="3"-->
+<!--                    android:layout_centerHorizontal="true"-->
+<!--                    android:layout_marginBottom="10dp"-->
+<!--                    android:layout_alignParentBottom="true"-->
+<!--                    android:id="@+id/tourMemberNum"/>-->
+<!--            </RelativeLayout>-->
+<!--            <View-->
+<!--                android:layout_width="0.5dp"-->
+<!--                android:layout_height="40dp"-->
+<!--                android:layout_gravity="center_vertical"-->
+<!--                android:layout_marginLeft="-1dp"-->
+<!--                android:layout_toRightOf="@id/tvText"-->
+<!--                android:background="@color/black"-->
+<!--                />-->
+<!--            <RelativeLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:layout_height="60dp">-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Comments"-->
+<!--                    android:layout_marginTop="10dp"-->
+<!--                    android:layout_centerHorizontal="true"/>-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="3"-->
+<!--                    android:layout_centerHorizontal="true"-->
+<!--                    android:layout_marginBottom="10dp"-->
+<!--                    android:layout_alignParentBottom="true"-->
+<!--                    android:id="@+id/tourCommentNum"/>-->
+<!--            </RelativeLayout>-->
+<!--            <View-->
+<!--                android:layout_width="0.5dp"-->
+<!--                android:layout_height="40dp"-->
+<!--                android:layout_gravity="center_vertical"-->
+<!--                android:layout_marginLeft="-1dp"-->
+<!--                android:layout_toRightOf="@id/tvText"-->
+<!--                android:background="@color/black"-->
+<!--                />-->
+<!--            <RelativeLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:layout_height="60dp">-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Reviews"-->
+<!--                    android:layout_marginTop="10dp"-->
+<!--                    android:layout_centerHorizontal="true"/>-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="3"-->
+<!--                    android:layout_centerHorizontal="true"-->
+<!--                    android:layout_marginBottom="10dp"-->
+<!--                    android:layout_alignParentBottom="true"-->
+<!--                    android:id="@+id/tourReviewNum"/>-->
+<!--            </RelativeLayout>-->
+
+<!--        </LinearLayout>-->
+
+<!--        <TextView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="DETAILS"-->
+<!--            android:paddingTop="15dp"-->
+<!--            android:paddingBottom="15dp"-->
+<!--            android:textColor="@color/colorPrimary"-->
+<!--            android:textStyle="bold"-->
+<!--            android:textSize="20sp"/>-->
+
+<!--        <RelativeLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="50dp">-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:textSize="20sp"-->
+<!--                android:text="Date"-->
+<!--                android:textColor="@color/black"/>-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="12/12/2019 - 12/12/2019"-->
+<!--                android:textSize="16sp"-->
+<!--                android:layout_alignParentBottom="true"-->
+<!--                android:id="@+id/tourInfoDate"/>-->
+
+<!--            <ImageView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:src="@drawable/ic_schedule_date_svgrepo_com"-->
+<!--                android:layout_alignParentEnd="true"/>-->
+<!--        </RelativeLayout>-->
+
+<!--        <RelativeLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="50dp"-->
+<!--            android:layout_marginTop="20dp">-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:textSize="20sp"-->
+<!--                android:text="People"-->
+<!--                android:textColor="@color/black"/>-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="3 Adults - 2 Childs"-->
+<!--                android:textSize="16sp"-->
+<!--                android:layout_alignParentBottom="true"-->
+<!--                android:id="@+id/tourInfoPeople"/>-->
+
+<!--            <ImageView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:src="@drawable/ic_person_black_30dp"-->
+<!--                android:layout_alignParentEnd="true"/>-->
+<!--        </RelativeLayout>-->
+
+<!--        <RelativeLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="50dp"-->
+<!--            android:layout_marginTop="20dp">-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:textSize="20sp"-->
+<!--                android:text="Budget"-->
+<!--                android:textColor="@color/black"-->
+<!--                />-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="1000 - 10000000"-->
+<!--                android:textSize="16sp"-->
+<!--                android:layout_alignParentBottom="true"-->
+<!--                android:id="@+id/tourInfoCost"/>-->
+
+<!--            <ImageView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:src="@drawable/ic_monetization_on_black_30dp"-->
+<!--                android:layout_marginRight="5dp"-->
+<!--                android:layout_alignParentEnd="true"/>-->
+<!--        </RelativeLayout>-->
+
+<!--    </LinearLayout>-->
+
+<!--    <ImageButton-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:src="@drawable/ic_exit_to_app_black_24dp"-->
+<!--        android:layout_margin="10dp"-->
+<!--        android:background="@null" />-->
+<!--</RelativeLayout>-->
+
+</ScrollView>

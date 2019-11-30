@@ -16,12 +16,16 @@ class MainActivity : AppCompatActivity() {
         val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
         val apptoken = sharePref.getString("token", "notoken")
         if (apptoken != "notoken") {
-            startActivity(Intent(applicationContext,NavigationBottomActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+            startActivity(Intent(applicationContext,NavigationBottomActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .putExtra("userToken", apptoken))
             finish()
             return
         }
         else {
-            startActivity(Intent(applicationContext,LoginActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+            startActivity(Intent(applicationContext,LoginActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                )
             finish()
             return
         }

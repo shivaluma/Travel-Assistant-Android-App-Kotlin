@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    style="@style/loginParent"
-    tools:context="com.brogrammers.travel.ui.login.LoginActivity">
+    style="@style/loginParent">
     <ScrollView
         style="@style/parent">
 

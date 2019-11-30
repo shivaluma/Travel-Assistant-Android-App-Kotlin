@@ -4,22 +4,32 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.brogrammers.travel.LoginActivity
-import com.brogrammers.travel.R
+import androidx.recyclerview.widget.RecyclerView
+import com.brogrammers.travel.*
+import com.brogrammers.travel.manager.doAsync
+import com.brogrammers.travel.network.model.ApiServiceGetTourInfo
+import com.brogrammers.travel.network.model.WebAccess
 import kotlinx.android.synthetic.main.fragment_users.*
 import kotlinx.android.synthetic.main.fragment_users.view.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class NotificationsFragment : Fragment() {
 
     private lateinit var notificationsViewModel: NotificationsViewModel
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,4 +52,7 @@ class NotificationsFragment : Fragment() {
 
         return root
     }
+
+
+
 }

@@ -4,7 +4,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
@@ -16,10 +15,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".GetCoordinateActivity"></activity>
+        <activity android:name=".view.tabtourinfo.InviteNewMember"></activity>
+        <activity
+            android:name=".view.member.MemberListOfTour"
+            android:label="Members" />
+        <activity android:name=".TourInfoActivity" />
+        <activity android:name=".GetCoordinateActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -27,9 +32,7 @@
             android:name=".CreateTourActivity"
             android:label="Tạo tour mới" />
         <activity android:name=".RegisterActivity" />
-        <activity android:name=".LoginActivity">
-
-        </activity>
+        <activity android:name=".LoginActivity" />
         <activity
             android:name=".NavigationBottomActivity"
             android:label="Trang chính" />
@@ -37,12 +40,10 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
-
-
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBoa_7qIh5KKyAt4oqVFcs7dTTH-Vc534E"/>
+            android:value="AIzaSyBoa_7qIh5KKyAt4oqVFcs7dTTH-Vc534E" />
+
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"

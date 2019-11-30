@@ -55,6 +55,14 @@ interface ApiServiceGetHistoryTours {
     ): Call<ResponseListHistoryTours>
 }
 
+interface ApiServiceGetTourInfo {
+    @GET("/tour/info")
+    fun getTourInfo(
+        @Header("Authorization") token : String,
+        @Query("tourId") tourId: Int
+    ): Call<ResponseTourInfo>
+}
+
 interface ApiServiceCreateTour {
     @POST("/tour/create")
     fun postData(
@@ -71,6 +79,40 @@ interface ApiServiceAddStopPointToTour {
     ): Call<ResponseAddStopPoint>
 }
 
+interface ApiServiceGetUserList {
+    @GET("/user/search")
+    fun getUsers(
+        @Query("searchKey") searchKey : String,
+        @Query("pageIndex") pageIndex: Int,
+        @Query("pageSize") pageSize: String
+    ): Call<ResponseSearchUser>
+}
 
+interface ApiServiceAddUserToTour {
+    @POST("/tour/add/member")
+    fun addUser(
+        @Header("Authorization") Authorization: String,
+        @Body body: JsonObject
+    ): Call<ResponseAddUserToTour>
+}
+
+
+interface ApiServiceGetNotifications {
+    @GET("/tour/get/invitation")
+    fun getNotif(
+        @Header("Authorization") token : String,
+        @Query("pageIndex") pageIndex: Int,
+        @Query("pageSize") pageSize: String
+    ): Call<ResponseUserNotification>
+}
+
+
+interface ApiServiceResponseInvitaion {
+    @POST("/tour/response/invitation")
+    fun response(
+        @Header("Authorization") Authorization: String,
+        @Body body: JsonObject
+    ): Call<ResponseToInvitation>
+}
 
 
