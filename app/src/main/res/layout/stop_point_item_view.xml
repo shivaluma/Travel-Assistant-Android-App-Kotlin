@@ -10,6 +10,15 @@
         android:layout_width="match_parent"
         android:layout_height="120dp">
 
+        <ImageButton
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_menu_black_32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="5dp"
+            android:id="@+id/tourMenu"
+            android:background="@null"/>
+
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -66,8 +75,9 @@
             android:text="sdjkasd"
             android:id="@+id/itemstpcost"
             />
-    </LinearLayout>
 
+
+    </LinearLayout>
     </RelativeLayout>
 
 </androidx.cardview.widget.CardView>

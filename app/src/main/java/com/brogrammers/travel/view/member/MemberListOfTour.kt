@@ -259,11 +259,12 @@ class MemberListOfTour : AppCompatActivity() {
                 builder.setTitle("Thêm vào Tour")
 
                 // Display a message on alert dialog
-                builder.setMessage("Bạn có muốn thêm/mời ${item.fullName} vào tour không?")
+
+                builder.setMessage("Bạn có muốn mời ${item.fullName} vào tour không?")
 
                 // Set a positive button and its click listener on alert dialog
                 builder.setPositiveButton("Có"){dialog, which ->
-                    ApiRequestAddUserToTour(item.id!!)
+                    ApiRequestAddUserToTour(item.id!!, curTourPrivate)
                 }
 
 
@@ -323,6 +324,7 @@ class MemberListOfTour : AppCompatActivity() {
                         Log.d("members",response.body()!!.toString())
                         curTourId = response.body()!!.id
                         curTourPrivate = response.body()!!.isPrivate
+                        memberList.clear()
                         memberList.addAll(response.body()!!.members)
                         rcadapter.notifyDataSetChanged()
                     }
@@ -358,10 +360,9 @@ class MemberListOfTour : AppCompatActivity() {
     }
 
 
-    fun ApiRequestAddUserToTour(inviteUserId: Int) {
+    fun ApiRequestAddUserToTour(inviteUserId: Int, isTourPrivate: Boolean) {
         doAsync {
             val serviceuser = WebAccess.retrofit.create(ApiServiceAddUserToTour::class.java)
-
             val jsonObject = JsonObject()
             jsonObject.addProperty("tourId", curTourId.toString())
             jsonObject.addProperty("invitedUserId", inviteUserId.toString())
@@ -386,6 +387,7 @@ class MemberListOfTour : AppCompatActivity() {
                     } else {
                         Log.d("addm",response.body()!!.message)
                         Toast.makeText(applicationContext, "Invited Successful!!", Toast.LENGTH_LONG).show()
+                        ApiRequest()
                     }
                 }
             })

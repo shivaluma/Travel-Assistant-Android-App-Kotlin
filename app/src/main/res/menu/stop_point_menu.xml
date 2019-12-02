@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/edit_stoppoint"
+        android:icon="@drawable/ic_edit_black_24dp"
+        android:title="@string/stpmenu_edit" />
+
+    <item
+        android:id="@+id/remove_stoppoint"
+        android:icon="@drawable/ic_delete_black_24dp"
+        android:title="@string/stpmenu_remove" />
+
+
+</menu>

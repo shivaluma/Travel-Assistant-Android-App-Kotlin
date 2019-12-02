@@ -1,5 +1,7 @@
 package com.brogrammers.travel
 
+import android.os.Parcel
+import android.os.Parcelable
 import com.brogrammers.travel.model.StopPoint
 import com.brogrammers.travel.model.Tour
 import com.brogrammers.travel.ui.history.HistoryFragment
@@ -70,10 +72,31 @@ data class ResponseToInvitation (
     var message: String
 )
 
+data class ResponseToComment (
+    var message: String
+)
+
+data class ResponseToAddReview (
+    var message: String
+)
+
 data class ResponseUserNotification (
     var total: Int,
     var tours: ArrayList<TourNotification>
 )
+
+data class ResponseUserInfo (
+    var id: Int,
+    var full_name: String?,
+    var email: String?,
+    var phone: String?,
+    var address: String?,
+    var dob: String?,
+    var gender: Int?,
+    var email_verified : Boolean?,
+    var phone_verified : Boolean?
+)
+
 
 // sub class
 data class message (
@@ -90,8 +113,78 @@ data class errorlist (
     var msg: String
 )
 
-data class member(var id: Int, var name:String,var phone: String, var avatar: String, var isHost : Boolean)
-data class comment(var id: Int, var name:String,var comment: String, var avatar: String)
+data class ResponseGetReviewsTour(var reviewList: ArrayList<review>)
+
+data class review(
+    var id: Int, var name:String,var review: String, var avatar: String
+)
+
+data class member(var id: Int, var name:String,var phone: String, var avatar: String, var isHost : Boolean) :
+    Parcelable {
+    constructor(parcel: Parcel) : this(
+        parcel.readInt(),
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readByte() != 0.toByte()
+    ) {
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(id)
+        parcel.writeString(name)
+        parcel.writeString(phone)
+        parcel.writeString(avatar)
+        parcel.writeByte(if (isHost) 1 else 0)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<member> {
+        override fun createFromParcel(parcel: Parcel): member {
+            return member(parcel)
+        }
+
+        override fun newArray(size: Int): Array<member?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
+
+data class comment(var id: Int, var name:String,var comment: String, var avatar: String) :
+    Parcelable {
+    constructor(parcel: Parcel) : this(
+        parcel.readInt(),
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!
+    ) {
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(id)
+        parcel.writeString(name)
+        parcel.writeString(comment)
+        parcel.writeString(avatar)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<comment> {
+        override fun createFromParcel(parcel: Parcel): comment {
+            return comment(parcel)
+        }
+
+        override fun newArray(size: Int): Array<comment?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
+
 data class UserInfo(var id : Int?, var fullName: String?, var email: String?,var phone: String?, var gender: Int?,
                 var typeLogin : Int?, var avatar: String?, var dob: String?)
 

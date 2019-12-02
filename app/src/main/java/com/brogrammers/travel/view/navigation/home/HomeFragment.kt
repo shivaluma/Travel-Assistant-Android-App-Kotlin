@@ -41,7 +41,6 @@ import kotlin.collections.ArrayList
 class HomeFragment : Fragment() {
 
     var token: String = ""
-    private lateinit var homeViewModel: HomeViewModel
     var listTour = ArrayList<Tour>()
     var rowPerPage: Int = 10
     var pageNum: Int = 1
@@ -50,6 +49,7 @@ class HomeFragment : Fragment() {
     lateinit var tourAdapter : RecyclerViewAdapter
     lateinit var lv: RecyclerView
     lateinit var loaded: TextView
+    lateinit var tourNumber: TextView
     var isQuerying = false
 
     override fun onCreateView(
@@ -58,13 +58,13 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_home, container, false)
-        homeViewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
-
         val sharePref: SharedPreferences =
             this.activity!!.getSharedPreferences("logintoken", Context.MODE_PRIVATE)
         token = sharePref.getString("token", "nnn")!!
 
         loaded = root.findViewById<TextView>(R.id.tourLoaded)
+        tourNumber = root.findViewById<TextView>(R.id.tourNumber)
+
         tourAdapter = RecyclerViewAdapter(listTour)
         val layoutManager = LinearLayoutManager(this.context)
         layoutManager.orientation = LinearLayoutManager.VERTICAL

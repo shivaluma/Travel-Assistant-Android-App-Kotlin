@@ -115,4 +115,36 @@ interface ApiServiceResponseInvitaion {
     ): Call<ResponseToInvitation>
 }
 
+interface ApiServiceTourComment {
+    @POST("/tour/comment")
+    fun comment(
+        @Header("Authorization") Authorization: String,
+        @Body body: JsonObject
+    ): Call<ResponseToComment>
+}
+
+interface ApiServiceGetUserInfo {
+    @GET("/user/info")
+    fun getInfo(
+        @Header("Authorization") token : String
+    ): Call<ResponseUserInfo>
+}
+
+interface ApiServiceGetTourReview {
+    @GET("/tour/get/review-list")
+    fun getReview(
+        @Header("Authorization") token : String,
+        @Query("tourId") tourId : Int,
+        @Query("pageIndex") pageIndex: Int,
+        @Query("pageSize") pageSize : String
+    ): Call<ResponseGetReviewsTour>
+}
+
+interface ApiServiceAddReview {
+    @POST("/tour/add/review")
+    fun addReview(
+        @Header("Authorization") Authorization: String,
+        @Body body: JsonObject
+    ): Call<ResponseToAddReview>
+}
 

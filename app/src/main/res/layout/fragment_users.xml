@@ -1,27 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    style="@style/loginParent">
-    <ScrollView
-        style="@style/parent">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
-        <RelativeLayout
-            style="@style/parent">
+        <RelativeLayout style="@style/loginParent">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignParentTop="true"
-                android:weightSum="12">
-
-                <LinearLayout
+            <RelativeLayout
                     style="@style/parent"
                     android:background="@drawable/login_shape_bk"
                     android:orientation="vertical"
                     android:layout_weight="3">
-
 
                     <ImageView
                         style="@style/parent"
@@ -29,46 +18,84 @@
                         android:contentDescription="login background"
                         android:visibility="visible" />
 
-                </LinearLayout>
-            </LinearLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="55dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginLeft="10dp">
-
-
-                <ImageView
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-
-                    android:background="@drawable/ic_account_circle_white_24dp"
-                    />
-
-                <Button style="@style/Widget.AppCompat.Button.Colored"
-                    android:id="@+id/btnLogoutAccount"
-                    android:backgroundTint="@color/colorPrimary"
-                    android:textColor="@color/white"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="LogOut"
+                    android:layout_centerInParent="true"
+                    android:layout_marginStart="40dp"
+                    android:orientation="horizontal">
 
-                    />
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:background="@drawable/ic_account_circle_white_24dp" />
 
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:orientation="vertical">
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Nguyễn Viết Thanh"
+                            android:textColor="@color/white"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Shivaluma@gmail.com"
+                            android:textColor="@color/white"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0909090909"
+                            android:textColor="@color/white"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+                </LinearLayout>
             </RelativeLayout>
         </RelativeLayout>
 
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/imageborder"
+        android:drawableLeft="@drawable/ic_people_outline_black_30dp"
+        android:text="Edit profile"
+        android:textStyle="bold"
+        android:gravity="center_vertical"
+        android:drawablePadding="10dp"
+        android:textSize="18sp"
+        android:layout_margin="10dp"
+        android:padding="20dp"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/colorAccent"
+        android:layout_margin="20dp"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20sp"
+        android:background="@drawable/style_mini_item"
+        android:text="Đăng Xuất"
+        android:textColor="@color/white"
+        android:id="@+id/btnLogoutAccount"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
 
 
-    </ScrollView>
-
-</RelativeLayout>
+</LinearLayout>

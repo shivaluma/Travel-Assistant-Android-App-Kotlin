@@ -5,7 +5,17 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.icu.text.SimpleDateFormat
 import android.widget.EditText
+import android.widget.Toast
+import com.brogrammers.travel.ResponseTourInfo
+import com.brogrammers.travel.ResponseUserInfo
 import com.brogrammers.travel.manager.Constant
+import com.brogrammers.travel.network.model.ApiServiceGetTourInfo
+import com.brogrammers.travel.network.model.ApiServiceGetUserInfo
+import com.brogrammers.travel.network.model.WebAccess
+import kotlinx.android.synthetic.main.activity_tour_info.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -86,4 +96,6 @@ object util {
         if (type == 3) return "Rest Station"
         return "Others"
     }
+
+
 }

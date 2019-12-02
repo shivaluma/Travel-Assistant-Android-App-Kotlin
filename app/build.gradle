@@ -64,6 +64,10 @@ dependencies {
     implementation 'org.jetbrains.anko:anko-sdk15:0.8.2'
     implementation 'com.beust:klaxon:0.30'
     implementation 'de.hdodenhof:circleimageview:3.0.1'
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }
 
 apply plugin: 'com.google.gms.google-services'
+androidExtensions {
+    experimental = true
+}

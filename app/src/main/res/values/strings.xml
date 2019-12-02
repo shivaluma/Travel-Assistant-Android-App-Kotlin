@@ -30,4 +30,10 @@
     <string name="tab_text_2">Stop Point</string>
     <string name="tab_text_3">Comments</string>
     <string name="tab_text_4">Reviews</string>
+
+    // Stop PINT
+
+    <string name="stpmenu_edit">Chỉnh sửa</string>
+    <string name="stpmenu_remove">Xoá</string>
+
 </resources>

@@ -50,6 +50,7 @@ class HistoryFragment : Fragment() {
     lateinit var tourAdapter : RecyclerViewAdapter
     lateinit var lv: RecyclerView
     lateinit var loaded: TextView
+    lateinit var curTourCount: TextView
     var curLoaded = 0
 
     override fun onCreateView(
@@ -66,6 +67,7 @@ class HistoryFragment : Fragment() {
         val tourText = root.findViewById<TextView>(R.id.bannerText)
         tourText.text = "History Tours"
         loaded = root.findViewById<TextView>(R.id.tourLoaded)
+        curTourCount = root.findViewById<TextView>(R.id.tourNumber)
         tourAdapter = RecyclerViewAdapter(listTour)
         val layoutManager = LinearLayoutManager(this.context)
         layoutManager.orientation = LinearLayoutManager.VERTICAL
@@ -294,7 +296,7 @@ class HistoryFragment : Fragment() {
                         ).show()
                     } else {
                         listTour.addAll(response.body()!!.tours)
-                        tourNumber.text = response.body()!!.total.toString()
+                        curTourCount.text = response.body()!!.total.toString()
                         tourAdapter.notifyDataSetChanged()
                         loaded.text = listTour.size.toString()
                         curLoaded = listTour.size

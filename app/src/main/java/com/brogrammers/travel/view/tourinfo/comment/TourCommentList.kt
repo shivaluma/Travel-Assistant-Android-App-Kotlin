@@ -1,13 +1,13 @@
-package com.brogrammers.travel.view.tabtourinfo
+package com.brogrammers.travel.view.tourinfo.comment
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.brogrammers.travel.R
 
-class nviteNewMember : AppCompatActivity() {
+class TourCommentList : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_invite_new_member)
+        setContentView(R.layout.activity_tour_comment_list)
     }
 }

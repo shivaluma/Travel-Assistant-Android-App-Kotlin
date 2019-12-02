@@ -1,0 +1,62 @@
+
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    >
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/reviewNum"
+        android:text="5 reviews"
+        android:maxLines="1"
+        android:minLines="1"
+        android:layout_margin="16dp"
+        android:textStyle="bold"
+        android:layout_weight="0"/>
+
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.2dp"
+        android:id="@+id/divider"
+        android:background="@color/gray"
+        android:layout_weight="0"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/reviewRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.2dp"
+        android:id="@+id/divider2"
+        android:background="@color/gray"
+        android:layout_weight="0"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:orientation="horizontal">
+
+
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/style_mini_item"
+            android:text="Add Review"
+            android:textColor="@color/white"
+            android:id="@+id/addReviewBtn"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+
+</LinearLayout>
