@@ -19,6 +19,7 @@ import com.brogrammers.travel.model.StopPoint
 import com.brogrammers.travel.network.model.*
 import com.brogrammers.travel.util.util
 import com.brogrammers.travel.view.member.MemberListOfTour
+import com.brogrammers.travel.view.stoppoint.StopPointInfo
 import com.brogrammers.travel.view.tourinfo.comment.TourCommentList
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -136,6 +137,13 @@ class TourInfoActivity : AppCompatActivity() {
             })
         //displaying the popup
                 popup.show()
+            }
+
+            holder.itemView.setOnClickListener {
+                val intent = Intent(applicationContext, StopPointInfo::class.java)
+                intent.putExtra("token", token)
+                intent.putExtra("stpid", item.id)
+                startActivity(intent)
             }
         }
 
@@ -292,6 +300,7 @@ class TourInfoActivity : AppCompatActivity() {
                     if (response.code() != 200) {
                         Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
                     } else {
+                        Log.d("abab",response.body().toString())
                         val tourInfoName = tourInfoName
                         val tourInfoDate = tourInfoDate
                         val tourInfoPeople = tourInfoPeople

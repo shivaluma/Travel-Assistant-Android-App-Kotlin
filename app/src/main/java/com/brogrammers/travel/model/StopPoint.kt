@@ -1,6 +1,7 @@
 package com.brogrammers.travel.model
 
 data class StopPoint(
+    var id : Int,
     var name: String ,
     var type: String ,
     var address: String ,

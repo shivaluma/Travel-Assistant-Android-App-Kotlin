@@ -148,3 +148,11 @@ interface ApiServiceAddReview {
     ): Call<ResponseToAddReview>
 }
 
+interface ApiServiceGetStopPointInfo {
+    @GET("/tour/get/service-detail")
+    fun getTourInfo(
+        @Header("Authorization") token : String,
+        @Query("serviceId") serviceId: Int
+    ): Call<ResponseStopPointInfo>
+}
+

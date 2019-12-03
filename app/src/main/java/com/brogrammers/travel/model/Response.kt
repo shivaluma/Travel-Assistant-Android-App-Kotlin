@@ -97,6 +97,22 @@ data class ResponseUserInfo (
     var phone_verified : Boolean?
 )
 
+data class ResponseStopPointInfo (
+    var id: Long,
+    var address: String?,
+    var contact: String?,
+    var phone: String?,
+    var lat: Double?,
+    var long: Double?,
+    var maxCost: Long?,
+    var minCost: Long?,
+    var selfStarRatings: Int?,
+    var name: String?,
+    var serviceTypeId: Int?
+)
+
+
+
 
 // sub class
 data class message (
