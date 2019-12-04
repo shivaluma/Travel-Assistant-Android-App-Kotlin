@@ -1,4 +1,4 @@
-package com.brogrammers.travel.ui.history
+package com.brogrammers.travel.view.navigation.history
 
 import android.content.Context
 import android.content.Intent

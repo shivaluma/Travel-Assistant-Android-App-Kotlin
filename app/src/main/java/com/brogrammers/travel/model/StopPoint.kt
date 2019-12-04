@@ -7,10 +7,11 @@ data class StopPoint(
     var address: String ,
     var lat: Double? ,
     var long: Double? ,
-    var minCost: Int? ,
-    var maxCost: Int? ,
+    var minCost: Long? ,
+    var maxCost: Long? ,
     var arrivalAt: Long? ,
     var leaveAt: Long? ,
     var serviceTypeId: Int?,
-    var avatar: String?
+    var avatar: String?,
+    var contact: String?
 )

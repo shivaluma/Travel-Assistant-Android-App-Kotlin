@@ -15,8 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".view.stoppoint.StopPointInfo"></activity>
-        <activity android:name=".view.tabtourinfo.InviteNewMember" />
+
+        <activity android:name=".view.stoppoint.StopPointInfo"/>
+
         <activity
             android:name=".view.member.MemberListOfTour"
             android:label="Members" />

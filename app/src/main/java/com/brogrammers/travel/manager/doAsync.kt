@@ -7,6 +7,4 @@ class doAsync(val handler: () -> Unit) : AsyncTask<Void, Void, Void>() {
         handler()
         return null
     }
-
-
 }

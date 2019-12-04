@@ -17,6 +17,11 @@
         android:title="@string/title_notifications" />
 
     <item
+        android:id="@+id/navigation_explorer"
+        android:icon="@drawable/ic_map_black_24dp"
+        android:title="@string/title_notifications" />
+
+    <item
         android:id="@+id/navigation_user"
         android:icon="@drawable/ic_person_black_24dp"
         android:title="@string/title_user" />

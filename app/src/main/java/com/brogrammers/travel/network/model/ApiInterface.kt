@@ -1,6 +1,8 @@
 package com.brogrammers.travel.network.model
 
+import android.database.Observable
 import com.brogrammers.travel.*
+import com.brogrammers.travel.model.StopPoint
 import com.brogrammers.travel.ui.home.HomeFragment
 import com.google.gson.JsonObject
 import retrofit2.Call
@@ -156,3 +158,28 @@ interface ApiServiceGetStopPointInfo {
     ): Call<ResponseStopPointInfo>
 }
 
+interface ApiServiceGetStopPointPoints {
+    @GET("/tour/get/feedback-point-stats")
+    fun getPoints(
+        @Header("Authorization") token : String,
+        @Query("serviceId") serviceId: Int
+    ): Call<ResponseStopPointRatingPoints>
+}
+
+interface ApiServiceSearchDestination {
+    @GET("/tour/search/service")
+    fun search(
+        @Header("Authorization") token : String,
+        @Query("searchKey") searchKey: String,
+        @Query("pageIndex") pageIndex: Int,
+        @Query("pageSize") pageSize: String
+    ): Call<ResponseSearchDestination>
+}
+
+interface ApiServiceSuggestDestination {
+    @POST("/tour/suggested-destination-list")
+    fun getSuggest(
+        @Header("Authorization") token : String,
+        @Body body: JsonObject
+    ): Call<ResponseSuggestDestination>
+}

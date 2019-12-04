@@ -76,6 +76,6 @@ androidExtensions {
 
 configurations {
     cleanedAnnotations
-    compile.exclude group: 'org.jetbrains' , module:'annotations'
+    compile.exclude group: 'org.jetbrains', module: 'annotations'
     compile.exclude group: 'org.intellij.lang', module: 'annotations'
 }

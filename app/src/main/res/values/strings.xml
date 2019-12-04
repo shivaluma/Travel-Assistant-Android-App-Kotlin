@@ -19,6 +19,7 @@
     <string name="title_home">Trang chủ</string>
     <string name="title_user">Người dùng</string>
     <string name="title_notifications">Thông báo</string>
+    <string name="title_explorer">Explorer</string>
     <string name="facebook_app_id">2390005314662020</string>
     <string name="fb_login_protocol_scheme">fb2390005314662020</string>
 

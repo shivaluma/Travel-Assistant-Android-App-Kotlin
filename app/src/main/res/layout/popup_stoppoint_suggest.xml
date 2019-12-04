@@ -6,12 +6,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="ADD TO TOUR"
+            android:textColor="@color/white"
+            android:layout_marginTop="200dp"
+            android:layout_centerHorizontal="true"
+            android:textStyle="bold"
+            android:background="@drawable/notification_button_accept"/>
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
+        android:background="@color/white"
         android:orientation="vertical"
-        android:id="@+id/stpInfoMainLayout">
+        android:id="@+id/stpSuggestMainLayout">
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="220dp"
@@ -22,7 +37,8 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_margin="5dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="30dp"
             android:layout_height="wrap_content">
 
             <TextView
@@ -34,7 +50,7 @@
                 android:padding="2dp"
                 android:textColor="@color/white"
                 android:textStyle="bold"
-                android:id="@+id/serviceTypeText"/>
+                android:id="@+id/serviceSuggestTypeText"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -45,7 +61,7 @@
                 android:layout_marginStart="10dp"
                 android:textColor="@color/black"
                 android:textStyle="bold"
-                android:id="@+id/stpInfoName"
+                android:id="@+id/stpSuggestName"
                 />
         </RelativeLayout>
 
@@ -92,7 +108,7 @@
                     android:text="Ho Chi Minh"
                     android:textSize="16sp"
                     android:layout_alignParentBottom="true"
-                    android:id="@+id/stpInfoAddress"/>
+                    android:id="@+id/stpSuggestAddress"/>
             </LinearLayout>
 
 
@@ -122,7 +138,7 @@
                 android:text="0909090909"
                 android:textSize="16sp"
                 android:layout_alignParentBottom="true"
-                android:id="@+id/stpInfoContact"/>
+                android:id="@+id/stpSuggestContact"/>
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -151,7 +167,7 @@
                 android:text="1000 - 10000000"
                 android:textSize="16sp"
                 android:layout_alignParentBottom="true"
-                android:id="@+id/stpInfoCost"/>
+                android:id="@+id/stpSuggestCost"/>
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -162,12 +178,6 @@
                 android:layout_alignParentEnd="true"/>
         </RelativeLayout>
 
-        <com.brogrammers.travel.util.CustomMapView
-            android:layout_width="match_parent"
-            android:layout_margin="10dp"
-            android:layout_height="140dp"
-            android:id="@+id/locateStopPoint"
-            />
 
         <TextView
             android:layout_width="match_parent"
@@ -274,5 +284,6 @@
             />
 
     </LinearLayout>
+    </RelativeLayout>
 
 </ScrollView>

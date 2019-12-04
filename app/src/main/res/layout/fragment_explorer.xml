@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.navigation.explorer.ExplorerFragment">
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/explorermap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+    <com.mancj.materialsearchbar.MaterialSearchBar
+        style="@style/MaterialSearchBarLight"
+        app:mt_speechMode="false"
+        app:mt_hint="Đại học KHTN"
+        app:mt_maxSuggestionsCount="6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:id="@+id/searchMapBarExplorer"
+        android:elevation="5dp"
+        android:outlineProvider="bounds"
+        app:mt_placeholder="Find Stop Point.."/>
+
+</FrameLayout>

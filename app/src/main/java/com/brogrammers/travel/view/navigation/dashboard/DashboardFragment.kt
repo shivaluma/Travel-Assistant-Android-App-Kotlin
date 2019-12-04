@@ -1,4 +1,4 @@
-package com.brogrammers.travel.ui.dashboard
+package com.brogrammers.travel.view.navigation.dashboard
 
 import android.os.Bundle
 import android.text.Html
@@ -27,8 +27,6 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class DashboardFragment : Fragment() {
-
-    private lateinit var dashboardViewModel: DashboardViewModel
     lateinit var view : RecyclerView
     lateinit var notifiAdapter : NotificationAdapter
     var listNotification = ArrayList<TourNotification>()

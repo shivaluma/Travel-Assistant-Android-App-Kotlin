@@ -1,4 +1,4 @@
-package com.brogrammers.travel.ui.notifications
+package com.brogrammers.travel.view.navigation.notifications
 
 import android.content.Context
 import android.content.Intent
@@ -27,7 +27,7 @@ import retrofit2.Response
 
 class NotificationsFragment : Fragment() {
 
-    private lateinit var notificationsViewModel: NotificationsViewModel
+
 
 
 
@@ -36,8 +36,6 @@ class NotificationsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        notificationsViewModel =
-            ViewModelProviders.of(this).get(NotificationsViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_users, container, false)
         root.btnLogoutAccount.setOnClickListener {
             val sharePref : SharedPreferences = this.activity!!.getSharedPreferences("logintoken", Context.MODE_PRIVATE)

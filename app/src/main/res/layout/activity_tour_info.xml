@@ -12,11 +12,28 @@
 
         android:orientation="vertical"
         android:id="@+id/tourInfoMainLayout">
-        <ImageView
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:src="@drawable/demoimage"
-            android:scaleType="centerCrop"/>
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:src="@drawable/demoimage"
+                android:scaleType="centerCrop"/>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_menu_white_24dp"
+                android:background="@drawable/style_mini_item"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="10dp"
+                android:id="@+id/tourMenu"
+                android:padding="5dp"/>
+
+        </RelativeLayout>
+
 
         <TextView
             android:layout_width="wrap_content"

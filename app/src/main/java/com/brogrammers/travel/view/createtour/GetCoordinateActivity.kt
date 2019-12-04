@@ -17,6 +17,7 @@ import android.location.LocationListener
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
+import android.text.Html
 import android.text.TextWatcher
 import android.transition.Slide
 import android.transition.TransitionManager
@@ -29,9 +30,9 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.brogrammers.travel.manager.Constant
-import com.brogrammers.travel.network.model.ApiServiceAddStopPointToTour
-import com.brogrammers.travel.network.model.ApiServiceCreateTour
-import com.brogrammers.travel.network.model.WebAccess
+import com.brogrammers.travel.manager.doAsync
+import com.brogrammers.travel.model.StopPoint
+import com.brogrammers.travel.network.model.*
 import com.brogrammers.travel.util.util
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
@@ -52,11 +53,15 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.jaredrummler.materialspinner.MaterialSpinner
 import com.mancj.materialsearchbar.MaterialSearchBar
 import kotlinx.android.synthetic.main.activity_get_coordinate.*
+import kotlinx.android.synthetic.main.activity_stop_point_info.view.*
+import kotlinx.android.synthetic.main.popup_stoppoint_suggest.view.*
+import kotlinx.android.synthetic.main.popup_suggest_point_onclick.view.*
 import kotlinx.android.synthetic.main.stoppoint.*
 import kotlinx.android.synthetic.main.stoppointinfo.view.*
 import org.json.JSONException
@@ -89,11 +94,20 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     var mPolyLineArrayList = ArrayList<Polyline>()
     internal var mGoogleApiClient: GoogleApiClient? = null
     internal var mCurrLocationMarker: Marker? = null
-    lateinit var token: AutocompleteSessionToken
+    lateinit var autocompletetoken: AutocompleteSessionToken
     lateinit var LastStartPointLatLng: LatLng
     lateinit var LastEndPointLatLng: LatLng
     lateinit var LastStartMarker: Marker
     lateinit var LastEndMarker: Marker
+    lateinit var token : String
+
+    var getSuggestPointMode = false
+
+    var listSuggestPoint = ArrayList<LatLng>()
+    var listSuggestPointMarker = ArrayList<Marker>()
+    var listStopPointSearch = ArrayList<StopPoint>()
+    var listStopPointSuggest = ArrayList<StopPoint>()
+    var listStopPointSuggestMarker= ArrayList<Marker>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,7 +119,11 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         Places.initialize(this, Constant.ggMapApiKey)
         mPlacesClient = Places.createClient(this)
-        token = AutocompleteSessionToken.newInstance()
+        autocompletetoken = AutocompleteSessionToken.newInstance()
+        val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
+        token = sharePref.getString("token", "notoken")!!
+
+
 
         btnFloatFinish.setOnClickListener {
             if (checkNoStartEndPoint()) {
@@ -131,8 +149,8 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 jsonObject.addProperty("isPrivate", extras.getBoolean("iIsPrivate"))
                 jsonObject.addProperty("adults", extras.getInt("iAdultNum"))
                 jsonObject.addProperty("childs", extras.getInt("iChildNum"))
-                jsonObject.addProperty("minCost", extras.getInt("iMinCost"))
-                jsonObject.addProperty("maxCost", extras.getInt("iMaxCost"))
+                jsonObject.addProperty("minCost", extras.getLong("iMinCost"))
+                jsonObject.addProperty("maxCost", extras.getLong("iMaxCost"))
                 if (!extras.getString("iImage").isNullOrEmpty()) {
                     jsonObject.addProperty("avatar", extras.getString("iImage"))
                 }
@@ -237,6 +255,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             }
         }
 
+
         btnFloatGetListPoint.setOnClickListener {
             val inflater: LayoutInflater =
                 getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -313,6 +332,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             }
         }
 
+        //searchMapBar.setCustomSuggestionAdapter()
 
         searchMapBar.setOnSearchActionListener(
             object : MaterialSearchBar.OnSearchActionListener {
@@ -332,9 +352,12 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 override fun onSearchConfirmed(text: CharSequence?) {
                     searchLocation(text.toString())
                     searchMapBar.clearSuggestions()
+//                    ApiRequestSearchDestination(text.toString())
+
                 }
             }
         )
+
 
 
 
@@ -348,35 +371,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val predictionsRequest: FindAutocompletePredictionsRequest =
-                    FindAutocompletePredictionsRequest.builder()
-                        .setTypeFilter(TypeFilter.ADDRESS)
-                        .setSessionToken(token)
-                        .setQuery(s.toString())
-                        .build()
-                mPlacesClient.findAutocompletePredictions(predictionsRequest)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            var predictionsResponse: FindAutocompletePredictionsResponse =
-                                task.result!!
-                            if (predictionsResponse != null) {
-                                mListAutoCompletePredition =
-                                    predictionsResponse.autocompletePredictions
-                                var suggestionsList = ArrayList<String>()
-                                for (i in 0 until mListAutoCompletePredition.size - 1) {
-                                    var prediction: AutocompletePrediction =
-                                        mListAutoCompletePredition.get(i)
-                                    suggestionsList.add(prediction.getFullText(null).toString())
-                                }
-                                searchMapBar.updateLastSuggestions(suggestionsList)
-                                if (!searchMapBar.isSuggestionsVisible) {
-                                    searchMapBar.showSuggestionsList()
-                                }
-                            }
-                        } else {
-                            Log.i("mytag", "prediction fetching task unsuccessful")
-                        }
-                    }
+                ApiRequestSearchDestination(s.toString())
             }
         })
     }
@@ -671,70 +666,146 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
         }
 
+        googleMap.setOnMapLongClickListener {
+            if (!getSuggestPointMode) {
+                getSuggestPoint.visibility = View.VISIBLE
+                ExitMode.visibility = View.VISIBLE
+                getSuggestPoint.setOnClickListener {
+                    if (listSuggestPoint.size == 0) {
+                        Toast.makeText(
+                            applicationContext,
+                            "Chưa có Suggest Point",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    else if (listSuggestPoint.size == 1) {
+                        var body = JsonObject()
+                        var coor = JsonObject()
+                        coor.addProperty("lat", listSuggestPoint[0].latitude)
+                        coor.addProperty("long", listSuggestPoint[0].longitude)
+                        body.addProperty("hasOneCoordinate", true)
+                        body.add("coordList", coor)
+                        ApiRequestGetNearbyPoint(body)
+                    }
+
+                    else if (listSuggestPoint.size > 1) {
+                        if (listSuggestPoint.size % 2 == 1) {
+                            Toast.makeText(applicationContext, "Số điểm chấm phải là số chẵn", Toast.LENGTH_LONG).show()
+                        }
+                        else {
+                            var body = JsonObject()
+                            var coorlist = JsonArray()
+                            var array = JsonArray()
+
+                            for (i in 0..listSuggestPoint.size-1) {
+                                var coor = JsonObject()
+                                coor.addProperty("lat", listSuggestPoint[i].latitude)
+                                coor.addProperty("long", listSuggestPoint[i].longitude)
+                                array.add(coor)
+                                if (i > 0 && i % 2 == 1) {
+                                    var coorListObject = JsonObject()
+                                    coorListObject.add("coordinateSet", array)
+                                    array = JsonArray()
+                                    coorlist.add(coorListObject)
+                                }
+                            }
+                            body.addProperty("hasOneCoordinate", false)
+                            body.add("coordList", coorlist)
+                            ApiRequestGetNearbyPoint(body)
+                        }
+
+                    }
+                }
+
+                ExitMode.setOnClickListener {
+                    getSuggestPointMode = false
+                    getSuggestPoint.visibility = View.GONE
+                    ExitMode.visibility = View.GONE
+                    listSuggestPoint.clear()
+                    for (i in listSuggestPointMarker) i.remove()
+                    listSuggestPointMarker.clear()
+                    clearSuggestPointOnMap()
+                }
+            }
+
+            var marker = googleMap.addMarker(MarkerOptions().position(it).title((listSuggestPoint.size + 1).toString()))
+            listSuggestPoint.add(it)
+            marker.tag = "suggestpoint"
+            listSuggestPointMarker.add(marker)
+        }
+
         googleMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
             override fun onMarkerClick(p0: Marker?): Boolean {
-                val inflater: LayoutInflater =
-                    getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                val view = inflater.inflate(R.layout.popup_stoppointclick, null)
-                val popupWindow = PopupWindow(
-                    view, // Custom view to show in popup window
-                    LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
-                    LinearLayout.LayoutParams.WRAP_CONTENT // Window height
-                )
-
-                // Set an elevation for the popup window
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    popupWindow.elevation = 10.0F
+                 if (p0!!.tag.toString().contains("suggeststoppoint")) {
+                     var splitList = p0!!.tag.toString().split(" ")
+                     var serviceId : String = splitList[1]
+                     Log.d("abab",serviceId)
+                    popupSuggestPointInfo(serviceId.toInt())
                 }
+                else {
+                    val inflater: LayoutInflater =
+                        getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+                    val view = inflater.inflate(R.layout.popup_stoppointclick, null)
+                    val popupWindow = PopupWindow(
+                        view, // Custom view to show in popup window
+                        LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
+                        LinearLayout.LayoutParams.WRAP_CONTENT // Window height
+                    )
 
-
-                // If API level 23 or higher then execute the code
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    // Create a new slide animation for popup window enter transition
-                    val slideIn = Slide()
-                    slideIn.slideEdge = Gravity.BOTTOM
-                    popupWindow.enterTransition = slideIn
-
-                    // Slide animation for popup window exit transition
-                    val slideOut = Slide()
-                    slideOut.slideEdge = Gravity.BOTTOM
-                    popupWindow.exitTransition = slideOut
-
-                }
-
-                // Set a dismiss listener for popup window
-                popupWindow.setOnDismissListener {
-                    Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
-                }
-
-
-                // Finally, show the popup window on app
-                TransitionManager.beginDelayedTransition(root_layout)
-                popupWindow.showAtLocation(
-                    root_layout, // Location to display popup window
-                    Gravity.BOTTOM, // Exact position of layout to display popup
-                    0, // X offset
-                    0 // Y offset
-                )
-
-
-                val remove = view.findViewById<RelativeLayout>(R.id.removeSTP)
-                remove.setOnClickListener {
-                    var index = findIndexByTag(p0!!.tag.toString())
-                    Log.d("indexd", index.toString())
-                    if (index > -1) {
-                        mStopPointArrayList.removeAt(index)
+                    // Set an elevation for the popup window
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        popupWindow.elevation = 10.0F
                     }
-                    p0.remove()
-                    popupWindow.dismiss()
-                    drawThePath()
-                    Toast.makeText(applicationContext, "Deleted", Toast.LENGTH_LONG)
-                        .show()
-                }
 
+
+                    // If API level 23 or higher then execute the code
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        // Create a new slide animation for popup window enter transition
+                        val slideIn = Slide()
+                        slideIn.slideEdge = Gravity.BOTTOM
+                        popupWindow.enterTransition = slideIn
+
+                        // Slide animation for popup window exit transition
+                        val slideOut = Slide()
+                        slideOut.slideEdge = Gravity.BOTTOM
+                        popupWindow.exitTransition = slideOut
+
+                    }
+
+                    // Set a dismiss listener for popup window
+                    popupWindow.setOnDismissListener {
+                        Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
+                    }
+
+
+                    // Finally, show the popup window on app
+                    TransitionManager.beginDelayedTransition(root_layout)
+                    popupWindow.showAtLocation(
+                        root_layout, // Location to display popup window
+                        Gravity.BOTTOM, // Exact position of layout to display popup
+                        0, // X offset
+                        0 // Y offset
+                    )
+
+
+                    val remove = view.findViewById<RelativeLayout>(R.id.removeSTP)
+                    remove.setOnClickListener {
+                        var index = findIndexByTag(p0!!.tag.toString())
+                        Log.d("indexd", index.toString())
+                        if (index > -1) {
+                            mStopPointArrayList.removeAt(index)
+                        }
+                        p0.remove()
+                        popupWindow.dismiss()
+                        drawThePath()
+                        Toast.makeText(applicationContext, "Deleted", Toast.LENGTH_LONG)
+                            .show()
+                    }
+                }
                 return false
             }
         })
+
 
     }
 
@@ -748,26 +819,26 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     }
 
     override fun onLocationChanged(location: Location?) {
-        mLastKnowLocation = location!!
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker!!.remove()
-        }
-        //Place current location marker
-        val latLng = LatLng(location.latitude, location.longitude)
-        val markerOptions = MarkerOptions()
-        markerOptions.position(latLng)
-        markerOptions.title("Current Position")
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-        mCurrLocationMarker = googleMap.addMarker(markerOptions)
-
-        //move map camera
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15f))
-
-        //stop location updates
-        if (mGoogleApiClient != null) {
-            LocationServices.getFusedLocationProviderClient(this)
-        }
+//        mLastKnowLocation = location!!
+//        if (mCurrLocationMarker != null) {
+//            mCurrLocationMarker!!.remove()
+//        }
+//        //Place current location marker
+//        val latLng = LatLng(location.latitude, location.longitude)
+//        val markerOptions = MarkerOptions()
+//        markerOptions.position(latLng)
+//        markerOptions.title("Current Position")
+//        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+//        mCurrLocationMarker = googleMap.addMarker(markerOptions)
+//
+//        //move map camera
+//        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+//        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15f))
+//
+//        //stop location updates
+//        if (mGoogleApiClient != null) {
+//            LocationServices.getFusedLocationProviderClient(this)
+//        }
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
@@ -1008,4 +1079,209 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         val address = addresses.get(0)
         return address.getAddressLine(0)
     }
+
+    fun ApiRequestSearchDestination(searchKey : String) {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceSearchDestination::class.java)
+            val call = service.search(token,searchKey,1,"9999")
+            call.enqueue(object : Callback<ResponseSearchDestination> {
+                override fun onFailure(call: Call<ResponseSearchDestination>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+                override fun onResponse(
+                    call: Call<ResponseSearchDestination>,
+                    response: Response<ResponseSearchDestination>
+                ) {
+                    if (response.code() != 200) {
+                        Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
+                    } else {
+                        Log.d("abab",response.body().toString())
+                        listStopPointSearch.clear()
+                        listStopPointSearch.addAll(response.body()!!.stopPoints)
+                        var suggestionsList = ArrayList<String>()
+                        for (i in listStopPointSearch.indices) {
+                            var line : String = "id : " + listStopPointSearch[i].id + " - " + listStopPointSearch[i].name + "\n" +
+                                     "Address : "  + listStopPointSearch[i].address
+                            suggestionsList.add(line)
+                        }
+
+                        searchMapBar.updateLastSuggestions(suggestionsList)
+                        if (!searchMapBar.isSuggestionsVisible) {
+                            searchMapBar.showSuggestionsList()
+                        }
+
+                    }
+                }
+            })
+        }.execute()
+    }
+
+    fun popupSetting(num : String) {
+        val inflater: LayoutInflater =
+            getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.popup_suggest_point_onclick, null)
+
+
+
+        val popupWindow = PopupWindow(
+            view, // Custom view to show in popup window
+            LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
+            LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
+            true
+        )
+
+        // Set an elevation for the popup window
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            popupWindow.elevation = 10.0F
+        }
+
+
+
+        // If API level 23 or higher then execute the code
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Create a new slide animation for popup window enter transition
+            val slideIn = Slide()
+            slideIn.slideEdge = Gravity.BOTTOM
+            popupWindow.enterTransition = slideIn
+
+            // Slide animation for popup window exit transition
+            val slideOut = Slide()
+            slideOut.slideEdge = Gravity.BOTTOM
+            popupWindow.exitTransition = slideOut
+
+        }
+
+
+
+
+        // Set a dismiss listener for popup window
+        popupWindow.setOnDismissListener {
+            Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
+        }
+
+
+        // Finally, show the popup window on app
+        popupWindow.showAtLocation(
+            root_layout, // Location to display popup window
+            Gravity.BOTTOM, // Exact position of layout to display popup
+            0, // X offset
+            0 // Y offset
+        )
+    }
+
+
+    fun ApiRequestGetNearbyPoint(body : JsonObject) {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceSuggestDestination::class.java)
+
+            val call = service.getSuggest(token,body)
+            call.enqueue(object : Callback<ResponseSuggestDestination> {
+                override fun onFailure(call: Call<ResponseSuggestDestination>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+                override fun onResponse(
+                    call: Call<ResponseSuggestDestination>,
+                    response: Response<ResponseSuggestDestination>
+                ) {
+                    Log.d("abab",response.message())
+                    if (response.code() != 200) {
+                        Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
+                    } else {
+                        Log.d("abab",response.body().toString())
+                        listStopPointSuggest.addAll(response.body()!!.stopPoints)
+                        showSuggestPointToMap()
+                    }
+                }
+            })
+        }.execute()
+    }
+
+    fun showSuggestPointToMap() {
+        clearSuggestPointOnMap()
+        var item : StopPoint
+        for (i in 0..listStopPointSuggest.size-1) {
+            item = listStopPointSuggest[i]
+            var marker : Marker
+            var latLng = LatLng(item.lat!!,item.long!!)
+            if (item.serviceTypeId == 1) {
+                 marker = addMarker(googleMap, latLng, item.name, R.drawable.ic_restaurant)
+            }
+            else if (item.serviceTypeId == 2) {
+                marker = addMarker(googleMap, latLng, item.name, R.drawable.ic_hotel)
+            }
+            else if (item.serviceTypeId == 3) {
+                marker = addMarker(googleMap, latLng, item.name, R.drawable.ic_bedtime)
+            }
+            else {
+                marker = addMarker(googleMap, latLng, item.name, R.drawable.ic_pin)
+            }
+            marker.tag = "suggeststoppoint ${i}"
+            listStopPointSuggestMarker.add(marker)
+        }
+    }
+
+    fun clearSuggestPointOnMap() {
+        for (i in listStopPointSuggestMarker) i.remove()
+        listStopPointSuggestMarker.clear()
+    }
+
+    fun popupSuggestPointInfo(pos : Int) {
+        val inflater: LayoutInflater =
+            getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.popup_stoppoint_suggest, null)
+
+        val popupWindow = PopupWindow(
+            view, // Custom view to show in popup window
+            LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
+            LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
+            true
+        )
+
+        // Set an elevation for the popup window
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            popupWindow.elevation = 10.0F
+        }
+
+
+        // If API level 23 or higher then execute the code
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Create a new slide animation for popup window enter transition
+            val slideIn = Slide()
+            slideIn.slideEdge = Gravity.BOTTOM
+            popupWindow.enterTransition = slideIn
+
+            // Slide animation for popup window exit transition
+            val slideOut = Slide()
+            slideOut.slideEdge = Gravity.BOTTOM
+            popupWindow.exitTransition = slideOut
+
+        }
+
+
+        view.stpSuggestName.text = listStopPointSuggest[pos].name
+        view.stpSuggestAddress.text = listStopPointSuggest[pos].address
+        view.stpSuggestContact.text = listStopPointSuggest[pos].contact
+        var costString = listStopPointSuggest[pos].minCost.toString() + " - " + listStopPointSuggest[pos].maxCost.toString()
+        view.stpSuggestCost.text = costString
+        view.serviceSuggestTypeText.text = util.StopPointTypeToString(listStopPointSuggest[pos].serviceTypeId!!)
+
+
+
+        // Set a dismiss listener for popup window
+        popupWindow.setOnDismissListener {
+            Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
+        }
+
+
+        // Finally, show the popup window on app
+        popupWindow.showAtLocation(
+            root_layout, // Location to display popup window
+            Gravity.BOTTOM, // Exact position of layout to display popup
+            0, // X offset
+            60 // Y offset
+        )
+    }
+
+
+
 }

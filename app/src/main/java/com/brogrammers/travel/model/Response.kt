@@ -4,7 +4,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.brogrammers.travel.model.StopPoint
 import com.brogrammers.travel.model.Tour
-import com.brogrammers.travel.ui.history.HistoryFragment
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -35,8 +34,8 @@ data class AddStopPointResultOK(
     val long: Double,
     val arrivalAt: Long,
     val leaveAt: Long,
-    val minCost: Int,
-    val maxCost: Int,
+    val minCost: Long,
+    val maxCost: Long,
     val serviceTypeId: Int,
     val id: Int
 )
@@ -85,6 +84,15 @@ data class ResponseUserNotification (
     var tours: ArrayList<TourNotification>
 )
 
+data class ResponseSearchDestination(
+    var total: Int,
+    var stopPoints: ArrayList<StopPoint>
+)
+
+data class ResponseSuggestDestination(
+    var stopPoints: ArrayList<StopPoint>
+)
+
 data class ResponseUserInfo (
     var id: Int,
     var full_name: String?,
@@ -111,8 +119,9 @@ data class ResponseStopPointInfo (
     var serviceTypeId: Int?
 )
 
+data class ResponseStopPointRatingPoints(var pointStats : ArrayList<ratingpoint>)
 
-
+data class ratingpoint(var total: Int, var point : Int)
 
 // sub class
 data class message (

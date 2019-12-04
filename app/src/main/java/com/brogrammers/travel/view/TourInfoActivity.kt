@@ -24,6 +24,7 @@ import com.brogrammers.travel.view.tourinfo.comment.TourCommentList
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
@@ -91,6 +92,10 @@ class TourInfoActivity : AppCompatActivity() {
         tourListReviews.setOnClickListener {
             popupReview()
         }
+
+        tourMenu.setOnClickListener {
+            popupSetting()
+        }
     }
 
 
@@ -124,12 +129,12 @@ class TourInfoActivity : AppCompatActivity() {
                 popup.inflate(R.menu.stop_point_menu)
                 //adding click listener
                 popup.setOnMenuItemClickListener(object:  PopupMenu.OnMenuItemClickListener {
-                override fun onMenuItemClick(item: MenuItem?): Boolean {
-                    if (item!!.itemId == R.id.edit_stoppoint) {
+                override fun onMenuItemClick(menuitem: MenuItem?): Boolean {
+                    if (menuitem!!.itemId == R.id.edit_stoppoint) {
                         Toast.makeText(applicationContext, "Chọn sửa", Toast.LENGTH_SHORT).show()
                     }
-                    else if (item.itemId == R.id.remove_stoppoint) {
-                        Toast.makeText(applicationContext, "Chọn xoá", Toast.LENGTH_SHORT).show()
+                    else if (menuitem.itemId == R.id.remove_stoppoint) {
+                        ApiRequestRemoveStopPoint(tourId,item.id)
                     }
 
                     return false
@@ -385,6 +390,37 @@ class TourInfoActivity : AppCompatActivity() {
     }
 
 
+    fun ApiRequestRemoveStopPoint(tourId : Int, stpid : Int) {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceAddStopPointToTour::class.java)
+            val json = JsonObject()
+            json.addProperty("tourId", tourId)
+            var array = JsonArray()
+            array.add(stpid)
+            json.add("deleteIds",array)
+
+            val call = service.postData(token, json)
+            call.enqueue(object : Callback<ResponseAddStopPoint> {
+                override fun onFailure(call: Call<ResponseAddStopPoint>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+                override fun onResponse(
+                    call: Call<ResponseAddStopPoint>,
+                    response: Response<ResponseAddStopPoint>
+                ) {
+                    if (response.code() != 200) {
+                        Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
+                    } else {
+                        Log.d("abab",response.body().toString())
+                        Toast.makeText(applicationContext, "Đã xoá", Toast.LENGTH_LONG).show()
+                        ApiRequest()
+                    }
+                }
+            })
+        }.execute()
+    }
+
+
     fun ApiRequestAddReview(tourId : Int, point: Int, review: String) {
         doAsync {
             val service = WebAccess.retrofit.create(ApiServiceAddReview::class.java)
@@ -415,6 +451,10 @@ class TourInfoActivity : AppCompatActivity() {
     }
 
     fun countTypeStopPoint() {
+
+        for (i in typeCount.indices) {
+            typeCount[i] = 0
+        }
         for (i in listStopPoint) {
             typeCount[i.serviceTypeId!!-1]++
         }
@@ -592,6 +632,61 @@ class TourInfoActivity : AppCompatActivity() {
         popupWindow.showAtLocation(
             tourInfoMainLayout, // Location to display popup window
             Gravity.CENTER, // Exact position of layout to display popup
+            0, // X offset
+            0 // Y offset
+        )
+    }
+
+
+    fun popupSetting() {
+        val inflater: LayoutInflater =
+            getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.popup_setting_bottom, null)
+
+
+
+        val popupWindow = PopupWindow(
+            view, // Custom view to show in popup window
+            LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
+            LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
+            true
+        )
+
+        // Set an elevation for the popup window
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            popupWindow.elevation = 10.0F
+        }
+
+
+        // If API level 23 or higher then execute the code
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Create a new slide animation for popup window enter transition
+            val slideIn = Slide()
+            slideIn.slideEdge = Gravity.BOTTOM
+            popupWindow.enterTransition = slideIn
+
+            // Slide animation for popup window exit transition
+            val slideOut = Slide()
+            slideOut.slideEdge = Gravity.BOTTOM
+            popupWindow.exitTransition = slideOut
+
+        }
+
+        // Get the widgets reference from custom view
+        //val tv = view.findViewById<TextView>(R.id.text_view)
+
+
+
+        // Set a dismiss listener for popup window
+        popupWindow.setOnDismissListener {
+            Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
+        }
+
+
+        // Finally, show the popup window on app
+        popupWindow.showAtLocation(
+            tourInfoMainLayout, // Location to display popup window
+            Gravity.BOTTOM, // Exact position of layout to display popup
             0, // X offset
             0 // Y offset
         )

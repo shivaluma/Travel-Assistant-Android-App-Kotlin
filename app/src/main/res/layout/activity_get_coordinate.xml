@@ -25,6 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
         android:id="@+id/searchMapBar"
+        app:mt_navIconEnabled="true"
         android:elevation="5dp"
         android:outlineProvider="bounds"
         app:mt_placeholder="Tìm địa điểm.."/>
@@ -52,5 +53,35 @@
 
         android:id="@+id/btnFloatGetListPoint"
         />
+
+    <Button
+        android:id="@+id/getSuggestPoint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/style_mini_item"
+        android:text="Get Suggest Point"
+        android:padding="10dp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"/>
+
+    <Button
+        android:id="@+id/ExitMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/style_mini_item"
+        android:text="Exit"
+        android:padding="10dp"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        android:textStyle="bold"
+        android:layout_marginStart="10dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"/>
+
+
 
 </RelativeLayout>

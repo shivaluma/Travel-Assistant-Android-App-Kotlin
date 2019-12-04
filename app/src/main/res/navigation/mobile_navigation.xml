@@ -13,19 +13,25 @@
 
     <fragment
         android:id="@+id/navigation_history"
-        android:name="com.brogrammers.travel.ui.history.HistoryFragment"
+        android:name="com.brogrammers.travel.view.navigation.history.HistoryFragment"
         android:label="Lịch sử"
         tools:layout="@layout/fragment_history" />
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.brogrammers.travel.ui.dashboard.DashboardFragment"
+        android:name="com.brogrammers.travel.view.navigation.dashboard.DashboardFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
+        android:id="@+id/navigation_explorer"
+        android:name="com.brogrammers.travel.view.navigation.explorer.ExplorerFragment"
+        android:label="@string/title_explorer"
+        tools:layout="@layout/fragment_explorer" />
+
+    <fragment
         android:id="@+id/navigation_user"
-        android:name="com.brogrammers.travel.ui.notifications.NotificationsFragment"
+        android:name="com.brogrammers.travel.view.navigation.notifications.NotificationsFragment"
         android:label="@string/title_user"
         tools:layout="@layout/fragment_users" />
 
