@@ -183,3 +183,17 @@ interface ApiServiceSuggestDestination {
         @Body body: JsonObject
     ): Call<ResponseSuggestDestination>
 }
+
+interface ApiServiceGetOTP {
+    @POST("/user/request-otp-recovery")
+    fun getOTP(
+        @Body body: JsonObject
+    ): Call<ResponseGetOTP>
+}
+
+interface ApiServiceCheckOTP {
+    @POST("/user/verify-otp-recovery")
+    fun checkOTP(
+        @Body body: JsonObject
+    ): Call<ResponseCheckOTP>
+}

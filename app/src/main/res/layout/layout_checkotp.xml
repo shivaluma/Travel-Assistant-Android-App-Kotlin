@@ -19,58 +19,66 @@
 
         <TextView
             style="@style/headerTextPrimary"
-            android:text="Đăng nhập"
+            android:text="Set New Password"
             android:layout_marginTop="@dimen/loginViewsMargin"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/inputUserEmail"
-            style="@style/parent"
-            android:layout_marginTop="@dimen/loginViewsMargin">
-            <EditText
-                android:id="@+id/editTextEmailPhone"
-                style="@style/modifiedEditText"
-                android:inputType="textPersonName"
-                android:maxLines="1"
-                android:hint="@string/login_username_hint"/>
-        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Time left"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="60"
+            android:id="@+id/remainingTime"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            />
+
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/inputPassword"
+            android:id="@+id/inputNewPasswordParent"
             style="@style/parent"
             android:layout_marginTop="@dimen/loginViewsMargin">
             <EditText
-                android:id="@+id/editTextPassword"
+                android:id="@+id/inputNewPassword"
                 style="@style/modifiedEditText"
-                android:hint="@string/login_password_hint"
+                android:hint="New password"
                 android:maxLines="1"
                 android:inputType="textPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            style="@style/viewParent"
-            android:text="Quên mật khẩu?"
-            android:textColor="@color/primaryTextColor"
-            android:textSize="@dimen/newsMoreTextSize"
-            android:layout_gravity="end"
-            android:clickable="true"
-            android:id="@+id/forgetPasswordBtn"
-            android:layout_marginTop="10dp"/>
+
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputOTPParent"
+            style="@style/parent"
+            android:layout_marginTop="@dimen/loginViewsMargin">
+            <EditText
+                android:id="@+id/inputOTP"
+                style="@style/modifiedEditText"
+                android:hint="OTP"
+                android:maxLines="1"
+                android:inputType="numberDecimal"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <Button
-            android:id="@+id/btnLogin"
+            android:id="@+id/btnSubmit"
             style="@style/loginButton"
-            android:text="Đăng nhập"
+            android:text="Submit"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/loginViewsMargin"/>
 
-        <TextView
-            style="@style/parent"
-            android:textAlignment="center"
-            android:textStyle="bold"
-            android:textColor="@color/primaryTextColor"
-            android:text="@string/login_signup_hint"
-            android:onClick="viewRegisterClicked"
-            android:layout_marginTop="@dimen/loginViewsMargin"/>
+
 
 
     </LinearLayout>

@@ -63,6 +63,7 @@ import kotlinx.android.synthetic.main.activity_stop_point_info.view.*
 import kotlinx.android.synthetic.main.popup_stoppoint_suggest.view.*
 import kotlinx.android.synthetic.main.popup_suggest_point_onclick.view.*
 import kotlinx.android.synthetic.main.stoppoint.*
+import kotlinx.android.synthetic.main.stoppoint.view.*
 import kotlinx.android.synthetic.main.stoppointinfo.view.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -400,107 +401,14 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
         googleMap.setOnMapClickListener {
             val latlng = it
-            val inflater: LayoutInflater =
-                getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            val view = inflater.inflate(R.layout.stoppoint, null)
-            val spinnertype = view.findViewById<MaterialSpinner>(R.id.spinnerType)
-            val spinnerprovince = view.findViewById<MaterialSpinner>(R.id.spinnerProvince)
-            spinnertype.setItems(
-                "Start Point",
-                "End Point",
-                "Restaurant",
-                "Hotel",
-                "Rest Station",
-                "Others"
-            )
-            spinnerprovince.setItems(
-                "Hồ Chí Minh",
-                "Hà Nội",
-                "Đà Nẵng",
-                "Bình Dương",
-                "Đồng Nai",
-                "Khánh Hòa",
-                "Hải Phòng",
-                "Long An",
-                "Quảng Nam",
-                "Bà Rịa Vũng Tàu",
-                "Đắk Lắk",
-                "Cần Thơ",
-                "Bình Thuận  ",
-                "Lâm Đồng",
-                "Thừa Thiên Huế",
-                "Kiên Giang",
-                "Bắc Ninh",
-                "Quảng Ninh",
-                "Thanh Hóa",
-                "Nghệ An",
-                "Hải Dương",
-                "Gia Lai",
-                "Bình Phước",
-                "Hưng Yên",
-                "Bình Định",
-                "Tiền Giang",
-                "Thái Bình",
-                "Bắc Giang",
-                "Hòa Bình",
-                "An Giang",
-                "Vĩnh Phúc",
-                "Tây Ninh",
-                "Thái Nguyên",
-                "Lào Cai",
-                "Nam Định",
-                "Quảng Ngãi",
-                "Bến Tre",
-                "Đắk Nông",
-                "Cà Mau",
-                "Vĩnh Long",
-                "Ninh Bình",
-                "Phú Thọ",
-                "Ninh Thuận",
-                "Phú Yên",
-                "Hà Nam",
-                "Hà Tĩnh",
-                "Đồng Tháp",
-                "Sóc Trăng",
-                "Kon Tum",
-                "Quảng Bình",
-                "Quảng Trị",
-                "Trà Vinh",
-                "Hậu Giang",
-                "Sơn La",
-                "Bạc Liêu",
-                "Yên Bái",
-                "Tuyên Quang",
-                "Điện Biên",
-                "Lai Châu",
-                "Lạng Sơn",
-                "Hà Giang",
-                "Bắc Kạn",
-                "Cao Bằng"
-            )
 
-            var timeArrive = view.findViewById<EditText>(R.id.editTimeArrive)
-            timeArrive.setOnClickListener {
-                util.setOnClickTime(timeArrive, this)
-            }
+            val view = inflateAddStopPointView()
 
-            var timeLeave = view.findViewById<EditText>(R.id.editTimeLeave)
-            timeLeave.setOnClickListener {
-                util.setOnClickTime(timeLeave, this)
-            }
 
-            var dateArrive = view.findViewById<EditText>(R.id.editDateArrive)
-            var dateLeave = view.findViewById<EditText>(R.id.editDateLeave)
+
             val addressField = view.findViewById<EditText>(R.id.editAddress)
             addressField.setText(getAddressByLocation(latlng!!))
 
-            dateArrive.setOnClickListener {
-                util.setOnClickDate(dateArrive, this)
-            }
-
-            dateLeave.setOnClickListener {
-                util.setOnClickDate(dateLeave, this)
-            }
 
 
             val popupWindow = PopupWindow(
@@ -545,114 +453,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
             // Set a click listener for popup's button widget
             buttonPopup.setOnClickListener {
-                var stoppint = stopPoint()
-                var namefield = view.findViewById<EditText>(R.id.editStopPointName)
-                var addressfield = view.findViewById<EditText>(R.id.editAddress)
-                var timearrfield = view.findViewById<EditText>(R.id.editTimeArrive)
-                var datearrfield = view.findViewById<EditText>(R.id.editDateArrive)
-                var timeleavefield = view.findViewById<EditText>(R.id.editTimeLeave)
-                var dateleavefield = view.findViewById<EditText>(R.id.editDateLeave)
-                if (namefield.text.isNullOrEmpty()) {
-                    namefield.error = "Required*"
-                    namefield.requestFocus()
-                } else if (addressfield.text.isNullOrEmpty()) {
-                    addressfield.requestFocus()
-                    addressfield.error = "Required*"
-                } else if (timearrfield.text.isNullOrEmpty()) {
-                    timearrfield.error = "Required*"
-                    timearrfield.requestFocus()
-                } else if (datearrfield.text.isNullOrEmpty()) {
-                    datearrfield.error = "Required*"
-                    datearrfield.requestFocus()
-                } else if (timeleavefield.text.isNullOrEmpty()) {
-                    timeleavefield.error = "Required*"
-                    timeleavefield.requestFocus()
-                } else if (dateleavefield.text.isNullOrEmpty()) {
-                    dateleavefield.error = "Required*"
-                    dateleavefield.requestFocus()
-                } else {
-                    stoppint.name =
-                        view.findViewById<EditText>(R.id.editStopPointName).text.toString()
-                    stoppint.address = view.findViewById<EditText>(R.id.editAddress).text.toString()
-                    val type = view.findViewById<MaterialSpinner>(R.id.spinnerType).text.toString()
-                    stoppint.type = type
-                    stoppint.lat = latlng.latitude
-                    stoppint.long = latlng.longitude
-                    val timeArrive =
-                        view.findViewById<EditText>(R.id.editTimeArrive).text.toString()
-                    val dateArrive =
-                        view.findViewById<EditText>(R.id.editDateArrive).text.toString()
-                    val timeLeave = view.findViewById<EditText>(R.id.editTimeLeave).text.toString()
-                    val dateLeave = view.findViewById<EditText>(R.id.editDateLeave).text.toString()
-                    var arriveTime: Long = 0
-                    var leaveTime: Long = 0
-                    if (timeArrive.isNotEmpty() && dateArrive.isNotEmpty()) {
-                        arriveTime = util.datetimeToLong(timeArrive + " " + dateArrive)
-                        leaveTime = util.datetimeToLong(timeLeave + " " + dateLeave)
-                    }
-                    stoppint.arrivalAt = arriveTime
-                    stoppint.leaveAt = leaveTime
-
-                    var minCostStr = view.findViewById<EditText>(R.id.editMinCost).text.toString()
-                    var maxCostStr = view.findViewById<EditText>(R.id.editMaxCost).text.toString()
-
-                    if (minCostStr.isNotEmpty()) {
-                        stoppint.minCost = minCostStr.toInt()
-                    }
-                    if (maxCostStr.isNotEmpty()) {
-                        stoppint.maxCost = maxCostStr.toInt()
-                    }
-                    val province =
-                        view.findViewById<MaterialSpinner>(R.id.spinnerProvince).text.toString()
-                    stoppint.provinceID = util.getProvinceID(province)
-
-                    val curMarker: Marker
-
-                    if (type == "Start Point") {
-                        if (mStopPointArrayList.size > 0 && mStopPointArrayList[0].type == "Start Point") {
-                            mStopPointArrayList.removeAt(0)
-                            LastStartMarker.remove()
-                        }
-                        LastStartMarker =
-                            addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_startpoint)
-                        LastStartPointLatLng = latlng
-                        curMarker = LastStartMarker
-                    } else if (type == "End Point") {
-                        if (mStopPointArrayList.size > 0 && mStopPointArrayList[mStopPointArrayList.size - 1].type == "End Point") {
-                            mStopPointArrayList.removeAt(mStopPointArrayList.size - 1)
-                            LastEndMarker.remove()
-                        }
-                        LastEndMarker =
-                            addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_endpoint)
-                        LastEndPointLatLng = latlng
-                        curMarker = LastEndMarker
-                    } else if (type == "Restaurant") {
-                        curMarker =
-                            addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_restaurant)
-                        stoppint.serviceTypeId = 1
-                    } else if (type == "Hotel") {
-                        curMarker = addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_hotel)
-                        stoppint.serviceTypeId = 2
-                    } else if (type == "Rest Station") {
-                        curMarker =
-                            addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_bedtime)
-                        stoppint.serviceTypeId = 3
-                    } else if (type == "Others") {
-                        curMarker = addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_pin)
-                        stoppint.serviceTypeId = 4
-                    } else {
-                        curMarker = addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_pin)
-                        stoppint.serviceTypeId = 4
-                    }
-
-
-                    curMarker.tag = stoppint.name + stoppint.address + stoppint.type
-                    mStopPointArrayList.add(stoppint)
-                    drawThePath()
-
-                    // Dismiss the popup window
-                    popupWindow.dismiss()
-                }
+                saveStopPointToList(view,latlng,popupWindow)
             }
 
             // Finally, show the popup window on app
@@ -742,10 +543,13 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                      Log.d("abab",serviceId)
                     popupSuggestPointInfo(serviceId.toInt())
                 }
+                else if (p0!!.tag.toString() == "suggestpoint") {
+
+                 }
                 else {
                     val inflater: LayoutInflater =
                         getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                    val view = inflater.inflate(R.layout.popup_stoppointclick, null)
+                    val view = inflater.inflate(R.layout.popup_suggest_point_onclick, null)
                     val popupWindow = PopupWindow(
                         view, // Custom view to show in popup window
                         LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
@@ -772,10 +576,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
                     }
 
-                    // Set a dismiss listener for popup window
-                    popupWindow.setOnDismissListener {
-                        Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
-                    }
+
 
 
                     // Finally, show the popup window on app
@@ -788,7 +589,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                     )
 
 
-                    val remove = view.findViewById<RelativeLayout>(R.id.removeSTP)
+                    val remove = view.findViewById<LinearLayout>(R.id.deleteSuggestBtn)
                     remove.setOnClickListener {
                         var index = findIndexByTag(p0!!.tag.toString())
                         Log.d("indexd", index.toString())
@@ -924,7 +725,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             myView.showSTPName.text = myStopPint.name
             myView.showSTPType.text = myStopPint.type
             myView.showSTPAddr.text = myStopPint.address
-            myView.showProvince.text = Constant.provinceList.get(myStopPint.provinceID!!)
+            myView.showProvince.text = Constant.provinceList.get(myStopPint.provinceId!!)
             if (!myStopPint.arrivalAt.toString().isNullOrEmpty()) {
                 myView.showArrive.text = util.longToDateTime(myStopPint.arrivalAt!!)
             }
@@ -949,10 +750,11 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     }
 
     inner class stopPoint {
+        var id : Int ?= null
         var name: String = ""
         var type: String = ""
         var address: String = ""
-        var provinceID: Int? = null
+        var provinceId: Int? = null
         var lat: Double? = null
         var long: Double? = null
         var minCost: Int? = null
@@ -1250,10 +1052,6 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             slideIn.slideEdge = Gravity.BOTTOM
             popupWindow.enterTransition = slideIn
 
-            // Slide animation for popup window exit transition
-            val slideOut = Slide()
-            slideOut.slideEdge = Gravity.BOTTOM
-            popupWindow.exitTransition = slideOut
 
         }
 
@@ -1265,11 +1063,47 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         view.stpSuggestCost.text = costString
         view.serviceSuggestTypeText.text = util.StopPointTypeToString(listStopPointSuggest[pos].serviceTypeId!!)
 
+        view.addSuggestToTour.setOnClickListener {
+            var item = listStopPointSuggest[pos]
+            popupWindow.dismiss()
+            val view = inflateAddStopPointView()
+            var latlng = LatLng(item.lat!!, item.long!!)
+
+            view.editStopPointName.setText(item.name)
+            view.editAddress.setText(item.address)
+            view.editMinCost.setText(item.minCost.toString())
+            view.editMaxCost.setText(item.minCost.toString())
+            view.spinnerType.selectedIndex = item.serviceTypeId!! + 1
+
+
+
+
+            val popupAddSuggest = PopupWindow(
+                view, // Custom view to show in popup window
+                LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
+                LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
+                true
+            )
+
+            view.btnCloseStopPoint.setOnClickListener {
+                saveStopPointToList(view,latlng,popupAddSuggest,item.id)
+
+            }
+
+            popupAddSuggest.showAtLocation(
+                root_layout, // Location to display popup window
+                Gravity.CENTER, // Exact position of layout to display popup
+                0, // X offset
+                0 // Y offset
+            )
+        }
 
 
         // Set a dismiss listener for popup window
         popupWindow.setOnDismissListener {
-            Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
+
+
+
         }
 
 
@@ -1278,8 +1112,229 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             root_layout, // Location to display popup window
             Gravity.BOTTOM, // Exact position of layout to display popup
             0, // X offset
-            60 // Y offset
+            0 // Y offset
         )
+    }
+
+
+    fun inflateAddStopPointView() : View {
+        val inflater: LayoutInflater =
+            getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.stoppoint, null)
+        val spinnertype = view.findViewById<MaterialSpinner>(R.id.spinnerType)
+        val spinnerprovince = view.findViewById<MaterialSpinner>(R.id.spinnerProvince)
+        spinnertype.setItems(
+            "Start Point",
+            "End Point",
+            "Restaurant",
+            "Hotel",
+            "Rest Station",
+            "Others"
+        )
+        spinnerprovince.setItems(
+            "Hồ Chí Minh",
+            "Hà Nội",
+            "Đà Nẵng",
+            "Bình Dương",
+            "Đồng Nai",
+            "Khánh Hòa",
+            "Hải Phòng",
+            "Long An",
+            "Quảng Nam",
+            "Bà Rịa Vũng Tàu",
+            "Đắk Lắk",
+            "Cần Thơ",
+            "Bình Thuận  ",
+            "Lâm Đồng",
+            "Thừa Thiên Huế",
+            "Kiên Giang",
+            "Bắc Ninh",
+            "Quảng Ninh",
+            "Thanh Hóa",
+            "Nghệ An",
+            "Hải Dương",
+            "Gia Lai",
+            "Bình Phước",
+            "Hưng Yên",
+            "Bình Định",
+            "Tiền Giang",
+            "Thái Bình",
+            "Bắc Giang",
+            "Hòa Bình",
+            "An Giang",
+            "Vĩnh Phúc",
+            "Tây Ninh",
+            "Thái Nguyên",
+            "Lào Cai",
+            "Nam Định",
+            "Quảng Ngãi",
+            "Bến Tre",
+            "Đắk Nông",
+            "Cà Mau",
+            "Vĩnh Long",
+            "Ninh Bình",
+            "Phú Thọ",
+            "Ninh Thuận",
+            "Phú Yên",
+            "Hà Nam",
+            "Hà Tĩnh",
+            "Đồng Tháp",
+            "Sóc Trăng",
+            "Kon Tum",
+            "Quảng Bình",
+            "Quảng Trị",
+            "Trà Vinh",
+            "Hậu Giang",
+            "Sơn La",
+            "Bạc Liêu",
+            "Yên Bái",
+            "Tuyên Quang",
+            "Điện Biên",
+            "Lai Châu",
+            "Lạng Sơn",
+            "Hà Giang",
+            "Bắc Kạn",
+            "Cao Bằng"
+        )
+
+        var timeArrive = view.findViewById<EditText>(R.id.editTimeArrive)
+        timeArrive.setOnClickListener {
+            util.setOnClickTime(timeArrive, this)
+        }
+
+        var timeLeave = view.findViewById<EditText>(R.id.editTimeLeave)
+        timeLeave.setOnClickListener {
+            util.setOnClickTime(timeLeave, this)
+        }
+
+        var dateArrive = view.findViewById<EditText>(R.id.editDateArrive)
+        var dateLeave = view.findViewById<EditText>(R.id.editDateLeave)
+
+
+
+        dateArrive.setOnClickListener {
+            util.setOnClickDate(dateArrive, this)
+        }
+
+        dateLeave.setOnClickListener {
+            util.setOnClickDate(dateLeave, this)
+        }
+
+
+        return view
+    }
+
+
+    fun saveStopPointToList(view : View, latlng : LatLng, popupWindow: PopupWindow, id : Int = -1) {
+        var stoppint = stopPoint()
+        var namefield = view.findViewById<EditText>(R.id.editStopPointName)
+        var addressfield = view.findViewById<EditText>(R.id.editAddress)
+        var timearrfield = view.findViewById<EditText>(R.id.editTimeArrive)
+        var datearrfield = view.findViewById<EditText>(R.id.editDateArrive)
+        var timeleavefield = view.findViewById<EditText>(R.id.editTimeLeave)
+        var dateleavefield = view.findViewById<EditText>(R.id.editDateLeave)
+        if (namefield.text.isNullOrEmpty()) {
+            namefield.error = "Required*"
+            namefield.requestFocus()
+        } else if (addressfield.text.isNullOrEmpty()) {
+            addressfield.requestFocus()
+            addressfield.error = "Required*"
+        } else if (timearrfield.text.isNullOrEmpty()) {
+            timearrfield.error = "Required*"
+            timearrfield.requestFocus()
+        } else if (datearrfield.text.isNullOrEmpty()) {
+            datearrfield.error = "Required*"
+            datearrfield.requestFocus()
+        } else if (timeleavefield.text.isNullOrEmpty()) {
+            timeleavefield.error = "Required*"
+            timeleavefield.requestFocus()
+        } else if (dateleavefield.text.isNullOrEmpty()) {
+            dateleavefield.error = "Required*"
+            dateleavefield.requestFocus()
+        } else {
+            if (id != -1) stoppint.id = id
+            stoppint.name =
+                view.findViewById<EditText>(R.id.editStopPointName).text.toString()
+            stoppint.address = view.findViewById<EditText>(R.id.editAddress).text.toString()
+            val type = view.findViewById<MaterialSpinner>(R.id.spinnerType).text.toString()
+            stoppint.type = type
+            stoppint.lat = latlng.latitude
+            stoppint.long = latlng.longitude
+            val timeArrive =
+                view.findViewById<EditText>(R.id.editTimeArrive).text.toString()
+            val dateArrive =
+                view.findViewById<EditText>(R.id.editDateArrive).text.toString()
+            val timeLeave = view.findViewById<EditText>(R.id.editTimeLeave).text.toString()
+            val dateLeave = view.findViewById<EditText>(R.id.editDateLeave).text.toString()
+            var arriveTime: Long = 0
+            var leaveTime: Long = 0
+            if (timeArrive.isNotEmpty() && dateArrive.isNotEmpty()) {
+                arriveTime = util.datetimeToLong(timeArrive + " " + dateArrive)
+                leaveTime = util.datetimeToLong(timeLeave + " " + dateLeave)
+            }
+            stoppint.arrivalAt = arriveTime
+            stoppint.leaveAt = leaveTime
+
+            var minCostStr = view.findViewById<EditText>(R.id.editMinCost).text.toString()
+            var maxCostStr = view.findViewById<EditText>(R.id.editMaxCost).text.toString()
+
+            if (minCostStr.isNotEmpty()) {
+                stoppint.minCost = minCostStr.toInt()
+            }
+            if (maxCostStr.isNotEmpty()) {
+                stoppint.maxCost = maxCostStr.toInt()
+            }
+            val province =
+                view.findViewById<MaterialSpinner>(R.id.spinnerProvince).text.toString()
+            stoppint.provinceId = util.getProvinceID(province)
+
+            val curMarker: Marker
+
+            if (type == "Start Point") {
+                if (mStopPointArrayList.size > 0 && mStopPointArrayList[0].type == "Start Point") {
+                    mStopPointArrayList.removeAt(0)
+                    LastStartMarker.remove()
+                }
+                LastStartMarker =
+                    addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_startpoint)
+                LastStartPointLatLng = latlng
+                curMarker = LastStartMarker
+            } else if (type == "End Point") {
+                if (mStopPointArrayList.size > 0 && mStopPointArrayList[mStopPointArrayList.size - 1].type == "End Point") {
+                    mStopPointArrayList.removeAt(mStopPointArrayList.size - 1)
+                    LastEndMarker.remove()
+                }
+                LastEndMarker =
+                    addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_endpoint)
+                LastEndPointLatLng = latlng
+                curMarker = LastEndMarker
+            } else if (type == "Restaurant") {
+                curMarker =
+                    addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_restaurant)
+                stoppint.serviceTypeId = 1
+            } else if (type == "Hotel") {
+                curMarker = addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_hotel)
+                stoppint.serviceTypeId = 2
+            } else if (type == "Rest Station") {
+                curMarker =
+                    addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_bedtime)
+                stoppint.serviceTypeId = 3
+            } else if (type == "Others") {
+                curMarker = addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_pin)
+                stoppint.serviceTypeId = 4
+            } else {
+                curMarker = addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_pin)
+                stoppint.serviceTypeId = 4
+            }
+
+
+            curMarker.tag = stoppint.name + stoppint.address + stoppint.type
+            mStopPointArrayList.add(stoppint)
+            drawThePath()
+
+            // Dismiss the popup window
+            popupWindow.dismiss()
+        }
     }
 
 

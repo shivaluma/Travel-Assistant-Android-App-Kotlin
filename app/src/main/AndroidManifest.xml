@@ -15,9 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-
-        <activity android:name=".view.stoppoint.StopPointInfo"/>
-
+        <activity android:name=".view.forgetpassword.CheckOTPActivity"></activity>
+        <activity android:name=".view.user.EditInfomation" />
+        <activity android:name=".view.forgetpassword.getOTPActivity" />
+        <activity android:name=".view.stoppoint.StopPointInfo" />
         <activity
             android:name=".view.member.MemberListOfTour"
             android:label="Members" />

@@ -10,6 +10,8 @@ import retrofit2.http.Header
 import retrofit2.http.Query
 
 
+data class ErrorResponse(val message: String)
+
 data class ResponseLogin(val message:String, val userId:Int, val token:String)
 data class ResponseOthersLogin(val message:String, val avatar:Int, val fullname:String, val token:String)
 data class ResponseRegister(val error:Int, val message:ArrayList<message>)
@@ -91,6 +93,16 @@ data class ResponseSearchDestination(
 
 data class ResponseSuggestDestination(
     var stopPoints: ArrayList<StopPoint>
+)
+
+data class ResponseGetOTP(
+    val type: String,
+    val expiredOn : Long,
+    val userId: Int
+)
+
+data class ResponseCheckOTP(
+    val message: String
 )
 
 data class ResponseUserInfo (
@@ -219,6 +231,8 @@ data class TourNotification(var id: Int,var status: Int,var hostId: Int,var host
                             var startDate: Long , var endDate: Long , var adults : Int ,
                             var childs : Int , var isPrivate: Boolean , var avatar : String,
                             var createOn: Long)
+
+
 
 
 

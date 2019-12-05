@@ -14,6 +14,7 @@ import com.brogrammers.travel.network.model.ApiServiceFBLogin
 import com.brogrammers.travel.network.model.ApiServiceGGLogin
 import com.brogrammers.travel.network.model.ApiServiceLogin
 import com.brogrammers.travel.network.model.WebAccess
+import com.brogrammers.travel.view.forgetpassword.getOTPActivity
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -195,6 +196,12 @@ class LoginActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks,
             val signInIntent: Intent = mGoogleSignInClient!!.signInIntent
             startActivityForResult(signInIntent, 69)
 
+        }
+
+
+        forgetPasswordBtn.setOnClickListener {
+            var intent = Intent(applicationContext, getOTPActivity::class.java)
+            startActivity(intent)
         }
     }
 
