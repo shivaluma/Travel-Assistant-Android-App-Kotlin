@@ -33,11 +33,11 @@ class CheckOTPActivity : AppCompatActivity() {
 
         var timer = object: CountDownTimer(countDownTimer, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                remainingTime.setText((millisUntilFinished / 1000).toString())
+                remainingTime.text = (millisUntilFinished / 1000).toString()
             }
 
             override fun onFinish() {
-                remainingTime.setText("Time Out!!")
+                remainingTime.text = "Time Out!!"
             }
         }
         timer.start()

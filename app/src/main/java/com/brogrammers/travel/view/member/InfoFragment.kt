@@ -44,10 +44,6 @@ class InfoFragment : Fragment() {
 
     var serviceTypeCount = arrayOf(0,0,0,0)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -94,13 +90,13 @@ class InfoFragment : Fragment() {
                         val tourInfoPeople = root.findViewById<TextView>(R.id.tourInfoPeople)
                         val tourInfoCost = root.findViewById<TextView>(R.id.tourInfoCost)
                         val data = response.body()!!
-                        tourInfoName.setText(data.name)
-                        tourInfoDate.setText(util.longToDate(data.startDate) + " - " + util.longToDate(data.endDate))
+                        tourInfoName.text = data.name
+                        tourInfoDate.text = util.longToDate(data.startDate) + " - " + util.longToDate(data.endDate)
                         var people : String = ""
                         if (data.adults >= 0) people += data.adults.toString() + " adults"
                         if (data.childs >= 0) people += " - " + data.childs.toString() + " childs"
-                        tourInfoPeople.setText(people)
-                        tourInfoCost.setText(data.minCost.toString() + " - " + data.maxCost)
+                        tourInfoPeople.text = people
+                        tourInfoCost.text = data.minCost.toString() + " - " + data.maxCost
                         listStopPoint.addAll(data.stopPoints)
                         listMember.addAll(data.members)
                         countServiceType()

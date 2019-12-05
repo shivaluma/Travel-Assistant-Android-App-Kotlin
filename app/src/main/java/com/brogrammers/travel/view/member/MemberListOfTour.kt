@@ -202,8 +202,8 @@ class MemberListOfTour : AppCompatActivity() {
         override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
             val item = data.get(position)
 
-            holder.name.setText(item.name)
-            holder.phone.setText(item.phone)
+            holder.name.text = item.name
+            holder.phone.text = item.phone
             //onclick
 
             holder.itemView.setOnClickListener {
@@ -246,9 +246,9 @@ class MemberListOfTour : AppCompatActivity() {
         override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
             val item = data.get(position)
 
-            holder.name.setText(item.fullName)
-            holder.phone.setText(item.phone)
-            holder.email.setText(item.email)
+            holder.name.text = item.fullName
+            holder.phone.text = item.phone
+            holder.email.text = item.email
 
 
             holder.itemView.setOnClickListener {

@@ -101,12 +101,7 @@ class LoginActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks,
                             Toast.LENGTH_LONG
                         ).show()
                         updateTokenToStorage(response.body()!!.token)
-                        startActivity(
-                            Intent(
-                                applicationContext,
-                                NavigationBottomActivity::class.java
-                            )
-                        )
+
                         finish()
                     }
                 }
@@ -148,12 +143,7 @@ class LoginActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks,
                                         Toast.LENGTH_LONG
                                     ).show()
                                     updateTokenToStorage(response.body()!!.token)
-                                    startActivity(
-                                        Intent(
-                                            applicationContext,
-                                            NavigationBottomActivity::class.java
-                                        )
-                                    )
+
                                     finish()
                                 }
                             }
@@ -273,13 +263,7 @@ class LoginActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks,
                                             Toast.LENGTH_LONG
                                         ).show()
                                         updateTokenToStorage(response.body()!!.token)
-                                        startActivity(
-                                            Intent(
-                                                applicationContext,
-                                                NavigationBottomActivity::class.java
-                                            )
-                                        )
-                                        finish()
+
                                     }
                                 }
                             })
@@ -308,6 +292,14 @@ class LoginActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks,
         val editor = sharePref.edit()
         editor.putString("token", token)
         editor.apply()
+
+        var intent = Intent(
+            applicationContext,
+            NavigationBottomActivity::class.java
+        )
+        intent.putExtra("userToken", token)
+        startActivity(intent)
+        finish()
     }
 
     override fun onConnected(p0: Bundle?) {

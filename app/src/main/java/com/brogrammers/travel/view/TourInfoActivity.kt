@@ -116,10 +116,10 @@ class TourInfoActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
             val item = data.get(position)
-            holder.name.setText(item.name)
-            holder.time.setText(Html.fromHtml(util.longToDateTime(item.arrivalAt!!) + " <br> " + util.longToDateTime(item.leaveAt!!)))
-            holder.type.setText(util.StopPointTypeToString(item.serviceTypeId!!))
-            holder.cost.setText(item.minCost.toString() + " - " + item.maxCost.toString())
+            holder.name.text = item.name
+            holder.time.text = Html.fromHtml(util.longToDateTime(item.arrivalAt!!) + " <br> " + util.longToDateTime(item.leaveAt!!))
+            holder.type.text = util.StopPointTypeToString(item.serviceTypeId!!)
+            holder.cost.text = item.minCost.toString() + " - " + item.maxCost.toString()
 
 
             holder.menubtn.setOnClickListener {
@@ -191,14 +191,14 @@ class TourInfoActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
             val item = data.get(position)
-            holder.content.setText(item.comment)
+            holder.content.text = item.comment
 
             if (!item.name.isNullOrEmpty()) {
-                holder.name.setText(item.name)
+                holder.name.text = item.name
                 return
             }
             else {
-                holder.name.setText("<Không tên> : ID = ${item.id}")
+                holder.name.text = "<Không tên> : ID = ${item.id}"
             }
 
             if (!item.avatar.isNullOrEmpty()) {
@@ -248,14 +248,14 @@ class TourInfoActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
             val item = data.get(position)
-            holder.content.setText(item.review)
+            holder.content.text = item.review
 
             if (!item.name.isNullOrEmpty()) {
-                holder.name.setText(item.name)
+                holder.name.text = item.name
                 return
             }
             else {
-                holder.name.setText("<Không tên> : ID = ${item.id}")
+                holder.name.text = "<Không tên> : ID = ${item.id}"
             }
 
             if (!item.avatar.isNullOrEmpty()) {
@@ -311,23 +311,23 @@ class TourInfoActivity : AppCompatActivity() {
                         val tourInfoPeople = tourInfoPeople
                         val tourInfoCost = tourInfoCost
                         val data = response.body()!!
-                        tourInfoName.setText(data.name)
-                        tourInfoDate.setText(util.longToDate(data.startDate) + " - " + util.longToDate(data.endDate))
+                        tourInfoName.text = data.name
+                        tourInfoDate.text = util.longToDate(data.startDate) + " - " + util.longToDate(data.endDate)
                         var people : String = ""
                         if (data.adults >= 0) people += data.adults.toString() + " adults"
                         if (data.childs >= 0) people += " - " + data.childs.toString() + " childs"
-                        tourInfoPeople.setText(people)
-                        tourInfoCost.setText(data.minCost.toString() + " - " + data.maxCost)
+                        tourInfoPeople.text = people
+                        tourInfoCost.text = data.minCost.toString() + " - " + data.maxCost
                         listStopPoint.clear()
                         listStopPoint.addAll(data.stopPoints)
                         listComment.clear()
                         listComment.addAll(data.comments)
                         StpAdt.notifyDataSetChanged()
                         CommentAdt.notifyDataSetChanged()
-                        tourMemberNum.setText(data.members.size.toString())
-                        tourCommentNum.setText(data.comments.size.toString())
+                        tourMemberNum.text = data.members.size.toString()
+                        tourCommentNum.text = data.comments.size.toString()
                         if (hasInitCommentNumCountView) {
-                            CommentNumCountView.setText(data.comments.size.toString() + " comments")
+                            CommentNumCountView.text = data.comments.size.toString() + " comments"
                         }
                         countTypeStopPoint()
                     }
@@ -458,10 +458,10 @@ class TourInfoActivity : AppCompatActivity() {
         for (i in listStopPoint) {
             typeCount[i.serviceTypeId!!-1]++
         }
-        countRes.setText(typeCount[0].toString())
-        countHotel.setText(typeCount[1].toString())
-        countRest.setText(typeCount[2].toString())
-        countOthers.setText(typeCount[3].toString())
+        countRes.text = typeCount[0].toString()
+        countHotel.text = typeCount[1].toString()
+        countRest.text = typeCount[2].toString()
+        countOthers.text = typeCount[3].toString()
     }
 
     fun popupComment() {
@@ -479,7 +479,7 @@ class TourInfoActivity : AppCompatActivity() {
         var commentNumField = view.findViewById<TextView>(R.id.commentNum)
         CommentNumCountView = commentNumField
         hasInitCommentNumCountView = true
-        commentNumField.setText(listComment.size.toString() + " comments")
+        commentNumField.text = listComment.size.toString() + " comments"
 
         val popupWindow = PopupWindow(
             view, // Custom view to show in popup window
@@ -551,7 +551,7 @@ class TourInfoActivity : AppCompatActivity() {
         var reviewNumField = view.findViewById<TextView>(R.id.reviewNum)
         ReviewNumCountView = reviewNumField
         hasInitCommentNumCountView = true
-        reviewNumField.setText(listReviews.size.toString() + " reviews")
+        reviewNumField.text = listReviews.size.toString() + " reviews"
 
         val popupWindow = PopupWindow(
             view, // Custom view to show in popup window

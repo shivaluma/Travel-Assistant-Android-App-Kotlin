@@ -105,6 +105,10 @@ data class ResponseCheckOTP(
     val message: String
 )
 
+data class ResponseUpdateUserInfo(
+    val message: String
+)
+
 data class ResponseUserInfo (
     var id: Int,
     var full_name: String?,
@@ -164,8 +168,7 @@ data class member(var id: Int, var name:String,var phone: String, var avatar: St
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.readByte() != 0.toByte()
-    ) {
-    }
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
@@ -197,8 +200,7 @@ data class comment(var id: Int, var name:String,var comment: String, var avatar:
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.readString()!!
-    ) {
-    }
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)

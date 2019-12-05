@@ -132,6 +132,14 @@ interface ApiServiceGetUserInfo {
     ): Call<ResponseUserInfo>
 }
 
+interface ApiServiceUpdateUserInfo {
+    @POST("/user/edit-info")
+    fun updateInfo(
+        @Header("Authorization") token : String,
+        @Body body: JsonObject
+    ): Call<ResponseUpdateUserInfo>
+}
+
 interface ApiServiceGetTourReview {
     @GET("/tour/get/review-list")
     fun getReview(

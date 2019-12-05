@@ -73,13 +73,13 @@ object util {
     }
 
 
-    fun setOnClickDate(date: EditText, context: Context) {
+    fun setOnClickDate(date: EditText, context: Context, pattern : String = "dd/MM/yyyy") {
         var mcurrentTime = Calendar.getInstance()
         val dateSetListener = DatePickerDialog.OnDateSetListener { datePicker, year, month, day ->
             mcurrentTime.set(Calendar.DAY_OF_MONTH, day)
             mcurrentTime.set(Calendar.MONTH, month)
             mcurrentTime.set(Calendar.YEAR, year)
-            date.setText(SimpleDateFormat("dd/MM/yyyy").format(mcurrentTime.time))
+            date.setText(SimpleDateFormat(pattern).format(mcurrentTime.time))
         }
         DatePickerDialog(
             context,
@@ -95,6 +95,16 @@ object util {
         if (type == 2) return "Hotel"
         if (type == 3) return "Rest Station"
         return "Others"
+    }
+
+    fun getGenders(type: Int) : String {
+        if (type == 1) return "Male"
+        return "Female"
+    }
+
+    fun getGenders(type: String) : Int {
+        if (type == "Male") return 1
+        return 0
     }
 
 

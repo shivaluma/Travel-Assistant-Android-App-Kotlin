@@ -106,12 +106,12 @@ class StopPointInfo : AppCompatActivity(){
 
                         mGoogleMap.addMarker(markerOptions)
                         var type = util.StopPointTypeToString(response.body()!!.serviceTypeId!!)
-                        serviceTypeText.setText(type)
-                        stpInfoName.setText(response.body()!!.name)
-                        stpInfoAddress.setText(response.body()!!.address)
-                        stpInfoContact.setText(response.body()!!.contact)
+                        serviceTypeText.text = type
+                        stpInfoName.text = response.body()!!.name
+                        stpInfoAddress.text = response.body()!!.address
+                        stpInfoContact.text = response.body()!!.contact
                         var cost = response.body()!!.minCost.toString() + " - " + response.body()!!.maxCost.toString()
-                        stpInfoCost.setText(cost)
+                        stpInfoCost.text = cost
                     }
                 }
             })
@@ -148,10 +148,10 @@ class StopPointInfo : AppCompatActivity(){
                             response.body()!!.pointStats[4].total
                         )
                         var average = "%.1f".format(raters.average())
-                        ratingAveragePoint.setText(average.toString())
+                        ratingAveragePoint.text = average.toString()
                         var maxValue = raters.max()
                         var sum = raters.sum()
-                        textView2.setText(sum.toString())
+                        textView2.text = sum.toString()
                         ratingBar.rating = average.toFloat()
 
                         ratingReviews.createRatingBars(maxValue!!, BarLabels.STYPE1, colors, raters)

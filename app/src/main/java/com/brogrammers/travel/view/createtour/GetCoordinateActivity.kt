@@ -538,12 +538,12 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         googleMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
             override fun onMarkerClick(p0: Marker?): Boolean {
                  if (p0!!.tag.toString().contains("suggeststoppoint")) {
-                     var splitList = p0!!.tag.toString().split(" ")
+                     var splitList = p0.tag.toString().split(" ")
                      var serviceId : String = splitList[1]
                      Log.d("abab",serviceId)
                     popupSuggestPointInfo(serviceId.toInt())
                 }
-                else if (p0!!.tag.toString() == "suggestpoint") {
+                else if (p0.tag.toString() == "suggestpoint") {
 
                  }
                 else {
@@ -591,7 +591,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
                     val remove = view.findViewById<LinearLayout>(R.id.deleteSuggestBtn)
                     remove.setOnClickListener {
-                        var index = findIndexByTag(p0!!.tag.toString())
+                        var index = findIndexByTag(p0.tag.toString())
                         Log.d("indexd", index.toString())
                         if (index > -1) {
                             mStopPointArrayList.removeAt(index)
