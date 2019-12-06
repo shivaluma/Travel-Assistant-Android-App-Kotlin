@@ -7,31 +7,31 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.brogrammers.travel.ui.home.HomeFragment"
+        android:name="com.ygaps.travelapp.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_history"
-        android:name="com.brogrammers.travel.view.navigation.history.HistoryFragment"
+        android:name="com.ygaps.travelapp.view.navigation.history.HistoryFragment"
         android:label="Lịch sử"
         tools:layout="@layout/fragment_history" />
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.brogrammers.travel.view.navigation.dashboard.DashboardFragment"
+        android:name="com.ygaps.travelapp.view.navigation.dashboard.DashboardFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
         android:id="@+id/navigation_explorer"
-        android:name="com.brogrammers.travel.view.navigation.explorer.ExplorerFragment"
+        android:name="com.ygaps.travelapp.view.navigation.explorer.ExplorerFragment"
         android:label="@string/title_explorer"
         tools:layout="@layout/fragment_explorer" />
 
     <fragment
         android:id="@+id/navigation_user"
-        android:name="com.brogrammers.travel.view.navigation.notifications.NotificationsFragment"
+        android:name="com.ygaps.travelapp.view.navigation.notifications.NotificationsFragment"
         android:label="@string/title_user"
         tools:layout="@layout/fragment_users" />
 

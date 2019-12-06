@@ -35,12 +35,15 @@
         </RelativeLayout>
 
 
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Ha noi - Ho chi minh"
             android:layout_marginTop="5dp"
             android:textSize="20sp"
+            android:drawableStart="@drawable/ic_closed_big"
+            android:drawablePadding="10dp"
             android:layout_marginStart="10dp"
             android:textColor="@color/black"
             android:textStyle="bold"

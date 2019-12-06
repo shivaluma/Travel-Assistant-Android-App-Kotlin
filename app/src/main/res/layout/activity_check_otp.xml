@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     style="@style/loginParent"
-    tools:context="com.brogrammers.travel.LoginActivity">
+    tools:context="com.ygaps.travelapp.LoginActivity">
 
 
     <RelativeLayout

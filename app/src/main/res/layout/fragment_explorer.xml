@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/explorer_rootview"
     tools:context=".view.navigation.explorer.ExplorerFragment">
 
     <com.google.android.gms.maps.MapView
@@ -24,5 +25,24 @@
         android:elevation="5dp"
         android:outlineProvider="bounds"
         app:mt_placeholder="Find Stop Point.."/>
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/showSuggestPointBtn"
+        android:src="@drawable/ic_map_white_24dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="50dp"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/clearSuggestPointBtn"
+        android:src="@drawable/ic_clear_black_2445dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="120dp"/>
 
 </FrameLayout>

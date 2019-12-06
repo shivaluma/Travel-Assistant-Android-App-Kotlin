@@ -5,29 +5,32 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:layout_marginStart="20dp"
-    android:layout_marginEnd="20dp"
-    android:background="@color/alone">
+    android:layout_marginEnd="20dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
+        android:layout_height="wrap_content">
         <TextView
+            android:id="@+id/bannerText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="History tours"
+            android:text="History Tours"
             android:textStyle="bold"
             android:textSize="30sp"
             android:layout_centerVertical="true"
             android:textColor="@color/colorPrimary" />
 
-        <!--        <SearchView-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_centerVertical="true"-->
-        <!--            android:iconifiedByDefault="true"-->
-        <!--            android:layout_alignParentEnd="true" />-->
+        <SearchView
+            android:id="@+id/searchTours"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:gravity="center_vertical"/>
+
+
+
     </RelativeLayout>
 
 
@@ -39,16 +42,16 @@
 
         <ImageView
             android:layout_centerVertical="true"
-            android:id="@+id/historytourIcon"
+            android:id="@+id/tourIcon"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_tour" />
         <TextView
-            android:id="@+id/historytourNumber"
+            android:id="@+id/tourNumber"
             android:layout_centerVertical="true"
             android:layout_marginStart="3dp"
             android:layout_width="wrap_content"
-            android:layout_toEndOf="@id/historytourIcon"
+            android:layout_toEndOf="@id/tourIcon"
             android:textStyle="bold"
             android:textSize="16sp"
             android:textColor="@color/black"
@@ -59,12 +62,96 @@
             android:layout_centerVertical="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/historytourNumber"
+            android:layout_toEndOf="@id/tourNumber"
             android:textSize="16sp"
+            android:id="@+id/asiduoaw"
             android:text=" tours"/>
 
 
+
+
+            <TextView
+                android:id="@+id/numTourCancelled"
+                android:layout_toEndOf="@+id/asiduoaw"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:drawablePadding="5dp"
+                android:drawableEnd="@drawable/ic_cancel"/>
+
+        <TextView
+            android:id="@+id/numTourOpenned"
+            android:layout_toEndOf="@+id/numTourCancelled"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:drawablePadding="5dp"
+            android:drawableEnd="@drawable/ic_open_sign"/>
+
+        <TextView
+            android:id="@+id/numTourStarted"
+            android:layout_toEndOf="@+id/numTourOpenned"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:drawablePadding="5dp"
+            android:drawableEnd="@drawable/ic_start"/>
+
+        <TextView
+            android:id="@+id/numTourClosed"
+            android:layout_toEndOf="@+id/numTourStarted"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:drawablePadding="5dp"
+            android:drawableEnd="@drawable/ic_closed"/>
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/tourLoaded"
+            android:src="@drawable/ic_remove_red_eye_black_24dp"
+            android:layout_marginEnd="5dp"
+            />
+
+        <TextView
+            android:id="@+id/tourLoaded"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="0"
+
+            />
+
+
     </RelativeLayout>
+
+
+
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -81,7 +168,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/historytourListView"
+            android:id="@+id/tourListView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:descendantFocusability="beforeDescendants"
@@ -90,7 +177,15 @@
             android:dividerHeight="2dp"
             />
 
-
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floatingaddnew"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_add_circle_black_24dp"
+            android:layout_marginBottom="60dp"
+            android:layout_gravity="bottom|end"
+            android:clickable="true"
+            />
     </FrameLayout>
 
 

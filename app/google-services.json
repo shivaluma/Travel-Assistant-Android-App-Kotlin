@@ -1,43 +1,222 @@
 {
   "project_info": {
-    "project_number": "721382290633",
-    "firebase_url": "https://travel-assistant-604e3.firebaseio.com",
-    "project_id": "travel-assistant-604e3",
-    "storage_bucket": "travel-assistant-604e3.appspot.com"
+    "project_number": "1088938865563",
+    "firebase_url": "https://dulich-47e62.firebaseio.com",
+    "project_id": "dulich-47e62",
+    "storage_bucket": "dulich-47e62.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:721382290633:android:3ca34ab46f9b731ba80918",
+        "mobilesdk_app_id": "1:1088938865563:android:e2309b99ca9f3c4c3da73e",
         "android_client_info": {
-          "package_name": "com.brogrammers.travel"
+          "package_name": "abc.com"
         }
       },
       "oauth_client": [
         {
-          "client_id": "721382290633-jpc7fsiovd60129hoflja3tvhdhl54vo.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.brogrammers.travel",
-            "certificate_hash": "e1c1caefdda7e357f06fe9a09349370762028f4e"
-          }
-        },
-        {
-          "client_id": "721382290633-4bu1tl2sumet6pq20pcm04i4f7uiocjb.apps.googleusercontent.com",
+          "client_id": "1088938865563-ik75ed5sia9lqbunl61np82tqia5s7lo.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBJUNm9JnhGmYmUH798RrRA_Aa8OO5fa5Y"
+          "current_key": "AIzaSyBsQfVdiBPOBxVuzbxo1vZb9hUgBtqHs-Q"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "721382290633-4bu1tl2sumet6pq20pcm04i4f7uiocjb.apps.googleusercontent.com",
+              "client_id": "1088938865563-ik75ed5sia9lqbunl61np82tqia5s7lo.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1088938865563-jajhhorr75fi23nflon12ok1ds6g1juj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.dulich-mobile"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088938865563:android:22f8ce527dee0a72",
+        "android_client_info": {
+          "package_name": "com.dulich_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1088938865563-me4jhij3logah9fh84dhoe70jjstej21.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dulich_mobile",
+            "certificate_hash": "88c8358773e2a972a75f482a950b80eba5f82132"
+          }
+        },
+        {
+          "client_id": "1088938865563-siqj1lbi7o6qnj8ljg5i53rkgi05pbde.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dulich_mobile",
+            "certificate_hash": "ae42f60036b5b3216fe205524260e4a6561597ae"
+          }
+        },
+        {
+          "client_id": "1088938865563-vc3nr8pntlbnacqb8uqa1l8j8v16baaf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dulich_mobile",
+            "certificate_hash": "60528d7823cca40aa19f0683a4cede4edf1b616f"
+          }
+        },
+        {
+          "client_id": "1088938865563-oavug0i2bjcb4b0qcr4civ1trelmcc1i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dulich_mobile",
+            "certificate_hash": "96b7b6d037d879a4054ad576a9741a8ae43a125a"
+          }
+        },
+        {
+          "client_id": "1088938865563-fou10hk00342at93u8tbggqo9dq9sfcm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dulich_mobile",
+            "certificate_hash": "2a9211a29d157c3366c7d68d819a7e251260a371"
+          }
+        },
+        {
+          "client_id": "1088938865563-fer0veim8gkceouqmnl5aip2clm856jh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dulich_mobile",
+            "certificate_hash": "669c7341bf434f4fc3fdff000a00c4890bf38be2"
+          }
+        },
+        {
+          "client_id": "1088938865563-8t87s448k6178hmb5fi9bl9ahem4i3gp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dulich_mobile",
+            "certificate_hash": "2ce80cc57bad32466a94cbb162432cbfd83ac300"
+          }
+        },
+        {
+          "client_id": "1088938865563-6nm0f5boabervkkqs2221our5k7rsmec.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dulich_mobile",
+            "certificate_hash": "1fdf8e031b3b6b8591921e31bc01fbe30f4ed8d5"
+          }
+        },
+        {
+          "client_id": "1088938865563-u9braho4e3p7ed20nfso1vnm4pf6idgk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dulich_mobile",
+            "certificate_hash": "b7afe627c1febe323cf432f1ebff70ba720e11d4"
+          }
+        },
+        {
+          "client_id": "1088938865563-ik75ed5sia9lqbunl61np82tqia5s7lo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsQfVdiBPOBxVuzbxo1vZb9hUgBtqHs-Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088938865563-ik75ed5sia9lqbunl61np82tqia5s7lo.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1088938865563-jajhhorr75fi23nflon12ok1ds6g1juj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.dulich-mobile"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088938865563:android:d9c55fcdc7b4b8f83da73e",
+        "android_client_info": {
+          "package_name": "com.example.travelist"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1088938865563-ik75ed5sia9lqbunl61np82tqia5s7lo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsQfVdiBPOBxVuzbxo1vZb9hUgBtqHs-Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088938865563-ik75ed5sia9lqbunl61np82tqia5s7lo.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1088938865563-jajhhorr75fi23nflon12ok1ds6g1juj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.dulich-mobile"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088938865563:android:3bbbea31200551103da73e",
+        "android_client_info": {
+          "package_name": "com.ygaps.travelapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1088938865563-ik75ed5sia9lqbunl61np82tqia5s7lo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsQfVdiBPOBxVuzbxo1vZb9hUgBtqHs-Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088938865563-ik75ed5sia9lqbunl61np82tqia5s7lo.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1088938865563-jajhhorr75fi23nflon12ok1ds6g1juj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.dulich-mobile"
+              }
             }
           ]
         }

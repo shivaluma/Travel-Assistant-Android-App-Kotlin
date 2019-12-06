@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.brogrammers.travel">
+    package="com.ygaps.travelapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -15,7 +15,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".view.user.UpdatePassword"></activity>
+        <activity android:name=".view.createtour.ChangeTourInfo"></activity>
+        <activity android:name=".view.user.UpdatePassword" />
         <activity android:name=".view.forgetpassword.CheckOTPActivity" />
         <activity android:name=".view.user.EditInfomation" />
         <activity android:name=".view.forgetpassword.getOTPActivity" />
@@ -66,6 +67,16 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+
+
+        <service
+            android:name=".service.FirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
+
+
 
 </manifest>

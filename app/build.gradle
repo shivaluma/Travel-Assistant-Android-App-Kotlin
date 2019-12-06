@@ -4,11 +4,13 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'com.google.gms.google-services'
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
-        applicationId "com.brogrammers.travel"
+        applicationId "com.ygaps.travelapp"
         minSdkVersion 26
         targetSdkVersion 29
         versionCode 1
@@ -66,10 +68,11 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.0.1'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.github.Inconnu08:android-ratingreviews:1.2.0'
+    implementation 'com.google.firebase:firebase-messaging:20.0.1'
 
 }
 
-apply plugin: 'com.google.gms.google-services'
+
 androidExtensions {
     experimental = true
 }
