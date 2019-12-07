@@ -149,6 +149,15 @@ interface ApiServiceGetUserInfo {
     ): Call<ResponseUserInfo>
 }
 
+interface ApiServiceGetVerifyCode {
+    @GET("/user/send-active")
+    fun getVerify(
+        @Header("Authorization") token : String,
+        @Query("userId") userId : Int,
+        @Query("type") type : String
+    ): Call<ResponseGetVerifyCode>
+}
+
 interface ApiServiceUpdateUserInfo {
     @POST("/user/edit-info")
     fun updateInfo(

@@ -116,14 +116,15 @@ data class ResponseUpdateUserInfo(
 
 data class ResponseUserInfo (
     var id: Int,
-    var full_name: String?,
+    var fullName: String?,
     var email: String?,
     var phone: String?,
     var address: String?,
     var dob: String?,
     var gender: Int?,
-    var email_verified : Boolean?,
-    var phone_verified : Boolean?
+    var typeLogin: Int?,
+    var createOn: Long?,
+    var avatar: String?
 )
 
 data class ResponseStopPointInfo (
@@ -145,6 +146,8 @@ data class ResponseStopPointRatingPoints(var pointStats : ArrayList<ratingpoint>
 data class ResponseUpdateTourInfo(var id : Int)
 
 data class ResponsePutFcmToken(var message: String)
+
+data class ResponseGetVerifyCode(var expiredOn: Long)
 
 data class ratingpoint(var total: Int, var point : Int)
 

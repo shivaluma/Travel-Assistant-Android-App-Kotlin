@@ -1,18 +1,14 @@
 package com.ygaps.travelapp.service
 
-import android.app.Notification
+import android.app.*
 import android.content.Context.NOTIFICATION_SERVICE
 import androidx.core.content.ContextCompat.getSystemService
-import android.app.NotificationManager
-import com.ygaps.travelapp.R
 import android.media.RingtoneManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.ygaps.travelapp.MainActivity
 import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.FirebaseMessagingService
 import java.lang.Exception
@@ -25,8 +21,6 @@ import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
-import com.ygaps.travelapp.ErrorResponse
-import com.ygaps.travelapp.ResponsePutFcmToken
 import com.ygaps.travelapp.manager.doAsync
 import com.ygaps.travelapp.network.model.ApiServicePutFcmToken
 import com.ygaps.travelapp.network.model.ApiServiceTourComment
@@ -34,34 +28,40 @@ import com.ygaps.travelapp.network.model.WebAccess
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import android.app.NotificationChannel
+import android.content.BroadcastReceiver
 import android.os.Build
 
 import android.graphics.BitmapFactory
-
-
-
+import com.ygaps.travelapp.*
+import com.ygaps.travelapp.network.model.ApiServiceResponseInvitaion
+import org.jetbrains.anko.accessibilityManager
 
 
 class FirebaseMessagingService : FirebaseMessagingService() {
 
+    var userToken : String = ""
+
+
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        Log.d("abab", "From + " + remoteMessage.from!!)
-        Log.d("abab", "Type + " + remoteMessage.messageType.toString())
-        Log.d("abab", "Notification + " + remoteMessage.notification.toString())
-        for (i in remoteMessage.data) {
-            Log.d("abab", "DATA "  + i.key + " -> " + i.value)
-        }
-        sendNotification(remoteMessage.data!!)
+        sendNotification(remoteMessage.data)
     }
 
     private fun sendNotification(map: Map<String, String>) {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT)
+        val acceptIntent = Intent(this, NotificationActionService::class.java).setAction("Tour_Invitation_Accept")
+        val declineIntent = Intent(this, NotificationActionService::class.java).setAction("Tour_Invitation_Decline")
+
+        val pendingIntentAccept = PendingIntent.getService(this, 0, acceptIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+        val pendingIntentDecline = PendingIntent.getService(this, 0, declineIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+
+        val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
+        val editor = sharePref.edit()
+        editor.putString("tourId", map["id"])
+        editor.apply()
+
 
         val channelId = getString(R.string.project_id)
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+
 
 
 
@@ -75,23 +75,22 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             )
             .setContentTitle("Tour Invitation")
             .setContentText(map.get("hostName") + " invites you to tour " + map.get("name"))
-            .setAutoCancel(false)
+            .setAutoCancel(true)
             .setSound(defaultSoundUri)
-            .setContentIntent(pendingIntent)
             .setDefaults(Notification.DEFAULT_ALL)
             .setPriority(NotificationManager.IMPORTANCE_HIGH)
             .addAction(
                 NotificationCompat.Action(
-                    android.R.drawable.sym_call_missed,
+                    android.R.drawable.btn_default,
                     "Decline",
-                    PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+                    pendingIntentDecline
                 )
             )
             .addAction(
                 NotificationCompat.Action(
-                    android.R.drawable.sym_call_outgoing,
+                    android.R.drawable.btn_default,
                     "Accept",
-                    PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+                    pendingIntentAccept
                 )
             )
 
@@ -105,10 +104,8 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 "Channel human readable title",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
-
             notificationManager.createNotificationChannel(channel)
         }
-
         notificationManager.notify(0, notificationBuilder.build())
     }
 
@@ -134,11 +131,14 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     }
 
 
-    fun ApiRequestPutFcmToken(FcmToken : String) {
+
+
+    fun ApiRequestPutFcmToken( FcmToken : String) {
         doAsync {
             val service = WebAccess.retrofit.create(ApiServicePutFcmToken::class.java)
             val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
             val token = sharePref.getString("token", "notoken")!!
+            userToken = token
             val jsonObject = JsonObject()
             var uniqueId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID)
 
@@ -167,4 +167,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             })
         }.execute()
     }
+
+
+
 }

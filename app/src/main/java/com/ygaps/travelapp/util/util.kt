@@ -5,7 +5,9 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.icu.text.SimpleDateFormat
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
+import com.squareup.picasso.Picasso
 import com.ygaps.travelapp.R
 import com.ygaps.travelapp.ResponseTourInfo
 import com.ygaps.travelapp.ResponseUserInfo
@@ -121,6 +123,16 @@ object util {
         else {
             return  R.drawable.ic_closed_big
         }
+    }
+
+    fun urlToImageView(urlConnection : String, view : ImageView, size : Int) {
+
+        Picasso.get()
+                .load(urlConnection)
+                .resize(size, size)
+                .centerCrop()
+                .into(view)
+
     }
 
 

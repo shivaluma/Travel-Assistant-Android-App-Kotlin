@@ -38,7 +38,9 @@ import com.ygaps.travelapp.network.model.ApiServiceAddUserToTour
 import com.ygaps.travelapp.network.model.ApiServiceGetUserList
 import com.google.gson.JsonObject
 import com.mancj.materialsearchbar.MaterialSearchBar
+import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_get_coordinate.*
+import kotlinx.android.synthetic.main.member_layout_search_res.view.*
 
 
 class MemberListOfTour : AppCompatActivity() {
@@ -204,6 +206,9 @@ class MemberListOfTour : AppCompatActivity() {
 
             holder.name.text = item.name
             holder.phone.text = item.phone
+            if (item.avatar != null) {
+                util.urlToImageView(item.avatar, holder.avatar, 90)
+            }
             //onclick
 
             holder.itemView.setOnClickListener {
@@ -219,10 +224,12 @@ class MemberListOfTour : AppCompatActivity() {
         inner class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             internal var name: TextView
             internal var phone: TextView
+            internal var avatar: CircleImageView
 
             init {
                 name = itemView.findViewById(R.id.MemberName) as TextView
                 phone = itemView.findViewById(R.id.MemberPhone) as TextView
+                avatar = itemView.findViewById(R.id.profile_image) as CircleImageView
             }
         }
     }
@@ -249,6 +256,9 @@ class MemberListOfTour : AppCompatActivity() {
             holder.name.text = item.fullName
             holder.phone.text = item.phone
             holder.email.text = item.email
+            if (item.avatar != null) {
+                util.urlToImageView(item.avatar!!, holder.avatar, 90)
+            }
 
 
             holder.itemView.setOnClickListener {
@@ -295,11 +305,14 @@ class MemberListOfTour : AppCompatActivity() {
             internal var name: TextView
             internal var phone: TextView
             internal var email: TextView
+            internal var avatar : CircleImageView
+
 
             init {
                 name = itemView.findViewById(R.id.MemberName) as TextView
                 phone = itemView.findViewById(R.id.MemberPhone) as TextView
                 email = itemView.findViewById(R.id.MemberEmail) as TextView
+                avatar = itemView.profile_image
             }
         }
     }

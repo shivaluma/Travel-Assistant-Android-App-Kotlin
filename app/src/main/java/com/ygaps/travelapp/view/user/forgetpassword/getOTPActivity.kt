@@ -1,19 +1,14 @@
-package com.ygaps.travelapp.view.forgetpassword
+package com.ygaps.travelapp.view.user.forgetpassword
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import com.ygaps.travelapp.ErrorResponse
 import com.ygaps.travelapp.R
 import com.ygaps.travelapp.ResponseGetOTP
-import com.ygaps.travelapp.ResponseTourInfo
-import com.ygaps.travelapp.manager.doAsync
 import com.ygaps.travelapp.network.model.ApiServiceGetOTP
-import com.ygaps.travelapp.network.model.ApiServiceGetTourInfo
 import com.ygaps.travelapp.network.model.WebAccess
-import com.ygaps.travelapp.util.util
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken

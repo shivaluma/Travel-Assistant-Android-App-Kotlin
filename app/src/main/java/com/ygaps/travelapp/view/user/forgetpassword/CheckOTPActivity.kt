@@ -1,4 +1,4 @@
-package com.ygaps.travelapp.view.forgetpassword
+package com.ygaps.travelapp.view.user.forgetpassword
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -7,7 +7,6 @@ import android.os.CountDownTimer
 import android.widget.Toast
 import com.ygaps.travelapp.*
 import com.ygaps.travelapp.network.model.ApiServiceCheckOTP
-import com.ygaps.travelapp.network.model.ApiServiceGetOTP
 import com.ygaps.travelapp.network.model.WebAccess
 import com.google.gson.Gson
 import com.google.gson.JsonObject

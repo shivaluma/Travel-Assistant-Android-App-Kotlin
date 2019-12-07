@@ -14,7 +14,7 @@ import com.ygaps.travelapp.network.model.ApiServiceFBLogin
 import com.ygaps.travelapp.network.model.ApiServiceGGLogin
 import com.ygaps.travelapp.network.model.ApiServiceLogin
 import com.ygaps.travelapp.network.model.WebAccess
-import com.ygaps.travelapp.view.forgetpassword.getOTPActivity
+import com.ygaps.travelapp.view.user.forgetpassword.getOTPActivity
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException

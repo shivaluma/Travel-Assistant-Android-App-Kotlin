@@ -3,6 +3,7 @@ package com.ygaps.travelapp.view.navigation.explorer
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.location.Address
 import android.location.Geocoder
 import android.os.Build
@@ -35,7 +36,11 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mancj.materialsearchbar.MaterialSearchBar
 import com.mancj.materialsearchbar.adapter.SuggestionsAdapter
+import com.taufiqrahman.reviewratings.BarLabels
+import com.taufiqrahman.reviewratings.RatingReviews
+import com.ygaps.travelapp.network.model.ApiServiceGetStopPointPoints
 import kotlinx.android.synthetic.main.activity_get_coordinate.*
+import kotlinx.android.synthetic.main.activity_stop_point_info.*
 import kotlinx.android.synthetic.main.fragment_explorer.*
 import kotlinx.android.synthetic.main.fragment_explorer.view.*
 import kotlinx.android.synthetic.main.popup_stoppoint_suggest.view.*
@@ -57,6 +62,14 @@ class ExplorerFragment : Fragment() {
     var listSuggestPointMarker = ArrayList<Marker>()
     var listStopPointSearch = ArrayList<StopPoint>()
     var suggestionsList = ArrayList<String>()
+
+    val colors = intArrayOf(
+        Color.parseColor("#0e9d58"),
+        Color.parseColor("#bfd047"),
+        Color.parseColor("#ffc105"),
+        Color.parseColor("#ef7e14"),
+        Color.parseColor("#d36259")
+    )
 
     var token : String  = ""
     override fun onCreateView(
@@ -162,9 +175,9 @@ class ExplorerFragment : Fragment() {
                     if (buttonCode == MaterialSearchBar.BUTTON_NAVIGATION) {
                         //opening or closing a navigation drawer
                     } else if (buttonCode == MaterialSearchBar.BUTTON_BACK) {
-                        searchMapBar.disableSearch()
+                        root.searchMapBarExplorer.disableSearch()
                     }
-                    searchMapBar.clearSuggestions()
+                    root.searchMapBarExplorer.clearSuggestions()
                 }
 
                 override fun onSearchStateChanged(enabled: Boolean) {
@@ -173,7 +186,7 @@ class ExplorerFragment : Fragment() {
 
                 override fun onSearchConfirmed(text: CharSequence?) {
                     searchLocation(text.toString())
-                    searchMapBar.clearSuggestions()
+                    root.searchMapBarExplorer.clearSuggestions()
 //                    ApiRequestSearchDestination(text.toString())
 
                 }
@@ -279,6 +292,8 @@ class ExplorerFragment : Fragment() {
             true
         )
 
+        ApiRequestGetPoints(view, listStopPointSuggest[pos].id)
+
         // Set an elevation for the popup window
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             popupWindow.elevation = 10.0F
@@ -335,6 +350,8 @@ class ExplorerFragment : Fragment() {
             LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
             true
         )
+
+        ApiRequestGetPoints(view, listStopPointSearch[pos].id)
 
         // Set an elevation for the popup window
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -463,6 +480,46 @@ class ExplorerFragment : Fragment() {
                             root.searchMapBarExplorer.showSuggestionsList()
                         }
 
+                    }
+                }
+            })
+        }.execute()
+    }
+
+
+    fun ApiRequestGetPoints(root : View, serviceId : Int) {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceGetStopPointPoints::class.java)
+            val call = service.getPoints(token,serviceId)
+            call.enqueue(object : Callback<ResponseStopPointRatingPoints> {
+                override fun onFailure(call: Call<ResponseStopPointRatingPoints>, t: Throwable) {
+                    Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(
+                    call: Call<ResponseStopPointRatingPoints>,
+                    response: Response<ResponseStopPointRatingPoints>
+                ) {
+                    if (response.code() != 200) {
+                        Toast.makeText(context, response.message(), Toast.LENGTH_LONG).show()
+                    } else {
+                        val ratingReviews = root.findViewById<RatingReviews>(R.id.rating_reviews)
+
+                        val raters = intArrayOf(
+                            response.body()!!.pointStats[0].total,
+                            response.body()!!.pointStats[1].total,
+                            response.body()!!.pointStats[2].total,
+                            response.body()!!.pointStats[3].total,
+                            response.body()!!.pointStats[4].total
+                        )
+                        var average = "%.1f".format(raters.average())
+                        root.ratingAveragePoint.text = average.toString()
+                        var maxValue = raters.max()
+                        var sum = raters.sum()
+                        root.textView2.text = sum.toString()
+                        root.ratingBar.rating = average.toFloat()
+
+                        ratingReviews.createRatingBars(maxValue!!, BarLabels.STYPE1, colors, raters)
                     }
                 }
             })

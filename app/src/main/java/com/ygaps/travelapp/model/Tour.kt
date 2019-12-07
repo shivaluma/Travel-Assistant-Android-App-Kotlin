@@ -11,5 +11,6 @@ data class Tour (
     var adults : Int ,
     var childs : Int ,
     var isPrivate: Boolean ,
-    var avatar : String
+    var avatar : String,
+    var hostId : Int?
 )

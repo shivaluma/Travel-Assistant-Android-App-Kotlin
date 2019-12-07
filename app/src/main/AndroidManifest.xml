@@ -15,11 +15,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".view.createtour.ChangeTourInfo"></activity>
+        <activity android:name=".view.user.verify.sendVerifyCode"></activity>
+        <activity android:name=".view.user.verify.getVerifyCode" />
+        <activity android:name=".view.createtour.ChangeTourInfo" />
         <activity android:name=".view.user.UpdatePassword" />
-        <activity android:name=".view.forgetpassword.CheckOTPActivity" />
+        <activity android:name=".view.user.forgetpassword.CheckOTPActivity" />
         <activity android:name=".view.user.EditInfomation" />
-        <activity android:name=".view.forgetpassword.getOTPActivity" />
+        <activity android:name=".view.user.forgetpassword.getOTPActivity" />
         <activity android:name=".view.stoppoint.StopPointInfo" />
         <activity
             android:name=".view.member.MemberListOfTour"
@@ -68,15 +70,12 @@
             </intent-filter>
         </activity>
 
-
-        <service
-            android:name=".service.FirebaseMessagingService">
+        <service android:name=".service.FirebaseMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        <service android:name=".service.NotificationActionService" />
     </application>
-
-
 
 </manifest>

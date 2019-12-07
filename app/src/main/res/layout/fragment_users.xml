@@ -9,7 +9,8 @@
 <LinearLayout
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:id="@+id/fragmentUserMainLayout">
 
         <RelativeLayout style="@style/loginParent">
 
@@ -44,6 +45,7 @@
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:layout_width="90dp"
                         android:layout_height="90dp"
+                        android:id="@+id/userAvatar"
                         android:background="@drawable/ic_account_circle_white_24dp"
                         android:layout_gravity="center_horizontal"/>
 
@@ -414,6 +416,64 @@
 
 
     </ViewSwitcher>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/imageborder"
+        android:clickable="true"
+        android:id="@+id/btnVerifyUser"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:padding="10dp"
+        android:minHeight="70dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="Verification"
+                android:textColor="@color/black"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phone : false"
+                android:textSize="16sp"
+
+                android:id="@+id/userInfoVerificationPhone"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email : false"
+                android:textSize="16sp"
+
+                android:id="@+id/userInfoVerification"/>
+
+
+
+
+
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_person_gender_blue_30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_alignParentEnd="true"/>
+
+
+    </LinearLayout>
 
 
 
