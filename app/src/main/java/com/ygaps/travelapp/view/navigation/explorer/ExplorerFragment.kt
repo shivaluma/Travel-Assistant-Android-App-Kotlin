@@ -1,6 +1,7 @@
 package com.ygaps.travelapp.view.navigation.explorer
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -19,6 +20,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.ygaps.travelapp.*
@@ -81,6 +83,12 @@ class ExplorerFragment : Fragment() {
         root = inflater.inflate(R.layout.fragment_explorer, container, false)
 
         token = activity!!.intent.extras!!.getString("userToken", "notoken")
+
+        if (ActivityCompat.checkSelfPermission(context!!, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(context!!, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
+        }
+
         root.explorermap.onCreate(savedInstanceState)
         root.explorermap.getMapAsync {
             mGoogleMap = it
@@ -524,6 +532,10 @@ class ExplorerFragment : Fragment() {
                 }
             })
         }.execute()
+    }
+
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1
     }
 
 }

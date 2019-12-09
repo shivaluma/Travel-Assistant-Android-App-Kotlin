@@ -125,6 +125,21 @@ object util {
         }
     }
 
+    fun getAssetByStopPointType(type: Int) : Int {
+        if (type == 1) {
+            return  R.drawable.ic_restaurant
+        }
+        else if (type == 2) {
+            return  R.drawable.ic_hotel
+        }
+        else if (type == 3) {
+            return  R.drawable.ic_bedtime
+        }
+        else {
+            return  R.drawable.ic_pin
+        }
+    }
+
     fun urlToImageView(urlConnection : String, view : ImageView, size : Int) {
 
         Picasso.get()

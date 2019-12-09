@@ -8,6 +8,7 @@ import kotlinx.android.parcel.Parcelize
 
 data class StopPoint(
     var id : Int,
+    var serviceId : Int,
     var name: String ,
     var type: String ,
     var address: String ,

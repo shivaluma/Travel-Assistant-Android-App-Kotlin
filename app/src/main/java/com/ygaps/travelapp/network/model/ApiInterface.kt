@@ -258,3 +258,20 @@ interface ApiServicePutFcmToken {
 }
 
 
+interface ApiServiceRemoveFcmToken {
+    @POST("/user/notification/remove-token")
+    fun removeToken(
+        @Header("Authorization") token : String,
+        @Body body: JsonObject
+    ): Call<ResponseRemoveFcmToken>
+}
+
+
+interface ApiServiceSendServiceFeedback {
+    @POST("/tour/add/feedback-service")
+    fun sendFeedback(
+        @Header("Authorization") token : String,
+        @Body body: JsonObject
+    ): Call<ResponseFeedbackService>
+}
+

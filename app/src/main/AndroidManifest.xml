@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
         android:allowBackup="true"
@@ -15,8 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".view.user.verify.sendVerifyCode"></activity>
-        <activity android:name=".view.user.verify.getVerifyCode" />
+        <activity android:name=".view.tour.TourFollowActivity"/>
+
         <activity android:name=".view.createtour.ChangeTourInfo" />
         <activity android:name=".view.user.UpdatePassword" />
         <activity android:name=".view.user.forgetpassword.CheckOTPActivity" />
@@ -51,7 +52,7 @@
             android:value="@string/facebook_app_id" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBoa_7qIh5KKyAt4oqVFcs7dTTH-Vc534E" />
+            android:value="AIzaSyBTPGt6wHibzdpuwi31X9qNwHosuyu0GEg" />
 
         <activity
             android:name="com.facebook.FacebookActivity"

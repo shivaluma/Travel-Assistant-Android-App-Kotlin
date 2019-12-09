@@ -5,7 +5,7 @@ object Constant {
     const val BASE_URL = "http://35.197.153.192:3000"
     const val ggServerClientID = "1013546197046-2amvjqr03i3po0u9qructlrj8vr2knbf.apps.googleusercontent.com"
     const val ggclientSecret = "fjVoYy4505lqYHrsUf4mTdEH"
-    const val ggMapApiKey = "AIzaSyBoa_7qIh5KKyAt4oqVFcs7dTTH-Vc534E"
+    const val ggMapApiKey = "AIzaSyBTPGt6wHibzdpuwi31X9qNwHosuyu0GEg"
     val provinceList: ArrayList<String> = arrayListOf("Hồ Chí Minh",
         "Hà Nội",
         "Đà Nẵng",

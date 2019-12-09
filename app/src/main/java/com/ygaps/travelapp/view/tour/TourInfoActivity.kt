@@ -15,6 +15,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.messaging.FirebaseMessaging
 import com.ygaps.travelapp.manager.doAsync
 import com.ygaps.travelapp.model.StopPoint
 import com.ygaps.travelapp.network.model.*
@@ -27,12 +30,17 @@ import com.ygaps.travelapp.view.stoppoint.StopPointInfo
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.squareup.picasso.Picasso
+import com.ygaps.travelapp.view.tour.TourFollowActivity
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_member_list_of_tour.*
 import kotlinx.android.synthetic.main.activity_tour_info.*
+import kotlinx.android.synthetic.main.item_choose_destination.view.*
 import kotlinx.android.synthetic.main.layout_tour_comment.*
 import kotlinx.android.synthetic.main.layout_tour_comment.view.*
+import kotlinx.android.synthetic.main.popup_choose_destination.*
+import kotlinx.android.synthetic.main.popup_choose_destination.view.*
 import kotlinx.android.synthetic.main.popup_setting_bottom.view.*
+import org.jetbrains.anko.image
 import org.w3c.dom.Text
 import retrofit2.Call
 import retrofit2.Callback
@@ -49,7 +57,8 @@ class TourInfoActivity : AppCompatActivity() {
     var listComment = ArrayList<comment>()
     var listReviews = ArrayList<review>()
     var typeCount = arrayOf(0,0,0,0)
-    lateinit var StpLV : RecyclerView
+    lateinit var startLatLang : LatLng
+    lateinit var endLatLng: LatLng
     lateinit var StpAdt : StopPointAdapter
     lateinit var CommentAdt : CommentAdapter
     lateinit var ReviewAdt : ReviewAdapter
@@ -73,6 +82,7 @@ class TourInfoActivity : AppCompatActivity() {
         stopPointRecyclerView.adapter = StpAdt
         CommentAdt = CommentAdapter(listComment)
         ReviewAdt = ReviewAdapter(listReviews)
+
         ApiRequest()
         ApiRequestGetReviewList(tourId)
 
@@ -96,6 +106,11 @@ class TourInfoActivity : AppCompatActivity() {
 
         tourMenu.setOnClickListener {
             popupSetting()
+        }
+
+
+        btnStartGoingTour.setOnClickListener {
+            popupStartGoing()
         }
     }
 
@@ -148,7 +163,7 @@ class TourInfoActivity : AppCompatActivity() {
             holder.itemView.setOnClickListener {
                 val intent = Intent(applicationContext, StopPointInfo::class.java)
                 intent.putExtra("token", token)
-                intent.putExtra("stpid", item.id)
+                intent.putExtra("stpid", item.serviceId)
                 startActivity(intent)
             }
         }
@@ -232,6 +247,7 @@ class TourInfoActivity : AppCompatActivity() {
         }
     }
 
+
     inner class ReviewAdapter(data: ArrayList<review>) :
         RecyclerView.Adapter<ReviewAdapter.RecyclerViewHolder>() {
 
@@ -290,6 +306,54 @@ class TourInfoActivity : AppCompatActivity() {
     }
 
 
+
+
+    inner class ChooseDestinationAdapter(data: ArrayList<StopPoint>) :
+        RecyclerView.Adapter<ChooseDestinationAdapter.RecyclerViewHolder>() {
+
+        var data = ArrayList<StopPoint>()
+
+        init {
+            this.data = data
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
+            val inflater = LayoutInflater.from(parent.context)
+            val view = inflater.inflate(R.layout.item_choose_destination, parent, false)
+            return RecyclerViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
+            val item = data.get(position)
+            holder.name.setText(Html.fromHtml("To : <b>${item.name}</b>"))
+            holder.type.image = getDrawable(util.getAssetByStopPointType(item.serviceTypeId!!))
+
+            holder.itemView.setOnClickListener {
+                var intent = Intent(applicationContext, TourFollowActivity::class.java)
+                intent.putExtra("destinationLat", item.lat!!)
+                intent.putExtra("destinationLng", item.long!!)
+                startActivity(intent)
+            }
+        }
+
+        override fun getItemCount(): Int {
+            return data.size
+        }
+
+        inner class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            internal var name: TextView
+            internal var type: ImageView
+
+            init {
+                name = itemView.destinationName
+                type = itemView.destinationTypeIcon
+            }
+        }
+    }
+
+
+
+
     fun ApiRequest() {
         doAsync {
             val service = WebAccess.retrofit.create(ApiServiceGetTourInfo::class.java)
@@ -323,6 +387,8 @@ class TourInfoActivity : AppCompatActivity() {
                         tourInfoCost.text = data.minCost.toString() + " - " + data.maxCost
                         listStopPoint.clear()
                         listStopPoint.addAll(data.stopPoints)
+
+
                         listComment.clear()
                         listComment.addAll(data.comments)
                         StpAdt.notifyDataSetChanged()
@@ -688,10 +754,18 @@ class TourInfoActivity : AppCompatActivity() {
 
         }
 
-        // Set a dismiss listener for popup window
-        popupWindow.setOnDismissListener {
-            Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
+        view.btnTourSubscribe.setOnClickListener {
+            FirebaseMessaging.getInstance().subscribeToTopic("/topics/tour-id-$tourId").addOnCompleteListener { task ->
+                var msg = "Subscribe successfully"
+                if (!task.isSuccessful) {
+                    msg = "Subscribe failed"
+                }
+                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+            }
+            popupWindow.dismiss()
         }
+
+        // Set a dismiss listener for popup window
 
 
         // Finally, show the popup window on app
@@ -701,6 +775,49 @@ class TourInfoActivity : AppCompatActivity() {
             0, // X offset
             0 // Y offset
         )
+    }
+
+    fun popupStartGoing() {
+        val inflater: LayoutInflater =
+            getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.popup_choose_destination, null)
+
+
+
+
+
+        var DestinationAdapter = ChooseDestinationAdapter(listStopPoint)
+        view.chooseDestinationRecycleView.adapter = DestinationAdapter
+        val layoutManager = LinearLayoutManager(applicationContext)
+        layoutManager.orientation = LinearLayoutManager.VERTICAL
+        view.chooseDestinationRecycleView.layoutManager = layoutManager
+
+        val popupWindow = PopupWindow(
+            view, // Custom view to show in popup window
+            LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
+            LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
+            true
+        )
+
+
+        popupWindow.showAsDropDown(btnStartGoingTour)
+
+
+
+
+
+        // Set an elevation for the popup window
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            popupWindow.elevation = 10.0F
+        }
+
+
+
+        // Set a dismiss listener for popup window
+        popupWindow.setOnDismissListener {
+
+        }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -4,12 +4,10 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import com.ygaps.travelapp.*
 import com.ygaps.travelapp.manager.doAsync
-import com.ygaps.travelapp.network.model.ApiServiceGetStopPointInfo
-import com.ygaps.travelapp.network.model.ApiServiceGetTourInfo
-import com.ygaps.travelapp.network.model.WebAccess
 import com.ygaps.travelapp.util.util
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -23,14 +21,13 @@ import retrofit2.Response
 import com.google.android.gms.maps.CameraUpdateFactory
 
 import com.ygaps.travelapp.model.StopPoint
-import com.ygaps.travelapp.network.model.ApiServiceGetStopPointPoints
 import com.google.android.gms.maps.model.LatLng
 
 import com.google.android.gms.maps.model.MarkerOptions
-
-
-
-
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
+import com.ygaps.travelapp.network.model.*
 
 
 class StopPointInfo : AppCompatActivity(){
@@ -59,7 +56,20 @@ class StopPointInfo : AppCompatActivity(){
 
         token = this.intent.extras!!.getString("token","notoken")!!
         serviceId = this.intent.extras!!.getInt("stpid",100)
-        Log.d("abab",token)
+        serviceRatingStarSelect.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
+            if (rating != 0f) {
+                serviceFeedbackEditContent.visibility = View.VISIBLE
+            }
+        }
+        btnFeedbackCancel.setOnClickListener {
+            serviceFeedbackEditContent.visibility = View.GONE
+            serviceRatingStarSelect.rating = 0f
+        }
+
+        btnFeedbackSubmit.setOnClickListener {
+            var content = editserviceRatingContent.text.toString()
+            ApiRequestSendFeedBack(serviceId, content, serviceRatingStarSelect.rating.toInt())
+        }
 
         ApiRequest()
         ApiRequestGetPoints()
@@ -72,8 +82,8 @@ class StopPointInfo : AppCompatActivity(){
     fun ApiRequest() {
         doAsync {
             val service = WebAccess.retrofit.create(ApiServiceGetStopPointInfo::class.java)
-            var cusId = serviceId - 18
-            val call = service.getTourInfo(token,cusId)
+
+            val call = service.getTourInfo(token,serviceId)
             call.enqueue(object : Callback<ResponseStopPointInfo> {
                 override fun onFailure(call: Call<ResponseStopPointInfo>, t: Throwable) {
                     Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
@@ -122,8 +132,7 @@ class StopPointInfo : AppCompatActivity(){
     fun ApiRequestGetPoints() {
         doAsync {
             val service = WebAccess.retrofit.create(ApiServiceGetStopPointPoints::class.java)
-            var cusId = serviceId - 18
-            val call = service.getPoints(token,cusId)
+            val call = service.getPoints(token,serviceId)
             call.enqueue(object : Callback<ResponseStopPointRatingPoints> {
                 override fun onFailure(call: Call<ResponseStopPointRatingPoints>, t: Throwable) {
                     Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
@@ -160,4 +169,37 @@ class StopPointInfo : AppCompatActivity(){
             })
         }.execute()
     }
+
+    fun ApiRequestSendFeedBack(serviceId : Int, feedback: String, point : Int) {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceSendServiceFeedback::class.java)
+            val body = JsonObject()
+            body.addProperty("serviceId", serviceId)
+            body.addProperty("feedback", feedback)
+            body.addProperty("point", point)
+
+            val call = service.sendFeedback(token,body)
+            call.enqueue(object : Callback<ResponseFeedbackService> {
+                override fun onFailure(call: Call<ResponseFeedbackService>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(
+                    call: Call<ResponseFeedbackService>,
+                    response: Response<ResponseFeedbackService>
+                ) {
+                    if (response.code() != 200) {
+                        val gson = Gson()
+                        val type = object : TypeToken<ErrorResponse>() {}.type
+                        var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
+                        Toast.makeText(applicationContext, errorResponse!!.message, Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(applicationContext, response.message(), Toast.LENGTH_LONG).show()
+                        ApiRequestGetPoints()
+                    }
+                }
+            })
+        }.execute()
+    }
+
 }

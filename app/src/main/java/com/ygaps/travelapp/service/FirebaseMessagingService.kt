@@ -43,70 +43,117 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+
+        Log.d("notifas", "NOTIFICATION")
+
+        for (i in remoteMessage.data) {
+            Log.d("notifas", i.key + " -> " + i.value )
+        }
         sendNotification(remoteMessage.data)
     }
 
     private fun sendNotification(map: Map<String, String>) {
-        val acceptIntent = Intent(this, NotificationActionService::class.java).setAction("Tour_Invitation_Accept")
-        val declineIntent = Intent(this, NotificationActionService::class.java).setAction("Tour_Invitation_Decline")
-
-        val pendingIntentAccept = PendingIntent.getService(this, 0, acceptIntent, PendingIntent.FLAG_CANCEL_CURRENT)
-        val pendingIntentDecline = PendingIntent.getService(this, 0, declineIntent, PendingIntent.FLAG_CANCEL_CURRENT)
-
-        val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
-        val editor = sharePref.edit()
-        editor.putString("tourId", map["id"])
-        editor.apply()
 
 
         val channelId = getString(R.string.project_id)
+        val channel = NotificationChannel(
+            channelId,
+            "Channel human readable title",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-
-
-
-
-        val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_launcher_background)
-            .setLargeIcon(
-                BitmapFactory.decodeResource(
-                    resources,
-                    R.drawable.ic_launcher_background
-                )
-            )
-            .setContentTitle("Tour Invitation")
-            .setContentText(map.get("hostName") + " invites you to tour " + map.get("name"))
-            .setAutoCancel(true)
-            .setSound(defaultSoundUri)
-            .setDefaults(Notification.DEFAULT_ALL)
-            .setPriority(NotificationManager.IMPORTANCE_HIGH)
-            .addAction(
-                NotificationCompat.Action(
-                    android.R.drawable.btn_default,
-                    "Decline",
-                    pendingIntentDecline
-                )
-            )
-            .addAction(
-                NotificationCompat.Action(
-                    android.R.drawable.btn_default,
-                    "Accept",
-                    pendingIntentAccept
-                )
-            )
-
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Since android Oreo notification channel is needed.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Channel human readable title",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            notificationManager.createNotificationChannel(channel)
+
+        if (map["type_name"] == "comment") {
+            val intent = Intent(this, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+
+
+            val notificationBuilder = NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setLargeIcon(
+                    BitmapFactory.decodeResource(
+                        resources,
+                        R.drawable.ic_launcher_background
+                    )
+                )
+                .setContentTitle(map.get("userId") + " comment to " + map.get("tourId"))
+                .setContentText(map["comment"])
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setPriority(NotificationManager.IMPORTANCE_HIGH)
+
+
+
+            // Since android Oreo notification channel is needed.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                notificationManager.createNotificationChannel(channel)
+            }
+            notificationManager.notify(0, notificationBuilder.build())
+
         }
-        notificationManager.notify(0, notificationBuilder.build())
+        else {
+            val acceptIntent = Intent(this, NotificationActionService::class.java).setAction("Tour_Invitation_Accept")
+            val declineIntent = Intent(this, NotificationActionService::class.java).setAction("Tour_Invitation_Decline")
+
+            val pendingIntentAccept = PendingIntent.getService(this, 0, acceptIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+            val pendingIntentDecline = PendingIntent.getService(this, 0, declineIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+
+            val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
+            val editor = sharePref.edit()
+            editor.putString("tourId", map["id"])
+            editor.apply()
+
+
+
+
+
+
+
+            val notificationBuilder = NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setLargeIcon(
+                    BitmapFactory.decodeResource(
+                        resources,
+                        R.drawable.ic_launcher_background
+                    )
+                )
+                .setContentTitle("Tour Invitation")
+                .setContentText(map.get("hostName") + " invites you to tour " + map.get("name"))
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setPriority(NotificationManager.IMPORTANCE_HIGH)
+                .addAction(
+                    NotificationCompat.Action(
+                        android.R.drawable.btn_default,
+                        "Decline",
+                        pendingIntentDecline
+                    )
+                )
+                .addAction(
+                    NotificationCompat.Action(
+                        android.R.drawable.btn_default,
+                        "Accept",
+                        pendingIntentAccept
+                    )
+                )
+
+
+
+            // Since android Oreo notification channel is needed.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                notificationManager.createNotificationChannel(channel)
+            }
+            notificationManager.notify(0, notificationBuilder.build())
+        }
+
+
     }
 
     companion object {

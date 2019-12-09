@@ -45,6 +45,7 @@ data class AddStopPointResultOK(
 
 data class ResponseTourInfo (
     var id : Int ,
+    var serviceId : Int,
     var status : Int ,
     var name : String ,
     var minCost : Long ,
@@ -146,6 +147,10 @@ data class ResponseStopPointRatingPoints(var pointStats : ArrayList<ratingpoint>
 data class ResponseUpdateTourInfo(var id : Int)
 
 data class ResponsePutFcmToken(var message: String)
+
+data class ResponseRemoveFcmToken(var message: String)
+
+data class ResponseFeedbackService(var message: String)
 
 data class ResponseGetVerifyCode(var expiredOn: Long)
 

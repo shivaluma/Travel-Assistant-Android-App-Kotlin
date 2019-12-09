@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.transition.Slide
 import android.util.Log
 import android.view.*
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.iid.FirebaseInstanceId
 import com.ygaps.travelapp.*
 import com.ygaps.travelapp.manager.doAsync
 import com.ygaps.travelapp.util.util
@@ -104,6 +106,9 @@ class NotificationsFragment : Fragment() {
 
 
         root.btnLogoutAccount.setOnClickListener {
+
+            var fcmToken = FirebaseInstanceId.getInstance().getToken()!!
+            ApiRequestRemoveFcmToken(fcmToken)
             val sharePref : SharedPreferences = this.activity!!.getSharedPreferences("logintoken", Context.MODE_PRIVATE)
             val editor = sharePref.edit()
             editor.remove("token")
@@ -296,6 +301,43 @@ class NotificationsFragment : Fragment() {
                         Toast.makeText(context, errorResponse!!.message, Toast.LENGTH_LONG).show()
                     } else {
                         popupVerifyCode(popupWindow)
+                    }
+                }
+            })
+        }.execute()
+
+    }
+
+    fun ApiRequestRemoveFcmToken(FcmToken : String) {
+
+        doAsync{
+            val service = WebAccess.retrofit.create(ApiServiceRemoveFcmToken::class.java)
+
+            val jsonObject = JsonObject()
+
+            var uniqueId = Settings.Secure.getString(context!!.getContentResolver(), Settings.Secure.ANDROID_ID)
+            jsonObject.addProperty("fcmToken", FcmToken)
+            jsonObject.addProperty("deviceId", uniqueId)
+            jsonObject.addProperty("platform", 1)
+            jsonObject.addProperty("appVersion", "1.0")
+
+
+            val call = service.removeToken(token,jsonObject)
+            call.enqueue(object : Callback<ResponseRemoveFcmToken> {
+                override fun onFailure(call: Call<ResponseRemoveFcmToken>, t: Throwable) {
+                    Toast.makeText(context,"Fcmtoken : " + t.message, Toast.LENGTH_LONG).show()
+                }
+                override fun onResponse(
+                    call: Call<ResponseRemoveFcmToken>,
+                    response: Response<ResponseRemoveFcmToken>
+                ) {
+                    if (response.code() != 200) {
+                        val gson = Gson()
+                        val type = object : TypeToken<ErrorResponse>() {}.type
+                        var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
+                        Toast.makeText(context, "Fcmtoken : " + errorResponse!!.message, Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(context, "Remove Token OK!!", Toast.LENGTH_LONG).show()
                     }
                 }
             })

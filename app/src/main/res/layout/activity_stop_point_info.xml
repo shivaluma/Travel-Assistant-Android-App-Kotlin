@@ -183,6 +183,90 @@
             android:textStyle="bold"
             android:textSize="20sp"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/serviceRatingTextSuggest"
+            android:layout_marginStart="10sp"
+            android:layout_marginBottom="10dp"
+            android:orientation="vertical">
+            <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:textSize="22sp"
+            android:text="Rate this Stop Point" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:text="Tell other what you think" />
+        </LinearLayout>
+
+        <RatingBar
+            android:id="@+id/serviceRatingStarSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:max="5"
+
+            android:layout_gravity="center_horizontal"
+            android:progressTint="@color/colorAccent"
+            android:progressBackgroundTint="@color/lightgray"
+            android:stepSize="1"
+            android:isIndicator="false" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:id="@+id/serviceFeedbackEditContent"
+            android:orientation="vertical">
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editserviceRatingContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Feedback this Service!">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal">
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel"
+                    android:id="@+id/btnFeedbackCancel"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="30dp"
+                    android:background="@null"/>
+                <Button
+                    android:layout_marginStart="30dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnFeedbackSubmit"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimary"
+                    android:text="Submit"
+                    android:background="@null"/>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -264,6 +348,9 @@
                 app:srcCompat="@drawable/ic_person"
                 android:layout_marginRight="8dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"

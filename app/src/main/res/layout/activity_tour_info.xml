@@ -32,6 +32,17 @@
                 android:id="@+id/tourMenu"
                 android:padding="5dp"/>
 
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="START GOING"
+                android:textColor="@color/white"
+                android:id="@+id/btnStartGoingTour"
+                android:layout_marginTop="195dp"
+                android:layout_centerHorizontal="true"
+                android:textStyle="bold"
+                android:background="@drawable/notification_button_accept"/>
+
         </RelativeLayout>
 
 
