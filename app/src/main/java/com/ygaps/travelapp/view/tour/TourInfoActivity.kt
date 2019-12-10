@@ -3,6 +3,7 @@ package com.ygaps.travelapp
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -18,6 +19,7 @@ import androidx.viewpager.widget.ViewPager
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.Gson
 import com.ygaps.travelapp.manager.doAsync
 import com.ygaps.travelapp.model.StopPoint
 import com.ygaps.travelapp.network.model.*
@@ -29,6 +31,7 @@ import com.ygaps.travelapp.view.stoppoint.StopPointInfo
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
 import com.squareup.picasso.Picasso
 import com.ygaps.travelapp.view.tour.TourFollowActivity
 import de.hdodenhof.circleimageview.CircleImageView
@@ -46,6 +49,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.lang.reflect.Member
+import kotlin.math.log
 import kotlin.reflect.typeOf
 
 class TourInfoActivity : AppCompatActivity() {
@@ -56,7 +60,9 @@ class TourInfoActivity : AppCompatActivity() {
     var listStopPoint = ArrayList<StopPoint>()
     var listComment = ArrayList<comment>()
     var listReviews = ArrayList<review>()
+    var listMembers = ArrayList<member>()
     var typeCount = arrayOf(0,0,0,0)
+    var currentUserId = 126
     lateinit var startLatLang : LatLng
     lateinit var endLatLng: LatLng
     lateinit var StpAdt : StopPointAdapter
@@ -86,8 +92,10 @@ class TourInfoActivity : AppCompatActivity() {
         ApiRequest()
         ApiRequestGetReviewList(tourId)
 
+        val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
+        currentUserId = sharePref.getInt("userId",126)
 
-
+        Log.d("abab", "Curernt id : ${currentUserId}")
 
         tourListMembers.setOnClickListener {
             val intent = Intent(this, MemberListOfTour::class.java)
@@ -388,6 +396,29 @@ class TourInfoActivity : AppCompatActivity() {
                         listStopPoint.clear()
                         listStopPoint.addAll(data.stopPoints)
 
+                        listMembers.clear()
+                        listMembers.addAll(data.members)
+
+                        var hasJoined = false
+                        for (i in listMembers) {
+                            if (i.id == currentUserId) {
+                                hasJoined = true
+                            }
+                        }
+
+                        if (!hasJoined) {
+                            btnStartGoingTour.text = "Join this tour"
+                            btnStartGoingTour.setOnClickListener {
+                                ApiRequestAddUserToTour(tourId, currentUserId, data.isPrivate)
+                            }
+                        }
+                        else {
+                            btnStartGoingTour.text = "Start Going"
+                            btnStartGoingTour.setOnClickListener {
+                                popupStartGoing()
+                            }
+                        }
+
 
                         listComment.clear()
                         listComment.addAll(data.comments)
@@ -514,6 +545,42 @@ class TourInfoActivity : AppCompatActivity() {
                         Log.d("abab", point.toString() + " " + review)
                         ratingPopup.dismiss()
                         ApiRequestGetReviewList(tourId)
+                    }
+                }
+            })
+        }.execute()
+    }
+
+    fun ApiRequestAddUserToTour(tourId : Int, userId: Int, isTourPrivate: Boolean) {
+        doAsync {
+            val serviceuser = WebAccess.retrofit.create(ApiServiceAddUserToTour::class.java)
+            val jsonObject = JsonObject()
+            Log.d("abab", tourId.toString() + " " + userId.toString()+ " " + isTourPrivate)
+
+            jsonObject.addProperty("tourId", tourId.toString())
+            jsonObject.addProperty("invitedUserId", "")
+            jsonObject.addProperty("isInvited", isTourPrivate)
+
+            val callu = serviceuser.addUser(token,jsonObject)
+            callu.enqueue(object : Callback<ResponseAddUserToTour> {
+                override fun onFailure(call: Call<ResponseAddUserToTour>, t: Throwable) {
+
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(
+                    call: Call<ResponseAddUserToTour>,
+                    response: Response<ResponseAddUserToTour>
+                ) {
+                    if (response.code() != 200) {
+                        val gson = Gson()
+                        val type = object : TypeToken<ErrorResponse>() {}.type
+                        var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
+                        Toast.makeText(applicationContext, errorResponse!!.message, Toast.LENGTH_LONG).show()
+                    } else {
+                        Log.d("addm",response.body()!!.message)
+                        Toast.makeText(applicationContext, "Join Successful!!", Toast.LENGTH_LONG).show()
+                        ApiRequest()
                     }
                 }
             })

@@ -1,9 +1,12 @@
 package com.ygaps.travelapp
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -16,8 +19,10 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import com.ygaps.travelapp.manager.doAsync
+import com.ygaps.travelapp.network.model.ApiServiceGetUserInfo
 import com.ygaps.travelapp.network.model.ApiServicePutFcmToken
 import com.ygaps.travelapp.network.model.WebAccess
+import com.ygaps.travelapp.util.util
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -44,6 +49,34 @@ class NavigationBottomActivity : AppCompatActivity() {
         var fcmToken = FirebaseInstanceId.getInstance().getToken()!!
         Log.d("abab", fcmToken)
         ApiRequestPutFcmToken(fcmToken,token)
+        ApiRequestGetUserId(token)
+    }
+
+
+    fun ApiRequestGetUserId(token : String) {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceGetUserInfo::class.java)
+            val call = service.getInfo(token)
+            call.enqueue(object : Callback<ResponseUserInfo> {
+                override fun onFailure(call: Call<ResponseUserInfo>, t: Throwable) {
+
+                }
+                override fun onResponse(
+                    call: Call<ResponseUserInfo>,
+                    response: Response<ResponseUserInfo>
+                ) {
+                    if (response.code() != 200) {
+
+                    } else {
+                        var item = response!!.body()
+                        val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
+                        var editor = sharePref.edit()
+                        editor.putInt("userId", item!!.id)
+                        editor.apply()
+                    }
+                }
+            })
+        }.execute()
     }
 
 
