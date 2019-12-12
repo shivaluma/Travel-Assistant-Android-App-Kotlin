@@ -91,6 +91,7 @@ class TourInfoActivity : AppCompatActivity() {
 
         ApiRequest()
         ApiRequestGetReviewList(tourId)
+        ApiRequestGetComment(tourId.toString())
 
         val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
         currentUserId = sharePref.getInt("userId",126)
@@ -420,15 +421,12 @@ class TourInfoActivity : AppCompatActivity() {
                         }
 
 
-                        listComment.clear()
-                        listComment.addAll(data.comments)
+
                         StpAdt.notifyDataSetChanged()
-                        CommentAdt.notifyDataSetChanged()
+
                         tourMemberNum.text = data.members.size.toString()
-                        tourCommentNum.text = data.comments.size.toString()
-                        if (hasInitCommentNumCountView) {
-                            CommentNumCountView.text = data.comments.size.toString() + " comments"
-                        }
+
+
                         countTypeStopPoint()
                     }
                 }
@@ -456,7 +454,37 @@ class TourInfoActivity : AppCompatActivity() {
                     if (response.code() != 200) {
                         Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
                     } else {
-                        ApiRequest()
+                        ApiRequestGetComment(tourId)
+                    }
+                }
+            })
+        }.execute()
+    }
+
+    fun ApiRequestGetComment(tourId : String) {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceGetCommentList::class.java)
+            val call = service.getList(token,tourId,1,"9999")
+            call.enqueue(object : Callback<ResponseCommentList> {
+                override fun onFailure(call: Call<ResponseCommentList>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(
+                    call: Call<ResponseCommentList>,
+                    response: Response<ResponseCommentList>
+                ) {
+                    if (response.code() != 200) {
+                        Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
+                    } else {
+                        var data = response.body()
+                        listComment.clear()
+                        listComment.addAll(data!!.commentList)
+                        CommentAdt.notifyDataSetChanged()
+                        tourCommentNum.text = data.commentList.size.toString()
+                        if (hasInitCommentNumCountView) {
+                            CommentNumCountView.text = listComment.size.toString() + " comments"
+                        }
                     }
                 }
             })
@@ -868,7 +896,6 @@ class TourInfoActivity : AppCompatActivity() {
 
 
         popupWindow.showAsDropDown(btnStartGoingTour)
-
 
 
 

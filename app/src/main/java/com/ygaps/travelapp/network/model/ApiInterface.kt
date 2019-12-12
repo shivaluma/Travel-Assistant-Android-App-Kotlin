@@ -149,6 +149,16 @@ interface ApiServiceGetUserInfo {
     ): Call<ResponseUserInfo>
 }
 
+interface ApiServiceGetCommentList {
+    @GET("/tour/comment-list")
+    fun getList(
+        @Header("Authorization") token : String,
+        @Query("tourId") tourId: String,
+        @Query("pageIndex") pageIndex: Int,
+        @Query("pageSize") pageSize: String
+    ): Call<ResponseCommentList>
+}
+
 interface ApiServiceGetVerifyCode {
     @GET("/user/send-active")
     fun getVerify(
@@ -199,6 +209,19 @@ interface ApiServiceGetStopPointPoints {
         @Query("serviceId") serviceId: Int
     ): Call<ResponseStopPointRatingPoints>
 }
+
+interface ApiServiceGetTourNotices {
+    @GET("/tour/notification-list")
+    fun getNotices(
+        @Header("Authorization") token : String,
+        @Query("tourId") tourId: Int,
+        @Query("pageIndex") pageIndex: Int,
+        @Query("pageSize") pageSize: Int
+    ): Call<ResponseGetTourNotice>
+}
+
+
+
 
 interface ApiServiceSearchDestination {
     @GET("/tour/search/service")

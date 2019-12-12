@@ -115,6 +115,10 @@ data class ResponseUpdateUserInfo(
     val message: String
 )
 
+data class ResponseCommentList(
+    val commentList : ArrayList<comment>
+)
+
 data class ResponseUserInfo (
     var id: Int,
     var fullName: String?,
@@ -154,7 +158,13 @@ data class ResponseFeedbackService(var message: String)
 
 data class ResponseGetVerifyCode(var expiredOn: Long)
 
+data class ResponseGetTourNotice(var notiList : ArrayList<notification>)
+
 data class ratingpoint(var total: Int, var point : Int)
+
+data class notification(val userId: Int, val name : String, val avatar: String, val notification : String)
+
+
 
 
 

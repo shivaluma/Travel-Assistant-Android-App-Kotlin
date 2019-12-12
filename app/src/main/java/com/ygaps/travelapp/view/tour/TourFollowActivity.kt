@@ -16,26 +16,41 @@ import com.google.android.gms.maps.SupportMapFragment
 
 import android.location.Location
 
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
 
-import android.widget.Toast
 import android.Manifest.permission
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.app.Activity
+import android.content.Intent
+import android.content.IntentSender
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.location.LocationManager
+import android.os.Build
+import android.os.Looper
+import android.transition.Slide
 import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.Task
 import com.google.maps.android.PolyUtil
 import com.ygaps.travelapp.manager.Constant
 import com.ygaps.travelapp.manager.doAsync
+import kotlinx.android.synthetic.main.activity_tour_follow.*
 import org.json.JSONObject
 
 
@@ -58,14 +73,22 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
             ,intent.extras!!.getDouble("destinationLng", 106.6822))
 
 
+        showLocationPrompt()
+
 
         fetchLocation()
+
+        tourFollowChatBtn.setOnClickListener {
+            popupChat()
+        }
+
 
 
     }
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
+        private const val PERMISSION_ID = 12
     }
 
     override fun onMapReady(p0: GoogleMap?) {
@@ -108,27 +131,39 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun fetchLocation() {
-        if (ActivityCompat.checkSelfPermission(
-                this, ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this, ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(ACCESS_FINE_LOCATION),
-                LOCATION_PERMISSION_REQUEST_CODE
-            )
-            return
-        }
-        val task = fusedLocationProviderClient.lastLocation
-        task.addOnSuccessListener { location ->
-            if (location != null) {
-                myLocation = location
-                val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-                mapFragment.getMapAsync(this)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            LocationRequest.PRIORITY_HIGH_ACCURACY -> {
+                if (resultCode == Activity.RESULT_OK) {
+
+                } else {
+                    Log.e("Status: ","Off")
+                }
             }
+        }
+    }
+
+    private fun fetchLocation() {
+        if (checkPermissions()) {
+            if (isLocationEnabled()) {
+                val task = fusedLocationProviderClient.lastLocation
+                task.addOnSuccessListener { location ->
+                    if (location != null) {
+                        myLocation = location
+                        val mapFragment =
+                            supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+                        mapFragment.getMapAsync(this)
+                    }
+                    else {
+                        requestNewLocationData()
+                    }
+                }
+            }
+
+        }
+        else {
+            requestPermissions()
         }
     }
 
@@ -179,6 +214,172 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
             requestQueue.add(directionsRequest)
         }.execute()
     }
+
+
+    fun isLocationEnabled(): Boolean {
+        var locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER
+        )
+    }
+
+    fun checkPermissions(): Boolean {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            return true
+        }
+        return false
+    }
+
+    fun requestPermissions() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
+            PERMISSION_ID
+        )
+    }
+
+    private val mLocationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            myLocation = locationResult.lastLocation
+            val mapFragment =
+                supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+            mapFragment.getMapAsync(this@TourFollowActivity)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun requestNewLocationData() {
+        var mLocationRequest = LocationRequest()
+        mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        mLocationRequest.interval = 0
+        mLocationRequest.fastestInterval = 0
+        mLocationRequest.numUpdates = 1
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationProviderClient!!.requestLocationUpdates(
+            mLocationRequest, mLocationCallback,
+            Looper.myLooper()
+        )
+    }
+
+
+        private fun showLocationPrompt() {
+            val locationRequest = LocationRequest.create()
+            locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+
+            val result: Task<LocationSettingsResponse> = LocationServices.getSettingsClient(this).checkLocationSettings(builder.build())
+
+            result.addOnCompleteListener { task ->
+                try {
+                    val response = task.getResult(ApiException::class.java)
+                    // All location settings are satisfied. The client can initialize location
+                    // requests here.
+                } catch (exception: ApiException) {
+                    when (exception.statusCode) {
+                        LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
+                            try {
+                                // Cast to a resolvable exception.
+                                val resolvable: ResolvableApiException = exception as ResolvableApiException
+                                // Show the dialog by calling startResolutionForResult(),
+                                // and check the result in onActivityResult().
+                                resolvable.startResolutionForResult(
+                                    this, LocationRequest.PRIORITY_HIGH_ACCURACY
+                                )
+                            } catch (e: IntentSender.SendIntentException) {
+                                // Ignore the error.
+                            } catch (e: ClassCastException) {
+                                // Ignore, should be an impossible error.
+                            }
+                        }
+                        LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
+                            // Location settings are not satisfied. But could be fixed by showing the
+                            // user a dialog.
+
+                            // Location settings are not satisfied. However, we have no way to fix the
+                            // settings so we won't show the dialog.
+                        }
+                    }
+                }
+            }
+        }
+
+
+    fun popupChat() {
+        val inflater: LayoutInflater =
+            getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.popup_chat, null)
+
+//        var commentView = view.findViewById<RecyclerView>(R.id.commentRecyclerView)
+//        val layoutManager = LinearLayoutManager(applicationContext)
+//        layoutManager.orientation = LinearLayoutManager.VERTICAL
+//        commentView.layoutManager = layoutManager
+//        commentView.adapter = CommentAdt
+//
+//
+//        var commentNumField = view.findViewById<TextView>(R.id.commentNum)
+//        CommentNumCountView = commentNumField
+//        hasInitCommentNumCountView = true
+//        commentNumField.text = listComment.size.toString() + " comments"
+
+
+
+        val displayMetrics =getResources().getDisplayMetrics()
+        val screenWidthInDp = displayMetrics.heightPixels / displayMetrics.density
+
+        val popupWindow = PopupWindow(
+            view, // Custom view to show in popup window
+            LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
+            (screenWidthInDp.toInt() - 100)*2, // Window height
+            true
+        )
+
+        // Set an elevation for the popup window
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            popupWindow.elevation = 10.0F
+        }
+
+
+        // If API level 23 or higher then execute the code
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Create a new slide animation for popup window enter transition
+            val slideIn = Slide()
+            slideIn.slideEdge = Gravity.TOP
+            popupWindow.enterTransition = slideIn
+
+            // Slide animation for popup window exit transition
+            val slideOut = Slide()
+            slideOut.slideEdge = Gravity.TOP
+            popupWindow.exitTransition = slideOut
+
+        }
+
+        // Get the widgets reference from custom view
+        //val tv = view.findViewById<TextView>(R.id.text_view)
+
+//        val sendbtn = view.findViewById<ImageView>(R.id.send)
+//        val contentCM = view.findViewById<EditText>(R.id.commenttext)
+//
+//        sendbtn.setOnClickListener {
+//            val data:String = contentCM.text.toString()
+//            ApiRequestNewComment(tourId.toString(),"126",data)
+//            contentCM.setText("")
+//            contentCM.clearFocus()
+//        }
+
+        // Set a dismiss listener for popup window
+        popupWindow.setOnDismissListener {
+            Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
+        }
+
+
+        // Finally, show the popup window on app
+        popupWindow.showAsDropDown(tourFollowChatBtn,0,20)
+    }
+
+
+
 }
 
 

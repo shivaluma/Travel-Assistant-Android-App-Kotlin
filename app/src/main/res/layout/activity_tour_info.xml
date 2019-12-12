@@ -58,8 +58,7 @@
             android:layout_marginStart="10dp"
             android:textColor="@color/black"
             android:textStyle="bold"
-            android:id="@+id/tourInfoName"
-            />
+            android:id="@+id/tourInfoName" />
 
 
                  <LinearLayout

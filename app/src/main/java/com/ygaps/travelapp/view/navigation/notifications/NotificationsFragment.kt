@@ -112,6 +112,7 @@ class NotificationsFragment : Fragment() {
             val sharePref : SharedPreferences = this.activity!!.getSharedPreferences("logintoken", Context.MODE_PRIVATE)
             val editor = sharePref.edit()
             editor.remove("token")
+            editor.remove("fcmToken")
             editor.apply()
             val intent = Intent(activity, LoginActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)

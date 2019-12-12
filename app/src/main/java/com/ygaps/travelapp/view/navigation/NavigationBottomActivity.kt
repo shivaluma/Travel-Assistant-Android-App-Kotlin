@@ -1,5 +1,6 @@
 package com.ygaps.travelapp
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -14,6 +15,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -23,12 +25,14 @@ import com.ygaps.travelapp.network.model.ApiServiceGetUserInfo
 import com.ygaps.travelapp.network.model.ApiServicePutFcmToken
 import com.ygaps.travelapp.network.model.WebAccess
 import com.ygaps.travelapp.util.util
+import org.jetbrains.anko.share
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class NavigationBottomActivity : AppCompatActivity() {
 
+    @SuppressLint("WrongThread")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -46,9 +50,28 @@ class NavigationBottomActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         var token = intent.extras!!.getString("userToken")!!
-        var fcmToken = FirebaseInstanceId.getInstance().getToken()!!
-        Log.d("abab", fcmToken)
-        ApiRequestPutFcmToken(fcmToken,token)
+
+
+
+
+
+//        FirebaseInstanceId.getInstance().instanceId
+//            .addOnCompleteListener(OnCompleteListener { task ->
+//                if (!task.isSuccessful) {
+//
+//                    return@OnCompleteListener
+//                }
+//
+//                // Get new Instance ID token
+//                val fcmtoken = task.result?.token!!
+//
+//                // Log and toast
+//                ApiRequestPutFcmToken(fcmtoken,token)
+//
+//            })
+
+        ApiRequestPutFcmToken(token)
+
         ApiRequestGetUserId(token)
     }
 
@@ -80,13 +103,16 @@ class NavigationBottomActivity : AppCompatActivity() {
     }
 
 
-    fun ApiRequestPutFcmToken(FcmToken : String, logintoken : String) {
+    fun ApiRequestPutFcmToken(logintoken : String) {
         doAsync {
+
             val service = WebAccess.retrofit.create(ApiServicePutFcmToken::class.java)
             val jsonObject = JsonObject()
             var uniqueId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID)
-            jsonObject.addProperty("fcmToken", FcmToken)
-            Log.d("abab", uniqueId)
+            val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
+            val fcmToken = sharePref.getString("fcmToken", "")
+
+            jsonObject.addProperty("fcmToken", fcmToken)
             jsonObject.addProperty("deviceId", uniqueId)
             jsonObject.addProperty("platform", 1)
             jsonObject.addProperty("appVersion", "1.0")

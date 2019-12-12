@@ -44,12 +44,15 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
+
         Log.d("notifas", "NOTIFICATION")
 
         for (i in remoteMessage.data) {
             Log.d("notifas", i.key + " -> " + i.value )
         }
         sendNotification(remoteMessage.data)
+        super.onMessageReceived(remoteMessage)
+
     }
 
     private fun sendNotification(map: Map<String, String>) {
@@ -58,8 +61,8 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         val channelId = getString(R.string.project_id)
         val channel = NotificationChannel(
             channelId,
-            "Channel human readable title",
-            NotificationManager.IMPORTANCE_DEFAULT
+            "Travel Assistant",
+            NotificationManager.IMPORTANCE_HIGH
         )
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationManager =
@@ -174,6 +177,11 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(p0: String) {
         ApiRequestPutFcmToken(p0)
+        val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
+        val editor = sharePref.edit()
+        editor.putString("fcmToken", p0)
+        editor.apply()
+
         super.onNewToken(p0)
     }
 
@@ -196,7 +204,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             val call = service.putToken(token,jsonObject)
             call.enqueue(object : Callback<ResponsePutFcmToken> {
                 override fun onFailure(call: Call<ResponsePutFcmToken>, t: Throwable) {
-                    Toast.makeText(applicationContext,"Fcmtoken : " + t.message, Toast.LENGTH_LONG).show()
+                    //Toast.makeText(applicationContext,"Fcmtoken : " + t.message, Toast.LENGTH_LONG).show()
                 }
                 override fun onResponse(
                     call: Call<ResponsePutFcmToken>,
@@ -206,9 +214,9 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                         val gson = Gson()
                         val type = object : TypeToken<ErrorResponse>() {}.type
                         var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
-                        Toast.makeText(applicationContext, "Fcmtoken : " + errorResponse!!.message, Toast.LENGTH_LONG).show()
+                        //Toast.makeText(applicationContext, "Fcmtoken : " + errorResponse!!.message, Toast.LENGTH_LONG).show()
                     } else {
-                        Toast.makeText(applicationContext, "Put Token OK!!", Toast.LENGTH_LONG).show()
+                        //Toast.makeText(applicationContext, "Put Token OK!!", Toast.LENGTH_LONG).show()
                     }
                 }
             })
