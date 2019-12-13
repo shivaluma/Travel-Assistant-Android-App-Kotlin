@@ -341,6 +341,9 @@ class TourInfoActivity : AppCompatActivity() {
                 var intent = Intent(applicationContext, TourFollowActivity::class.java)
                 intent.putExtra("destinationLat", item.lat!!)
                 intent.putExtra("destinationLng", item.long!!)
+                intent.putExtra("tourId", tourId)
+                intent.putExtra("token", token)
+
                 startActivity(intent)
             }
         }

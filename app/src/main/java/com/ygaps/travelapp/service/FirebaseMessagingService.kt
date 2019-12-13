@@ -32,6 +32,8 @@ import android.content.BroadcastReceiver
 import android.os.Build
 
 import android.graphics.BitmapFactory
+import androidx.core.app.RemoteInput
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.ygaps.travelapp.*
 import com.ygaps.travelapp.network.model.ApiServiceResponseInvitaion
 import org.jetbrains.anko.accessibilityManager
@@ -69,7 +71,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
 
-        if (map["type_name"] == "comment") {
+        if (map["type"]!!.toInt() == 5) {
             val intent = Intent(this, MainActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
@@ -99,7 +101,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             notificationManager.notify(0, notificationBuilder.build())
 
         }
-        else {
+        else if (map["type"]!!.toInt() == 6) {
             val acceptIntent = Intent(this, NotificationActionService::class.java).setAction("Tour_Invitation_Accept")
             val declineIntent = Intent(this, NotificationActionService::class.java).setAction("Tour_Invitation_Decline")
 
@@ -110,11 +112,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             val editor = sharePref.edit()
             editor.putString("tourId", map["id"])
             editor.apply()
-
-
-
-
-
 
 
             val notificationBuilder = NotificationCompat.Builder(this, channelId)
@@ -155,6 +152,57 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             }
             notificationManager.notify(0, notificationBuilder.build())
         }
+        else if (map["type"]!!.toInt() == 4) {
+            val intent = Intent(this, NotificationActionService::class.java).setAction("Tour_Follow_Reply")
+            intent.putExtra("tourId", map["tourId"])
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+
+
+            val resultPendingIntent: PendingIntent? = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+
+            val replyLabel = "Reply"
+            val remoteInput = RemoteInput.Builder("chat_reply")
+                .setLabel(replyLabel)
+                .build()
+
+            //notify new message
+            notifyNewMessage(map["tourId"]!!)
+
+            val notificationBuilder = NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setLargeIcon(
+                    BitmapFactory.decodeResource(
+                        resources,
+                        R.drawable.ic_launcher_background
+                    )
+                )
+                .setContentTitle(map.get("userId") + " send a notification to " + map.get("tourId"))
+                .setContentText(map["notification"])
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setContentIntent(resultPendingIntent)
+                .setPriority(NotificationManager.IMPORTANCE_HIGH)
+                .addAction(
+                    NotificationCompat.Action.Builder(
+                        R.drawable.ic_star_gold_24dp,replyLabel ,resultPendingIntent)
+                        .addRemoteInput(remoteInput)
+                        .setAllowGeneratedReplies(true)
+                        .build()
+                    )
+
+
+
+
+            // Since android Oreo notification channel is needed.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                notificationManager.createNotificationChannel(channel)
+            }
+
+
+            notificationManager.notify(0, notificationBuilder.build())
+        }
 
 
     }
@@ -176,13 +224,20 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(p0: String) {
-        ApiRequestPutFcmToken(p0)
+        //ApiRequestPutFcmToken(p0)
         val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
         val editor = sharePref.edit()
         editor.putString("fcmToken", p0)
         editor.apply()
-
         super.onNewToken(p0)
+    }
+
+    private fun notifyNewMessage(tourId : String) {
+        Log.d("sender", "Broadcasting message")
+        val intent = Intent("notify-new-message")
+        // You can also include some extra data.
+        intent.putExtra("tourId", tourId)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
 

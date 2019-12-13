@@ -69,7 +69,8 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.0.1'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.github.Inconnu08:android-ratingreviews:1.2.0'
-    implementation 'com.google.firebase:firebase-messaging:20.0.1'
+    implementation 'com.google.firebase:firebase-messaging:20.1.0'
+    implementation 'com.devlomi.record-view:record-view:2.0.1'
 
 }
 

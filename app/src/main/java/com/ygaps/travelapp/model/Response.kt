@@ -156,6 +156,8 @@ data class ResponseRemoveFcmToken(var message: String)
 
 data class ResponseFeedbackService(var message: String)
 
+data class ResponseSendNotice(var message: String)
+
 data class ResponseGetVerifyCode(var expiredOn: Long)
 
 data class ResponseGetTourNotice(var notiList : ArrayList<notification>)

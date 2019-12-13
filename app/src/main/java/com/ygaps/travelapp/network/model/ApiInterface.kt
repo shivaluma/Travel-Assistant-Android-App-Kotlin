@@ -216,7 +216,7 @@ interface ApiServiceGetTourNotices {
         @Header("Authorization") token : String,
         @Query("tourId") tourId: Int,
         @Query("pageIndex") pageIndex: Int,
-        @Query("pageSize") pageSize: Int
+        @Query("pageSize") pageSize: String
     ): Call<ResponseGetTourNotice>
 }
 
@@ -297,4 +297,13 @@ interface ApiServiceSendServiceFeedback {
         @Body body: JsonObject
     ): Call<ResponseFeedbackService>
 }
+
+interface ApiServiceSendTourNotice {
+    @POST("/tour/notification")
+    fun sendNotice(
+        @Header("Authorization") token : String,
+        @Body body: JsonObject
+    ): Call<ResponseSendNotice>
+}
+
 

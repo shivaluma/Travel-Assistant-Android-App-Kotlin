@@ -55,22 +55,22 @@ class NavigationBottomActivity : AppCompatActivity() {
 
 
 
-//        FirebaseInstanceId.getInstance().instanceId
-//            .addOnCompleteListener(OnCompleteListener { task ->
-//                if (!task.isSuccessful) {
-//
-//                    return@OnCompleteListener
-//                }
-//
-//                // Get new Instance ID token
-//                val fcmtoken = task.result?.token!!
-//
-//                // Log and toast
-//                ApiRequestPutFcmToken(fcmtoken,token)
-//
-//            })
+        FirebaseInstanceId.getInstance().instanceId
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                  val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
+                    val fcmToken = sharePref.getString("fcmToken", "")!!
+                    ApiRequestPutFcmToken(token,fcmToken)
 
-        ApiRequestPutFcmToken(token)
+                    return@OnCompleteListener
+                }
+                // Get new Instance ID token
+                val fcmtoken = task.result?.token!!
+                // Log and toast
+                ApiRequestPutFcmToken(token,fcmtoken)
+            })
+
+
 
         ApiRequestGetUserId(token)
     }
@@ -103,14 +103,13 @@ class NavigationBottomActivity : AppCompatActivity() {
     }
 
 
-    fun ApiRequestPutFcmToken(logintoken : String) {
+    fun ApiRequestPutFcmToken(logintoken : String, fcmToken : String) {
         doAsync {
 
             val service = WebAccess.retrofit.create(ApiServicePutFcmToken::class.java)
             val jsonObject = JsonObject()
             var uniqueId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID)
-            val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
-            val fcmToken = sharePref.getString("fcmToken", "")
+
 
             jsonObject.addProperty("fcmToken", fcmToken)
             jsonObject.addProperty("deviceId", uniqueId)
@@ -131,7 +130,7 @@ class NavigationBottomActivity : AppCompatActivity() {
                         var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
                         Toast.makeText(applicationContext, "Fcmtoken : " + errorResponse!!.message, Toast.LENGTH_LONG).show()
                     } else {
-                        Toast.makeText(applicationContext, "Put Token OK!!", Toast.LENGTH_LONG).show()
+
                     }
                 }
             })

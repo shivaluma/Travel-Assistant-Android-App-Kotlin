@@ -29,9 +29,5 @@ class MainActivity : AppCompatActivity() {
             finish()
             return
         }
-
-
     }
-
-
 }
