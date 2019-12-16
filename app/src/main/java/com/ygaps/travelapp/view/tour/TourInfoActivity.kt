@@ -853,7 +853,7 @@ class TourInfoActivity : AppCompatActivity() {
         }
 
         view.btnTourSubscribe.setOnClickListener {
-            FirebaseMessaging.getInstance().subscribeToTopic("/topics/tour-id-$tourId").addOnCompleteListener { task ->
+            FirebaseMessaging.getInstance().subscribeToTopic("tour-id-$tourId").addOnCompleteListener { task ->
                 var msg = "Subscribe successfully"
                 if (!task.isSuccessful) {
                     msg = "Subscribe failed"

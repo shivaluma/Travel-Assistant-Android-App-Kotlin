@@ -71,7 +71,8 @@ dependencies {
     implementation 'com.github.Inconnu08:android-ratingreviews:1.2.0'
     implementation 'com.google.firebase:firebase-messaging:20.1.0'
     implementation 'com.devlomi.record-view:record-view:2.0.1'
-
+    implementation 'com.makeramen:roundedimageview:2.3.0'
+    implementation "com.hendraanggrian.pikasso:pikasso:0.2"
 }
 
 

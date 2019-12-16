@@ -150,6 +150,15 @@ object util {
 
     }
 
+    fun codeToTypeOfNotification(code :Int ): String {
+        when (code) {
+            1 -> return "Police Position"
+            2 -> return "Problem On Road"
+            3 -> return "Speed Limit Sign"
+        }
+        return ""
+    }
+
 
 
 

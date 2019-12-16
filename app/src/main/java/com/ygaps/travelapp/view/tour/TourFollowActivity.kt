@@ -5,10 +5,8 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.maps.GoogleMap
-import com.ygaps.travelapp.R
 
 import com.google.android.gms.maps.SupportMapFragment
 
@@ -21,12 +19,19 @@ import android.Manifest.permission
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.*
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.location.LocationManager
-import android.os.Build
-import android.os.Looper
+import android.media.MediaRecorder
+import android.net.Uri
+import android.os.*
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.transition.Slide
 import android.util.JsonReader
 import android.util.Log
@@ -36,6 +41,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -50,23 +56,39 @@ import com.google.android.gms.location.*
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.Task
+import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
 import com.google.maps.android.PolyUtil
-import com.ygaps.travelapp.ResponseGetTourNotice
-import com.ygaps.travelapp.ResponseSendNotice
+import com.hendraanggrian.pikasso.picasso
+import com.makeramen.roundedimageview.RoundedTransformationBuilder
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
+import com.ygaps.travelapp.*
+import com.ygaps.travelapp.R
 import com.ygaps.travelapp.manager.Constant
 import com.ygaps.travelapp.manager.doAsync
-import com.ygaps.travelapp.network.model.ApiServiceGetTourNotices
-import com.ygaps.travelapp.network.model.ApiServiceSendTourNotice
-import com.ygaps.travelapp.network.model.WebAccess
-import com.ygaps.travelapp.notification
+import com.ygaps.travelapp.network.model.*
+import com.ygaps.travelapp.util.util
 import kotlinx.android.synthetic.main.activity_tour_follow.*
 import kotlinx.android.synthetic.main.activity_tour_follow.view.*
 import kotlinx.android.synthetic.main.activity_tour_info.*
 import kotlinx.android.synthetic.main.popup_chat.view.*
+import kotlinx.android.synthetic.main.popup_create_notification_on_road.*
+import kotlinx.android.synthetic.main.popup_create_notification_on_road.view.*
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
+import retrofit2.http.Multipart
+import java.io.File
+import java.io.IOException
+import java.lang.Exception
+import java.net.URL
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -80,10 +102,56 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
     var mTourId : Int = 0
     var mToken : String = ""
     var mListChat = ArrayList<notification>()
+    var mListMember = ArrayList<member>()
     var mChatAdapter = ChatAdapter(mListChat)
     var isPopupOpen = false
+    val runningTargets = mutableListOf<Target>()
     lateinit var mChatRecyclerView: RecyclerView
     lateinit var mMessageReceiver : BroadcastReceiver
+    lateinit var mLocationRequest: LocationRequest
+
+    internal var myLocationMarker : Marker ?= null
+
+    internal var hasInitMove = false
+    internal var hasInitTimeCounter = false
+
+    var notiOnRoad = ArrayList<notificationonroad>()
+    var notiOnRoadMarker = ArrayList<Marker>()
+
+    var currentPathPolyline = ArrayList<Polyline>()
+
+    internal var lastLocationLatLng : LatLng ?= null
+
+    private var output: String? = null
+    private var mediaRecorder: MediaRecorder? = null
+    private var state: Boolean = false
+    private var isRecording: Boolean = false
+    private var recordingStopped: Boolean = false
+
+
+    internal val mLocationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            myLocation = locationResult.lastLocation
+            if (myLocationMarker != null) {
+                myLocationMarker?.remove()
+            }
+
+            var src = LatLng(myLocation.latitude,myLocation.longitude)
+            if (!hasInitMove) {
+                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(src, 15.0f))
+                hasInitMove = true
+            }
+
+
+
+            drawPath(src, destinationLatLng)
+
+            ApiRequestGetNotificationOnRoad(mTourId)
+        }
+    }
+
+
+
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,6 +168,19 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         destinationLatLng = LatLng(intent.extras!!.getDouble("destinationLat", 10.7629)
             ,intent.extras!!.getDouble("destinationLng", 106.6822))
 
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            val permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+            ActivityCompat.requestPermissions(this, permissions,0)
+        }
+
+
+
+
+
+
+
         mMessageReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val onTourId = intent!!.extras!!.getString("tourId")
@@ -109,9 +190,13 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
+
+
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
             IntentFilter("notify-new-message")
         )
+
+        ApiRequestGetTourInfo()
 
 
         showLocationPrompt()
@@ -119,18 +204,114 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
         fetchLocation()
 
+
+        val mapFragment =
+            supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this@TourFollowActivity)
+
         tourFollowChatBtn.setOnClickListener {
             popupChat()
         }
 
-        ApiRequestGetNotices()
+        tourFollowNotificationBtn.setOnClickListener {
+            if (::myLocation.isInitialized) {
+                popupCreateNotification(LatLng(myLocation.latitude, myLocation.longitude))
+            }
+            else {
+                Toast.makeText(applicationContext, "Cannot get current location", Toast.LENGTH_LONG).show()
+            }
+        }
 
+        var mainHandler = Handler(Looper.getMainLooper())
+        recordBtn.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                val permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                ActivityCompat.requestPermissions(this, permissions,1212)
+            }
+            else {
+                var currentsecond = 0
+                val runnable = object : Runnable {
+                    override fun run() {
+                        if (!state) {
+                            mainHandler.removeCallbacks(this)
+                            currentsecond = 0
+                        }
+                        currentsecond+=1
+                        recordBtnTimeCount.text = "${currentsecond/60}:${currentsecond%60}"
+                        mainHandler.postDelayed(this, 1000)
+                    }
+                }
+                if (!state) {
+                    state = true
+                    currentsecond = 0
+                    recordBtnTimeCount.visibility = View.VISIBLE
+                    if (!hasInitTimeCounter) {
+                        mainHandler.post(runnable)
+                        hasInitTimeCounter = true
+                    }
+                    startRecording()
+                }
+                else {
+                    state = false
+                    stopRecording()
+                    recordBtnTimeCount.visibility = View.GONE
+
+                    val builder = AlertDialog.Builder(this)
+                    builder.setTitle("Confirm")
+                    builder.setMessage("Are you want to send this record to notification?")
+                    builder.setPositiveButton("YES"){dialog, which ->
+                        val path = Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DCIM);
+                        val file = File(path, "TS.mp3")
+                        ApiRequestUploadRecord(LatLng(myLocation.latitude,myLocation.longitude), mTourId, mUserId , file)
+                    }
+
+                    builder.setNegativeButton("No"){dialog,which ->
+                        Toast.makeText(applicationContext,"Declined",Toast.LENGTH_SHORT).show()
+                    }
+                    val dialog: AlertDialog = builder.create()
+                    dialog.show()
+                }
+            }
+
+        }
+
+        ApiRequestGetNotices()
     }
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val PERMISSION_ID = 12
 
+        var transformation = RoundedTransformationBuilder()
+            .borderColor(Color.BLACK)
+            .borderWidthDp(1f)
+            .cornerRadiusDp(30f)
+            .oval(false)
+            .build()
+
+
+    }
+
+    fun createDirectory() : String{
+        val path = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_DCIM);
+        val file = File(path, "TS.mp3")
+        try {
+            // Make sure the Pictures directory exists.
+            path.mkdirs()
+            file.createNewFile()
+        } catch (e : IOException) {
+            e.printStackTrace()
+        }
+        return file.path
+    }
+
+    override fun onPause() {
+        super.onPause()
+        fusedLocationProviderClient?.removeLocationUpdates(mLocationCallback)
     }
 
     override fun onDestroy() {
@@ -138,18 +319,63 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onDestroy()
     }
 
+    private fun startRecording() {
+        try {
+            mediaRecorder = MediaRecorder()
+            mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
+            mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            mediaRecorder?.setOutputFile(createDirectory())
+            mediaRecorder?.prepare()
+            mediaRecorder?.start()
+            Toast.makeText(this, "Recording started!", Toast.LENGTH_SHORT).show()
+            isRecording = true
+        } catch (e: IllegalStateException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun stopRecording(){
+        if (isRecording) {
+            mediaRecorder?.stop()
+            mediaRecorder?.reset()
+            mediaRecorder?.release()
+            mediaRecorder = null
+            isRecording = false
+        }
+
+    }
+
     override fun onMapReady(p0: GoogleMap?) {
         mGoogleMap = p0!!
-        mGoogleMap.isMyLocationEnabled = true
-        mGoogleMap.uiSettings.isMyLocationButtonEnabled = true
 
-        var src = LatLng(myLocation.latitude,myLocation.longitude)
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(src, 15.0f))
 
-        drawPath(src, destinationLatLng)
 
-        mGoogleMap.setOnMapClickListener {
+        mLocationRequest = LocationRequest()
+        mLocationRequest.interval = 10000 // two minute interval
+        mLocationRequest.fastestInterval = 10000
+        mLocationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                mGoogleMap.isMyLocationEnabled = true
+                mGoogleMap.uiSettings.isMyLocationButtonEnabled = true
+                //Location Permission already granted
+                fusedLocationProviderClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper())
+                mGoogleMap.isMyLocationEnabled = true
+            } else {
+                //Request Location Permission
+                checkPermissions()
+            }
+        } else {
+            fusedLocationProviderClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper())
+            mGoogleMap.isMyLocationEnabled = true
         }
 
     }
@@ -164,6 +390,14 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
+        }
+        if (requestCode == 1212) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            }
+            else {
+                finish()
+            }
         }
     }
 
@@ -212,6 +446,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         )
     }
 
+
     private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
         return ContextCompat.getDrawable(context, vectorResId)?.run {
             setBounds(0, 0, intrinsicWidth, intrinsicHeight)
@@ -224,24 +459,41 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     fun drawPath(src: LatLng, dest: LatLng) {
-        addMarker(mGoogleMap,src,"My location",R.drawable.ic_startpoint)
+        //addMarker(mGoogleMap,src,"My location",R.drawable.ic_startpoint)
+        drawUserMarker(getAvatarFromList(mUserId), src)
         addMarker(mGoogleMap,dest,"Destination",R.drawable.ic_endpoint)
+        if (lastLocationLatLng != null && lastLocationLatLng == dest) return
+        else lastLocationLatLng = dest
         doAsync {
             val path: MutableList<List<LatLng>> = ArrayList()
             val urlDirections = "https://maps.googleapis.com/maps/api/directions/json?origin=${src.latitude},${src.longitude}&destination=${dest.latitude},${dest.longitude}&key=${Constant.ggMapApiKey}"
             val directionsRequest = object : StringRequest(Request.Method.GET, urlDirections, Response.Listener<String> {
                     response ->
+
+                resetCurrentPolyLine(currentPathPolyline)
                 val jsonResponse = JSONObject(response)
                 // Get routes
                 val routes = jsonResponse.getJSONArray("routes")
                 val legs = routes.getJSONObject(0).getJSONArray("legs")
                 val steps = legs.getJSONObject(0).getJSONArray("steps")
+
+                val distance = legs.getJSONObject(0).getJSONObject("distance").getDouble("value")+steps.getJSONObject(0).getJSONObject("distance").getDouble("value")
+                val duration = legs.getJSONObject(0).getJSONObject("duration").getInt("value")+steps.getJSONObject(0).getJSONObject("duration").getInt("value")
+
+
+
+                distanceToDestination.text = "%.2f".format(distance/1000)
+                timeRemainingToDestination.text = (duration/60 + 1).toString()
+
+
                 for (i in 0 until steps.length()) {
                     val points = steps.getJSONObject(i).getJSONObject("polyline").getString("points")
                     path.add(PolyUtil.decode(points))
                 }
                 for (i in 0 until path.size) {
-                    mGoogleMap.addPolyline(PolylineOptions().addAll(path[i]).color(Color.BLUE).width(5.0f))
+                   var pol =  mGoogleMap.addPolyline(PolylineOptions().addAll(path[i]).color(Color.BLUE).width(5.0f))
+
+                   currentPathPolyline.add(pol)
                 }
             }, Response.ErrorListener {
                     _ ->
@@ -249,6 +501,13 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
             val requestQueue = Volley.newRequestQueue(this)
             requestQueue.add(directionsRequest)
         }.execute()
+    }
+
+    fun resetCurrentPolyLine(arr : ArrayList<Polyline>) {
+        for (i in arr) {
+            i.remove()
+        }
+        arr.clear()
     }
 
 
@@ -275,14 +534,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         )
     }
 
-    private val mLocationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            myLocation = locationResult.lastLocation
-            val mapFragment =
-                supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-            mapFragment.getMapAsync(this@TourFollowActivity)
-        }
-    }
+
 
     @SuppressLint("MissingPermission")
     private fun requestNewLocationData() {
@@ -366,7 +618,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         val popupWindow = PopupWindow(
             view, // Custom view to show in popup window
             LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
-            (screenWidthInDp.toInt() - 100)*2, // Window height
+            LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
             true
         )
 
@@ -403,6 +655,8 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
+
+
         // Set a dismiss listener for popup window
         popupWindow.setOnDismissListener {
             isPopupOpen = false
@@ -410,7 +664,12 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         // Finally, show the popup window on app
-        popupWindow.showAsDropDown(tourFollowChatBtn,0,20)
+        popupWindow.showAtLocation(
+            tourFollowMainLayout,
+            Gravity.CENTER, // Exact position of layout to display popup
+            0, // X offset
+            0 // Y offset
+        )
     }
 
 
@@ -443,6 +702,9 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
             })
         }.execute()
     }
+
+
+
 
 
     fun ApiRequestSendNotice(notice : String) {
@@ -553,6 +815,329 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
+
+    fun popupCreateNotification(location : LatLng) {
+        val inflater: LayoutInflater =
+            getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.popup_create_notification_on_road, null)
+
+
+
+        view.spinnerType.setItems("Police Position", "Problem On Road", "Speed Limit Sign")
+
+        view.spinnerType.setOnItemSelectedListener { _, position, id, item ->
+            if (position == 2) {
+                view.editSpeedLimitView.visibility = View.VISIBLE
+            }
+            else {
+                view.editSpeedLimitView.visibility = View.GONE
+            }
+        }
+
+
+
+
+
+
+        val popupWindow = PopupWindow(
+            view, // Custom view to show in popup window
+            LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
+            LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
+            true
+        )
+
+        view.dismissBtn.setOnClickListener {
+            popupWindow.dismiss()
+        }
+
+        // Set an elevation for the popup window
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            popupWindow.elevation = 10.0F
+        }
+
+
+        // If API level 23 or higher then execute the code
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Create a new slide animation for popup window enter transition
+            val slideIn = Slide()
+            slideIn.slideEdge = Gravity.LEFT
+            popupWindow.enterTransition = slideIn
+
+            // Slide animation for popup window exit transition
+            val slideOut = Slide()
+            slideOut.slideEdge = Gravity.RIGHT
+            popupWindow.exitTransition = slideOut
+
+        }
+
+
+        view.addNoti.setOnClickListener {
+            if (view.spinnerType.selectedIndex == 2) {
+                if (view.editSpeedLimit.text!!.isEmpty()) {
+                    view.editSpeedLimit.error = "Cant be empty"
+                }
+                else {
+                    val speed = view.editSpeedLimit.text.toString().toInt()
+                    val note = view.editNote.text.toString()
+                    ApiRequestAddNotificationOnRoad(LatLng(myLocation.latitude,myLocation.longitude), mTourId, mUserId, 3, speed, note, popupWindow)
+                }
+            }
+            else {
+                val note = view.editNote.text.toString()
+                val type = view.spinnerType.selectedIndex + 1
+                ApiRequestAddNotificationOnRoad(LatLng(myLocation.latitude,myLocation.longitude), mTourId, mUserId, type, -1, note, popupWindow)
+            }
+        }
+
+
+
+        // Set a dismiss listener for popup window
+        popupWindow.setOnDismissListener {
+            isPopupOpen = false
+        }
+
+
+        // Finally, show the popup window on app
+        popupWindow.showAtLocation(
+            tourFollowMainLayout, // Location to display popup window
+            Gravity.CENTER, // Exact position of layout to display popup
+            0, // X offset
+            0 // Y offset
+        )
+    }
+
+    fun ApiRequestGetTourInfo() {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceGetTourInfo::class.java)
+            val call = service.getTourInfo(mToken,mTourId)
+            call.enqueue(object : Callback<ResponseTourInfo> {
+                override fun onFailure(call: Call<ResponseTourInfo>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(
+                    call: Call<ResponseTourInfo>,
+                    response: retrofit2.Response<ResponseTourInfo>
+                ) {
+                    if (response.code() != 200) {
+                        Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
+                    } else {
+                        mListMember.addAll(response.body()!!.members)
+                        Log.d("abab", response.body()!!.members.toString())
+                    }
+                }
+            })
+        }.execute()
+    }
+
+    fun drawUserMarker(url : String, pos : LatLng) {
+
+
+        val currentTarget = object : Target {
+            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+                //do nothing
+            }
+
+            override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
+                myLocationMarker = mGoogleMap.addMarker(MarkerOptions()
+                    .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+                    .position(pos)
+                    .title("My position")
+                )
+                runningTargets.clear()
+            }
+
+            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                //do nothing
+            }
+        }
+
+        runningTargets.add(currentTarget)
+
+        if (url.isNotEmpty() && url != "null") {
+            Picasso.get().load(url).transform(transformation).into(currentTarget)
+        }
+
+
+
+    }
+
+    fun getAvatarFromList(uid : Int) : String {
+        for (i in mListMember) {
+            if (i.id == uid) {
+                Log.d("uid ", uid.toString() + " " + i.id)
+                if (i.avatar.isNullOrEmpty()) return ""
+                return i.avatar
+            }
+        }
+        return ""
+    }
+
+
+    fun ApiRequestAddNotificationOnRoad(pos : LatLng, tourId : Int, UserId : Int, notificationType : Int, speed : Int = -1, note : String = "", pop : PopupWindow) {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceCreateNotificationOnRoad::class.java)
+
+            val body = JsonObject()
+            body.addProperty("lat",pos.latitude)
+            body.addProperty("long",pos.longitude)
+            body.addProperty("userId",UserId)
+            body.addProperty("tourId",tourId)
+            body.addProperty("notificationType",notificationType)
+            if (notificationType == 3 && speed >= 0) {
+                body.addProperty("speed",speed)
+            }
+            if (note.isNotEmpty()) {
+                body.addProperty("note",note)
+            }
+
+            val call = service.addNoti(mToken,body)
+            call.enqueue(object : Callback<ResponseAddNotificationOnRoad> {
+                override fun onFailure(call: Call<ResponseAddNotificationOnRoad>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(
+                    call: Call<ResponseAddNotificationOnRoad>,
+                    response: retrofit2.Response<ResponseAddNotificationOnRoad>
+                ) {
+                    if (response.code() != 200) {
+                        val gson = Gson()
+                        val type = object : TypeToken<ErrorResponse>() {}.type
+                        var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
+                        Toast.makeText(applicationContext, errorResponse!!.message, Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(applicationContext, "Success!", Toast.LENGTH_LONG).show()
+                        pop.dismiss()
+                    }
+                }
+            })
+        }.execute()
+    }
+
+    fun ApiRequestUploadRecord(pos : LatLng, tourId : Int, UserId : Int, file : File) {
+//        //Thread(Runnable {
+//            val service = WebAccess.retrofit.create(ApiServiceUploadRecord::class.java)
+//
+//            val body = JsonObject()
+//            body.addProperty("lat", pos.latitude)
+//            body.addProperty("long", pos.longitude)
+//            body.addProperty("avatar", getAvatarFromList(UserId))
+//            body.addProperty("fullName", "Shiro")
+//            body.addProperty("tourId", tourId)
+//
+//            // create RequestBody instance from file
+//            val requestFile =
+//                RequestBody.create(
+//                    MediaType.parse("audio/mp3"),
+//                    file
+//                )
+//
+//            // MultipartBody.Part is used to send also the actual file name
+//            val f =
+//                MultipartBody.Part.createFormData("file", file.getName(), requestFile)
+//
+//            val requestBody : RequestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
+//                .addFormDataPart("file", file.getName(),
+//                        RequestBody.create(MediaType.parse("audio/mp3"), file))
+//                .addFormDataPart("lat", pos.latitude.toString())
+//                .addFormDataPart("lat", pos.latitude)
+//                .addFormDataPart("lat", pos.latitude)
+//                .addFormDataPart("lat", pos.latitude)
+//                .build()
+//
+//
+//
+//            val call = service.upRecord(mToken, f, body)
+//            call.enqueue(object : Callback<ResponseUploadRecord> {
+//                override fun onFailure(call: Call<ResponseUploadRecord>, t: Throwable) {
+//                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+//                    Log.d("abab" , "toang")
+//                }
+//
+//                override fun onResponse(
+//                    call: Call<ResponseUploadRecord>,
+//                    response: retrofit2.Response<ResponseUploadRecord>
+//                ) {
+//                    if (response.code() != 200) {
+//                        val gson = Gson()
+//                        val type = object : TypeToken<ErrorResponse>() {}.type
+//                        var errorResponse: ErrorResponse? =
+//                            gson.fromJson(response.errorBody()!!.charStream(), type)
+//                        Toast.makeText(
+//                            applicationContext,
+//                            errorResponse!!.message,
+//                            Toast.LENGTH_LONG
+//                        ).show()
+//                        Log.d("abab" , errorResponse!!.message)
+//                    } else {
+//                        Toast.makeText(applicationContext, "Success!", Toast.LENGTH_LONG).show()
+//                        Log.d("abab" , "OK")
+//                    }
+//                }
+//           // })
+//        })
+    }
+
+
+    fun ApiRequestGetNotificationOnRoad(tourId : Int) {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceGetNotificationOnRoad::class.java)
+
+            val call = service.getdNoti(mToken, tourId, 1, "999")
+            call.enqueue(object : Callback<ResponseGetNotificationOnRoad> {
+                override fun onFailure(call: Call<ResponseGetNotificationOnRoad>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(
+                    call: Call<ResponseGetNotificationOnRoad>,
+                    response: retrofit2.Response<ResponseGetNotificationOnRoad>
+                ) {
+                    if (response.code() != 200) {
+                        val gson = Gson()
+                        val type = object : TypeToken<ErrorResponse>() {}.type
+                        var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
+                        Toast.makeText(applicationContext, errorResponse!!.message, Toast.LENGTH_LONG).show()
+                    } else {
+                        notiOnRoad.clear()
+                        notiOnRoad.addAll(response.body()!!.notiList)
+                        clearMarkerInArray(notiOnRoadMarker)
+                        var marker : Marker
+                        for (i in notiOnRoad) {
+                            when(i.notificationType) {
+                                1 -> {
+                                    marker = addMarker(mGoogleMap, LatLng(i.lat,i.long), util.codeToTypeOfNotification(i.notificationType), R.drawable.ic_police_on_road)
+                                    notiOnRoadMarker.add(marker)
+                                }
+                                2-> {
+                                    marker = addMarker(mGoogleMap, LatLng(i.lat,i.long), util.codeToTypeOfNotification(i.notificationType), R.drawable.ic_problem_on_road)
+                                    notiOnRoadMarker.add(marker)
+                                }
+                                3 -> {
+                                    marker = addMarker(mGoogleMap, LatLng(i.lat,i.long), util.codeToTypeOfNotification(i.notificationType) +" - " + i.speed + "km", R.drawable.ic_speed_limit)
+                                    notiOnRoadMarker.add(marker)
+                                }
+                            }
+
+                        }
+                    }
+                }
+            })
+        }.execute()
+    }
+
+
+
+    fun clearMarkerInArray(arrMarker : ArrayList<Marker>) {
+        for (i in arrMarker) {
+            i.remove()
+        }
+        arrMarker.clear()
+    }
+
+
+
 
 
 }

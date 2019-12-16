@@ -158,15 +158,23 @@ data class ResponseFeedbackService(var message: String)
 
 data class ResponseSendNotice(var message: String)
 
+data class ResponseAddNotificationOnRoad(var message: String)
+
+data class ResponseUploadRecord(var message: String)
+
 data class ResponseGetVerifyCode(var expiredOn: Long)
 
 data class ResponseGetTourNotice(var notiList : ArrayList<notification>)
+
+data class ResponseGetNotificationOnRoad(var notiList : ArrayList<notificationonroad>)
+
 
 data class ratingpoint(var total: Int, var point : Int)
 
 data class notification(val userId: Int, val name : String, val avatar: String, val notification : String)
 
 
+data class notificationonroad(val lat : Double, val long: Double, val note : String , val notificationType : Int, val speed : Int, val createdByTourId : Int)
 
 
 

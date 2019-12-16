@@ -5,6 +5,7 @@ import com.ygaps.travelapp.*
 import com.ygaps.travelapp.model.StopPoint
 import com.ygaps.travelapp.ui.home.HomeFragment
 import com.google.gson.JsonObject
+import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -306,4 +307,30 @@ interface ApiServiceSendTourNotice {
     ): Call<ResponseSendNotice>
 }
 
+interface ApiServiceCreateNotificationOnRoad {
+    @POST("/tour/add/notification-on-road")
+    fun addNoti(
+        @Header("Authorization") token : String,
+        @Body body: JsonObject
+    ): Call<ResponseAddNotificationOnRoad>
+}
+
+interface ApiServiceGetNotificationOnRoad {
+    @GET("/tour/get/noti-on-road")
+    fun getdNoti(
+        @Header("Authorization") token : String,
+        @Query("tourId") tourId : Int,
+        @Query("pageIndex") pageIndex : Int,
+        @Query("pageSize") pageSize : String
+    ): Call<ResponseGetNotificationOnRoad>
+}
+
+interface ApiServiceUploadRecord {
+    @Multipart
+    @POST("/tour/recording")
+    fun upRecord(
+        @Header("Authorization") token : String,
+        @Part file : MultipartBody.Part
+    ): Call<ResponseUploadRecord>
+}
 

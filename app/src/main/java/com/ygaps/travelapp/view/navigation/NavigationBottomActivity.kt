@@ -7,15 +7,14 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.view.View
 import android.widget.Toast
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -24,11 +23,11 @@ import com.ygaps.travelapp.manager.doAsync
 import com.ygaps.travelapp.network.model.ApiServiceGetUserInfo
 import com.ygaps.travelapp.network.model.ApiServicePutFcmToken
 import com.ygaps.travelapp.network.model.WebAccess
-import com.ygaps.travelapp.util.util
-import org.jetbrains.anko.share
+import com.ygaps.travelapp.service.FirebaseMessagingService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
 
 class NavigationBottomActivity : AppCompatActivity() {
 
@@ -43,14 +42,18 @@ class NavigationBottomActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_home,R.id.navigation_history, R.id.navigation_notifications, R.id.navigation_explorer, R.id.navigation_user
+                R.id.navigation_home,
+                R.id.navigation_history,
+                R.id.navigation_notifications,
+                R.id.navigation_explorer,
+                R.id.navigation_user
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        var token = intent.extras!!.getString("userToken")!!
 
+        var token = intent.extras!!.getString("userToken")!!
 
 
 
@@ -58,19 +61,13 @@ class NavigationBottomActivity : AppCompatActivity() {
         FirebaseInstanceId.getInstance().instanceId
             .addOnCompleteListener(OnCompleteListener { task ->
                 if (!task.isSuccessful) {
-                  val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
-                    val fcmToken = sharePref.getString("fcmToken", "")!!
-                    ApiRequestPutFcmToken(token,fcmToken)
-
                     return@OnCompleteListener
                 }
                 // Get new Instance ID token
                 val fcmtoken = task.result?.token!!
                 // Log and toast
-                ApiRequestPutFcmToken(token,fcmtoken)
+                ApiRequestPutFcmToken(token, fcmtoken)
             })
-
-
 
         ApiRequestGetUserId(token)
     }

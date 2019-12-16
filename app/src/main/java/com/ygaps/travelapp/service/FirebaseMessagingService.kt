@@ -36,17 +36,17 @@ import androidx.core.app.RemoteInput
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.ygaps.travelapp.*
 import com.ygaps.travelapp.network.model.ApiServiceResponseInvitaion
+import com.ygaps.travelapp.util.util
 import org.jetbrains.anko.accessibilityManager
 
 
 class FirebaseMessagingService : FirebaseMessagingService() {
 
-    var userToken : String = ""
+
+    internal var userToken : String ?= null
 
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-
-
         Log.d("notifas", "NOTIFICATION")
 
         for (i in remoteMessage.data) {
@@ -58,8 +58,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun sendNotification(map: Map<String, String>) {
-
-
         val channelId = getString(R.string.project_id)
         val channel = NotificationChannel(
             channelId,
@@ -72,8 +70,17 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
 
         if (map["type"]!!.toInt() == 5) {
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, TourInfoActivity::class.java)
+
+            if (userToken == null) {
+                val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
+                userToken = sharePref.getString("token", "notoken")!!
+            }
+
+            intent.putExtra("token", userToken)
+            intent.putExtra("tourID", map["tourId"]!!.toInt())
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
 
 
             val notificationBuilder = NotificationCompat.Builder(this, channelId)
@@ -88,6 +95,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 .setContentText(map["comment"])
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
+                .setContentIntent(pendingIntent)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setPriority(NotificationManager.IMPORTANCE_HIGH)
 
@@ -107,6 +115,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
             val pendingIntentAccept = PendingIntent.getService(this, 0, acceptIntent, PendingIntent.FLAG_CANCEL_CURRENT)
             val pendingIntentDecline = PendingIntent.getService(this, 0, declineIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+
 
             val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
             val editor = sharePref.edit()
@@ -204,6 +213,45 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             notificationManager.notify(0, notificationBuilder.build())
         }
 
+        else if (map["type"]!!.toInt() == 2) {
+            val intent = Intent(this, TourInfoActivity::class.java)
+            intent.putExtra("tourID", map["tourId"])
+            intent.putExtra("token", userToken)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+
+
+            val resultPendingIntent: PendingIntent? = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+
+
+            val notificationBuilder = NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setLargeIcon(
+                    BitmapFactory.decodeResource(
+                        resources,
+                        R.drawable.ic_launcher_background
+                    )
+                )
+                .setContentTitle(map.get("userId") + " send a notification to " + map.get("tourId"))
+                .setContentText("Note : " + map["note"] + "\n" +"Location :" + map["lat"].toString() +", " + map["long"].toString() )
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setContentIntent(resultPendingIntent)
+                .setPriority(NotificationManager.IMPORTANCE_HIGH)
+
+
+
+
+            // Since android Oreo notification channel is needed.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                notificationManager.createNotificationChannel(channel)
+            }
+
+
+            notificationManager.notify(0, notificationBuilder.build())
+        }
+
 
     }
 
@@ -224,11 +272,12 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(p0: String) {
-        //ApiRequestPutFcmToken(p0)
-        val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
-        val editor = sharePref.edit()
-        editor.putString("fcmToken", p0)
-        editor.apply()
+//        val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
+////        val editor = sharePref.edit()
+////        Log.d("onnewtoken", p0 + " - " + userToken)
+////        editor.putString("fcmToken", p0)
+////        editor.putBoolean("fcmTokenPushed", false)
+////        editor.apply()
         super.onNewToken(p0)
     }
 
@@ -246,9 +295,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     fun ApiRequestPutFcmToken( FcmToken : String) {
         doAsync {
             val service = WebAccess.retrofit.create(ApiServicePutFcmToken::class.java)
-            val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
-            val token = sharePref.getString("token", "notoken")!!
-            userToken = token
+
             val jsonObject = JsonObject()
             var uniqueId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID)
 
@@ -256,7 +303,13 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             jsonObject.addProperty("deviceId", uniqueId)
             jsonObject.addProperty("platform", 1)
             jsonObject.addProperty("appVersion", "1.0")
-            val call = service.putToken(token,jsonObject)
+
+            if (userToken == null) {
+                val sharePref : SharedPreferences = getSharedPreferences("logintoken", Context.MODE_PRIVATE)
+                userToken = sharePref.getString("token", "notoken")!!
+            }
+
+            val call = service.putToken(userToken!!,jsonObject)
             call.enqueue(object : Callback<ResponsePutFcmToken> {
                 override fun onFailure(call: Call<ResponsePutFcmToken>, t: Throwable) {
                     //Toast.makeText(applicationContext,"Fcmtoken : " + t.message, Toast.LENGTH_LONG).show()
