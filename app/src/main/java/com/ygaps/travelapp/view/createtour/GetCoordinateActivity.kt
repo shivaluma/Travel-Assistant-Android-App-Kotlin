@@ -56,6 +56,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.google.gson.reflect.TypeToken
 import com.jaredrummler.materialspinner.MaterialSpinner
 import com.mancj.materialsearchbar.MaterialSearchBar
 import kotlinx.android.synthetic.main.activity_get_coordinate.*
@@ -232,23 +233,12 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                                 }
                             })
                         } else {
-                            Log.d("resres", response.message())
-                            Log.d("resres", response.code().toString())
-                            Log.d("resres", response.errorBody().toString())
-
-                            try {
-                                var temp = JSONObject(response.errorBody()!!.string())
-                                Log.d("resres", temp.getString("message"))
-                            } catch (e: JSONException) {
-                                e.printStackTrace()
-                            } catch (e: IOException) {
-                                e.printStackTrace()
-                            }
-                            Toast.makeText(
-                                applicationContext,
-                                "Create Tour Error",
-                                Toast.LENGTH_LONG
-                            ).show()
+                            val gson = Gson()
+                            val type = object : TypeToken<ErrorResponse>() {}.type
+                            var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
+                            Toast.makeText(applicationContext, errorResponse!!.message, Toast.LENGTH_LONG).show()
+                            Log.d("resres", errorResponse!!.message)
+                            Log.d("resres", response.errorBody()!!.charStream().toString())
                         }
                     }
                 })

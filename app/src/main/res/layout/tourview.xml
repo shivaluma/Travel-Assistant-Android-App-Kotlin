@@ -20,7 +20,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="20dp"
-
             android:layout_marginBottom="-20dp"
             app:cardElevation="0dp"
             >
@@ -33,6 +32,7 @@
 
                 android:scaleType="centerCrop"
                 android:src="@drawable/demoimage" />
+
         </androidx.cardview.widget.CardView>
 
 
@@ -67,6 +67,14 @@
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold" />
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_content_copy_black_24dp"
+                    android:layout_alignParentEnd="true"
+                    android:id="@+id/cloneTourBtn"
+                    android:background="@null"
+                    android:layout_margin="5dp"/>
             </RelativeLayout>
 
             <RelativeLayout

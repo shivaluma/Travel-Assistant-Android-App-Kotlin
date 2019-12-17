@@ -69,7 +69,9 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
 
-        if (map["type"]!!.toInt() == 5) {
+        val notiType = map["type"]!!.toInt()
+        
+        if (notiType == 5) {
             val intent = Intent(this, TourInfoActivity::class.java)
 
             if (userToken == null) {
@@ -106,10 +108,10 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
                 notificationManager.createNotificationChannel(channel)
             }
-            notificationManager.notify(0, notificationBuilder.build())
+            notificationManager.notify(5, notificationBuilder.build())
 
         }
-        else if (map["type"]!!.toInt() == 6) {
+        else if (notiType == 6) {
             val acceptIntent = Intent(this, NotificationActionService::class.java).setAction("Tour_Invitation_Accept")
             val declineIntent = Intent(this, NotificationActionService::class.java).setAction("Tour_Invitation_Decline")
 
@@ -153,15 +155,14 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 )
 
 
-
             // Since android Oreo notification channel is needed.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
                 notificationManager.createNotificationChannel(channel)
             }
-            notificationManager.notify(0, notificationBuilder.build())
+            notificationManager.notify(6, notificationBuilder.build())
         }
-        else if (map["type"]!!.toInt() == 4) {
+        else if (notiType == 4) {
             val intent = Intent(this, NotificationActionService::class.java).setAction("Tour_Follow_Reply")
             intent.putExtra("tourId", map["tourId"])
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -210,18 +211,16 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             }
 
 
-            notificationManager.notify(0, notificationBuilder.build())
+            notificationManager.notify(4, notificationBuilder.build())
         }
 
-        else if (map["type"]!!.toInt() == 2) {
-            val intent = Intent(this, TourInfoActivity::class.java)
-            intent.putExtra("tourID", map["tourId"])
-            intent.putExtra("token", userToken)
+        else if (notiType == 2) {
+            val intent = Intent(this, NotificationActionService::class.java).setAction("tour_follow_location")
+            intent.putExtra("lat", map["lat"]!!.toDouble())
+            intent.putExtra("long", map["long"]!!.toDouble())
+            intent.putExtra("type", "2")
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-
-
             val resultPendingIntent: PendingIntent? = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
-
 
             val notificationBuilder = NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_launcher_background)
@@ -232,7 +231,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                     )
                 )
                 .setContentTitle(map.get("userId") + " send a notification to " + map.get("tourId"))
-                .setContentText("Note : " + map["note"] + "\n" +"Location :" + map["lat"].toString() +", " + map["long"].toString() )
+                .setContentText("Type : Problem On Road" )
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setDefaults(Notification.DEFAULT_ALL)
@@ -240,6 +239,43 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 .setPriority(NotificationManager.IMPORTANCE_HIGH)
 
 
+            // Since android Oreo notification channel is needed.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                notificationManager.createNotificationChannel(channel)
+            }
+            notificationManager.notify(2, notificationBuilder.build())
+        }
+        else if (notiType == 9) {
+            val intent = Intent("notify-new-message")
+            intent.putExtra("type", "9")
+            intent.putExtra("data", map["memPos"].toString())
+
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+        }
+        else if (notiType == 1) {
+            val intent = Intent(this, NotificationActionService::class.java).setAction("tour_follow_location")
+            intent.putExtra("lat", map["lat"]!!.toDouble())
+            intent.putExtra("long", map["long"]!!.toDouble())
+            intent.putExtra("type", "1")
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            val resultPendingIntent: PendingIntent? = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+
+            val notificationBuilder = NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setLargeIcon(
+                    BitmapFactory.decodeResource(
+                        resources,
+                        R.drawable.ic_launcher_background
+                    )
+                )
+                .setContentTitle(map.get("userId") + " send a notification to " + map.get("tourId"))
+                .setContentText("Type : Police Position" )
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setContentIntent(resultPendingIntent)
+                .setPriority(NotificationManager.IMPORTANCE_HIGH)
 
 
             // Since android Oreo notification channel is needed.
@@ -247,9 +283,39 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
                 notificationManager.createNotificationChannel(channel)
             }
+            notificationManager.notify(1, notificationBuilder.build())
+        }
+        else if (notiType == 3) {
+            val intent = Intent(this, NotificationActionService::class.java).setAction("tour_follow_location")
+            intent.putExtra("lat", map["lat"]!!.toDouble())
+            intent.putExtra("long", map["long"]!!.toDouble())
+            intent.putExtra("type", "3")
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            val resultPendingIntent: PendingIntent? = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+
+            val notificationBuilder = NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setLargeIcon(
+                    BitmapFactory.decodeResource(
+                        resources,
+                        R.drawable.ic_launcher_background
+                    )
+                )
+                .setContentTitle(map.get("userId") + " send a notification to " + map.get("tourId"))
+                .setContentText("Type : Speed Limit (${map["speed"]})" )
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setContentIntent(resultPendingIntent)
+                .setPriority(NotificationManager.IMPORTANCE_HIGH)
 
 
-            notificationManager.notify(0, notificationBuilder.build())
+            // Since android Oreo notification channel is needed.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                notificationManager.createNotificationChannel(channel)
+            }
+            notificationManager.notify(3, notificationBuilder.build())
         }
 
 

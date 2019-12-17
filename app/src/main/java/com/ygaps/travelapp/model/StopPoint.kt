@@ -20,6 +20,7 @@ data class StopPoint(
     var leaveAt: Long? ,
     var serviceTypeId: Int?,
     var avatar: String?,
-    var contact: String?
+    var contact: String?,
+    var index : Int
 )
 

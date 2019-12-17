@@ -20,6 +20,7 @@ import android.R.string.cancel
 import android.app.NotificationManager
 
 import androidx.core.app.RemoteInput
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.ygaps.travelapp.ResponseSendNotice
 import com.ygaps.travelapp.manager.doAsync
 import com.ygaps.travelapp.network.model.ApiServiceSendTourNotice
@@ -41,6 +42,13 @@ class NotificationActionService : IntentService("MyService") {
             Log.d("abab", "DAY NE ")
             processInlineReply(intent)
         }
+        else if ("tour_follow_location".equals(action)) {
+            val intenttemp = Intent("notify-new-message")
+            intenttemp.putExtra("lat", intent.extras!!.getDouble("lat"))
+            intenttemp.putExtra("long", intent.extras!!.getDouble("long"))
+            intenttemp.putExtra("type", intent.extras!!.getString("type"))
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intenttemp)
+        }
     }
 
     private fun processInlineReply(intent: Intent) {
@@ -50,7 +58,7 @@ class NotificationActionService : IntentService("MyService") {
             val tourId = intent.extras!!.getString("tourId")!!
             ApiRequestSendNotice(reply,tourId)
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.cancel(0)
+            manager.cancel(4)
         }
     }
 
@@ -90,7 +98,7 @@ class NotificationActionService : IntentService("MyService") {
                     else {
                         Toast.makeText(applicationContext, result1, Toast.LENGTH_LONG).show()
                     }
-                    notificationManager.cancel(0)
+                    notificationManager.cancel(6)
                 }
             }
         })

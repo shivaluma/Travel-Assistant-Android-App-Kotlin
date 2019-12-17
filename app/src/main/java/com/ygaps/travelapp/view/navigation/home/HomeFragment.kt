@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.beust.klaxon.JsonObject
 import com.ygaps.travelapp.*
 import com.ygaps.travelapp.manager.doAsync
 import com.ygaps.travelapp.model.Tour
@@ -23,6 +24,7 @@ import com.ygaps.travelapp.network.model.WebAccess
 import com.ygaps.travelapp.util.util
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.materialspinner.MaterialSpinner
+import com.ygaps.travelapp.network.model.ApiServiceCloneTour
 import kotlinx.android.synthetic.main.activity_get_coordinate.*
 import kotlinx.android.synthetic.main.activity_get_coordinate.view.*
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -260,6 +262,10 @@ class HomeFragment : Fragment() {
 
             //onclick
 
+            holder.itemView.cloneTourBtn.setOnClickListener {
+                ApiRequestCloneTour(item.id)
+            }
+
             holder.itemView.setOnClickListener {
                 val intent = Intent(context,TourInfoActivity::class.java)
                 intent.putExtra("token", token)
@@ -338,6 +344,36 @@ class HomeFragment : Fragment() {
                         tourNumber.text = total.toString()
                         tourAdapter.notifyDataSetChanged()
                         loaded.text = listTour.size.toString()
+                    }
+                }
+            })
+        }.execute()
+    }
+
+
+    fun ApiRequestCloneTour(tourId : Int) {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceCloneTour::class.java)
+            val body = com.google.gson.JsonObject()
+            body.addProperty("tourId", tourId)
+            val call = service.clone(token, body)
+            call.enqueue(object : Callback<ResponseTourInfo> {
+                override fun onFailure(call: Call<ResponseTourInfo>, t: Throwable) {
+                    Toast.makeText(activity!!.applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(
+                    call: Call<ResponseTourInfo>,
+                    response: Response<ResponseTourInfo>
+                ) {
+                    if (response.code() != 200) {
+                        Toast.makeText(
+                            activity!!.applicationContext,
+                            "Load list tours failed",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        Toast.makeText(activity!!.applicationContext, "Clone success!!", Toast.LENGTH_LONG).show()
                     }
                 }
             })

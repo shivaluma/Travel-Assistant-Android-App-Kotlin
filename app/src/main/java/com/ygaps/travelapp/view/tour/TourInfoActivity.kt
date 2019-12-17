@@ -33,6 +33,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import com.squareup.picasso.Picasso
+import com.ygaps.travelapp.view.stoppoint.StopPointEditActivity
 import com.ygaps.travelapp.view.tour.TourFollowActivity
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_member_list_of_tour.*
@@ -156,9 +157,25 @@ class TourInfoActivity : AppCompatActivity() {
                 popup.setOnMenuItemClickListener(object:  PopupMenu.OnMenuItemClickListener {
                 override fun onMenuItemClick(menuitem: MenuItem?): Boolean {
                     if (menuitem!!.itemId == R.id.edit_stoppoint) {
-                        Toast.makeText(applicationContext, "Chọn sửa", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(applicationContext, StopPointEditActivity::class.java)
+                        intent.putExtra("id", item.id)
+                        intent.putExtra("serviceId", item.serviceId)
+                        intent.putExtra("serviceTypeId", item.serviceTypeId!!)
+                        intent.putExtra("name", item.name)
+                        intent.putExtra("lat", item.lat)
+                        intent.putExtra("long", item.long)
+                        intent.putExtra("arriveAt", item.arrivalAt!!)
+                        intent.putExtra("leaveAt", item.leaveAt!!)
+                        intent.putExtra("minCost", item.minCost)
+                        intent.putExtra("maxCost", item.maxCost)
+                        intent.putExtra("index", item.index)
+                        intent.putExtra("address", item.address)
+                        intent.putExtra("maxindex", data.size)
+                        intent.putExtra("token", token)
+                        startActivity(intent)
                     }
                     else if (menuitem.itemId == R.id.remove_stoppoint) {
+
                         ApiRequestRemoveStopPoint(tourId,item.id)
                     }
 
@@ -343,6 +360,7 @@ class TourInfoActivity : AppCompatActivity() {
                 intent.putExtra("destinationLng", item.long!!)
                 intent.putExtra("tourId", tourId)
                 intent.putExtra("token", token)
+                intent.putExtra("desId", item.id)
 
                 startActivity(intent)
             }

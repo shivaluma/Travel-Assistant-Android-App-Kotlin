@@ -4,6 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.ygaps.travelapp.model.StopPoint
 import com.ygaps.travelapp.model.Tour
+import kotlinx.android.parcel.Parcelize
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -162,6 +163,12 @@ data class ResponseAddNotificationOnRoad(var message: String)
 
 data class ResponseUploadRecord(var message: String)
 
+data class ResponseUpdateLandingTime(var message: String)
+
+data class ResponseUpdateStopPoint(var message: String)
+
+data class ResponseSendCoordinate(var message: String)
+
 data class ResponseGetVerifyCode(var expiredOn: Long)
 
 data class ResponseGetTourNotice(var notiList : ArrayList<notification>)
@@ -234,6 +241,11 @@ data class member(var id: Int, var name:String,var phone: String, var avatar: St
         }
     }
 }
+
+@Parcelize
+data class memPos(val memPos: ArrayList<memPosChild>): Parcelable
+@Parcelize
+data class memPosChild(val id : Int, val lat : Double, val long : Double) : Parcelable
 
 data class comment(var id: Int, var name:String,var comment: String, var avatar: String) :
     Parcelable {

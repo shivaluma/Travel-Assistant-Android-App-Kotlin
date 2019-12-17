@@ -84,7 +84,7 @@
                     android:layout_centerInParent="true"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:src="@drawable/ic_notifications_black_24dp"/>
+                    android:src="@drawable/ic_add_alert_black_24dp"/>
             </RelativeLayout>
 
             <View
@@ -140,57 +140,94 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="20dp"
-                android:orientation="horizontal">
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="   • Distance to destination (km) :"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Distance (km)"
                     android:textColor="@color/black"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:layout_gravity="center_horizontal"/>
 
                 <TextView
-                    android:layout_width="60dp"
-                    android:layout_height="match_parent"
-                    android:text="12.3km"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0.0"
+                    android:textColor="@color/primaryTextColor"
                     android:id="@+id/distanceToDestination"
-                    android:textColor="@color/black"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:layout_gravity="center_horizontal"/>
+
 
 
             </LinearLayout>
 
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/gray"
+                />
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="20dp"
-                android:orientation="horizontal">
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="   • Time remaining (minutes) :"
-
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Remaining (min)"
                     android:textColor="@color/black"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:layout_gravity="center_horizontal"/>
 
                 <TextView
-                    android:layout_width="60dp"
-                    android:layout_height="match_parent"
-                    android:text="30"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/primaryTextColor"
                     android:id="@+id/timeRemainingToDestination"
-                    android:textColor="@color/black"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:layout_gravity="center_horizontal"/>
 
 
             </LinearLayout>
+
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="20dp"-->
+<!--                android:orientation="horizontal">-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:text="   • Time remaining (minutes) :"-->
+
+<!--                    android:textColor="@color/black"-->
+<!--                    android:textStyle="bold"/>-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="60dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:text="30"-->
+<!--                    android:id="@+id/timeRemainingToDestination"-->
+<!--                    android:textColor="@color/black"-->
+<!--                    android:textStyle="bold"/>-->
+
+
+<!--            </LinearLayout>-->
 
 
 
@@ -202,17 +239,58 @@
             android:background="@color/gray"
             />
 
-
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:drawableStart="@drawable/ic_people_black_24dp"
-            android:text="Current people in trip : 5"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:layout_gravity="center"
-            android:gravity="center"
-            />
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:descendantFocusability="blocksDescendants"
+                android:clickable="true"
+                android:id="@+id/moveToMemberLocation"
+                android:layout_weight="1">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_people_black_24dp"
+                android:text=" : 0"
+                android:textColor="@color/black"
+                android:id="@+id/currentFollowingTour"
+                android:layout_centerInParent="true"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:gravity="center"
+                />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/gray"
+                />
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_notifications_black_24dp"
+                    android:text=" : 0"
+                    android:textColor="@color/black"
+                    android:layout_centerInParent="true"
+                    android:textStyle="bold"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+
 
 
     </LinearLayout>

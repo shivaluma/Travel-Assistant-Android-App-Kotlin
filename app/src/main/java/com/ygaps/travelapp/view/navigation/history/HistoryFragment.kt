@@ -29,8 +29,7 @@ import com.jaredrummler.materialspinner.MaterialSpinner
 import kotlinx.android.synthetic.main.fragment_history.view.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.historyview.view.*
-import kotlinx.android.synthetic.main.tourview.*
-import kotlinx.android.synthetic.main.tourview.view.*
+
 import org.jetbrains.anko.image
 import retrofit2.Call
 import retrofit2.Callback

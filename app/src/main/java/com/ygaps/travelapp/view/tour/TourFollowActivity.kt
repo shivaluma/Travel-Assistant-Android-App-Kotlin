@@ -21,6 +21,7 @@ import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.*
+import android.content.IntentSender.*
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -57,6 +58,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.Task
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import com.google.maps.android.PolyUtil
@@ -73,12 +75,15 @@ import com.ygaps.travelapp.util.util
 import kotlinx.android.synthetic.main.activity_tour_follow.*
 import kotlinx.android.synthetic.main.activity_tour_follow.view.*
 import kotlinx.android.synthetic.main.activity_tour_info.*
+import kotlinx.android.synthetic.main.alert_to_destination.view.*
 import kotlinx.android.synthetic.main.popup_chat.view.*
 import kotlinx.android.synthetic.main.popup_create_notification_on_road.*
 import kotlinx.android.synthetic.main.popup_create_notification_on_road.view.*
+import kotlinx.coroutines.delay
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -128,6 +133,15 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
     private var isRecording: Boolean = false
     private var recordingStopped: Boolean = false
 
+    val memberPos = ArrayList<memPosChild>()
+    val memberPosMarker = ArrayList<Marker>()
+
+    internal var reachedDestination = false
+    internal var hasSendLandingTime = false
+
+    internal var currentMemberChoosing = 0
+    internal var desId = 0
+
 
     internal val mLocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
@@ -142,11 +156,34 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                 hasInitMove = true
             }
 
+            if (!reachedDestination) {
+                drawPath(src, destinationLatLng)
+            }
+            else {
+                if (!hasSendLandingTime) {
+                    //Inflate the dialog with custom view
+                    val mDialogView = LayoutInflater.from(this@TourFollowActivity).inflate(R.layout.alert_to_destination, null)
+                    //AlertDialogBuilder
+                    val mBuilder = AlertDialog.Builder(this@TourFollowActivity)
+                        .setView(mDialogView)
+                    //show dialog
+                    val  mAlertDialog = mBuilder.show()
+                    //login button click of custom layout
+
+                    //cancel button click of custom layout
+                    mDialogView.buttonBackDialog.setOnClickListener {
+                        //dismiss dialog
+                        mAlertDialog.dismiss()
+                    }
+                    ApiRequestUpdateLandingTime()
+                    hasSendLandingTime = true
+                }
 
 
-            drawPath(src, destinationLatLng)
-
+                // send api finish
+            }
             ApiRequestGetNotificationOnRoad(mTourId)
+            ApiRequestSendCoordinate()
         }
     }
 
@@ -168,6 +205,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         destinationLatLng = LatLng(intent.extras!!.getDouble("destinationLat", 10.7629)
             ,intent.extras!!.getDouble("destinationLng", 106.6822))
 
+        desId = intent.extras!!.getInt("desId")
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -178,16 +216,50 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
-
-
-
         mMessageReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                val onTourId = intent!!.extras!!.getString("tourId")
+                val onTourId = intent!!.extras!!.getString("tourId", "-1")
+                val notiType = intent!!.extras!!.getString("type", "0").toInt()
+                Log.d("abab", notiType.toString())
                 if (onTourId!!.toInt() == mTourId) {
-                    ApiRequestGetNotices()
+                     object :  CountDownTimer(500, 500) {
+                         override fun onFinish() {
+                             ApiRequestGetNotices()
+                         }
+
+                         override fun onTick(millisUntilFinished: Long) {
+
+                         }
+                     }.start()
+
+                }
+
+                if (notiType == 9) {
+                    memberPos.clear()
+                    for (i in memberPosMarker) i.remove()
+                    memberPosMarker.clear()
+                    val data = intent!!.extras!!.getString("data")
+                    Log.d("abab", data)
+                    val JsonArr = JSONArray(data)
+                    for (i in 0..JsonArr.length()-1) {
+                        var temp : JSONObject = JsonArr.getJSONObject(i)
+                        if (temp.getInt("id") == mUserId) continue
+                        var memPosChildTemp = memPosChild(temp.getInt("id"), temp.getDouble("lat"),temp.getDouble("long"))
+                        memberPos.add(memPosChildTemp)
+                        val marker = addMarker(mGoogleMap, LatLng(memPosChildTemp.lat, memPosChildTemp.long), memPosChildTemp.id.toString(), R.drawable.ic_person_pin_circle_black_24dp )
+                        memberPosMarker.add(marker)
+                    }
+                    currentFollowingTour.setText(" : ${memberPos.size+1}")
+                }
+                else if (notiType == 1 || notiType == 2 || notiType == 3) {
+                    val lat = intent!!.extras!!.getDouble("lat")!!
+                    val long = intent!!.extras!!.getDouble("long")!!
+                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat,long), 15.0f))
                 }
             }
+
+
+
         }
 
 
@@ -219,6 +291,28 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             else {
                 Toast.makeText(applicationContext, "Cannot get current location", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        moveToMemberLocation.setOnClickListener {
+            Log.d("abab", currentMemberChoosing.toString() + " " + memberPos.size.toString())
+            if (memberPos.size > 0) {
+                if (currentMemberChoosing >= memberPos.size) {
+                    currentMemberChoosing = 0
+                    if (::myLocation.isInitialized) {
+                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(myLocation.latitude,myLocation.longitude),15.0f))
+                    }
+                }
+                else{
+                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(memberPos[currentMemberChoosing].lat,memberPos[currentMemberChoosing].long),15.0f))
+                    currentMemberChoosing++
+                }
+
+            }
+            else {
+                if (::myLocation.isInitialized) {
+                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(myLocation.latitude,myLocation.longitude),15.0f))
+                }
             }
         }
 
@@ -460,10 +554,11 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
     fun drawPath(src: LatLng, dest: LatLng) {
         //addMarker(mGoogleMap,src,"My location",R.drawable.ic_startpoint)
+        Log.d("abab", lastLocationLatLng.toString() +" - " + dest.toString())
         drawUserMarker(getAvatarFromList(mUserId), src)
         addMarker(mGoogleMap,dest,"Destination",R.drawable.ic_endpoint)
-        if (lastLocationLatLng != null && lastLocationLatLng == dest) return
-        else lastLocationLatLng = dest
+        if (lastLocationLatLng != null && lastLocationLatLng == src) return
+        else lastLocationLatLng = src
         doAsync {
             val path: MutableList<List<LatLng>> = ArrayList()
             val urlDirections = "https://maps.googleapis.com/maps/api/directions/json?origin=${src.latitude},${src.longitude}&destination=${dest.latitude},${dest.longitude}&key=${Constant.ggMapApiKey}"
@@ -480,7 +575,9 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                 val distance = legs.getJSONObject(0).getJSONObject("distance").getDouble("value")+steps.getJSONObject(0).getJSONObject("distance").getDouble("value")
                 val duration = legs.getJSONObject(0).getJSONObject("duration").getInt("value")+steps.getJSONObject(0).getJSONObject("duration").getInt("value")
 
-
+                if (distance < 200) {
+                    reachedDestination = true
+                }
 
                 distanceToDestination.text = "%.2f".format(distance/1000)
                 timeRemainingToDestination.text = (duration/60 + 1).toString()
@@ -575,7 +672,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                             resolvable.startResolutionForResult(
                                 this, LocationRequest.PRIORITY_HIGH_ACCURACY
                             )
-                        } catch (e: IntentSender.SendIntentException) {
+                        } catch (e: SendIntentException) {
                             // Ignore the error.
                         } catch (e: ClassCastException) {
                             // Ignore, should be an impossible error.
@@ -931,8 +1028,6 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     fun drawUserMarker(url : String, pos : LatLng) {
-
-
         val currentTarget = object : Target {
             override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
                 //do nothing
@@ -957,9 +1052,6 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         if (url.isNotEmpty() && url != "null") {
             Picasso.get().load(url).transform(transformation).into(currentTarget)
         }
-
-
-
     }
 
     fun getAvatarFromList(uid : Int) : String {
@@ -1127,6 +1219,39 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         }.execute()
     }
 
+    fun ApiRequestSendCoordinate() {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceSendCoordinate::class.java)
+            val body = JsonObject()
+            body.addProperty("userId", mUserId)
+            body.addProperty("tourId", mTourId)
+            body.addProperty("lat", myLocation.latitude)
+            body.addProperty("long", myLocation.longitude)
+
+            val call = service.sendCoordinate(mToken, body)
+            call.enqueue(object : Callback<ResponseSendCoordinate> {
+                override fun onFailure(call: Call<ResponseSendCoordinate>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(
+                    call: Call<ResponseSendCoordinate>,
+                    response: retrofit2.Response<ResponseSendCoordinate>
+                ) {
+                    if (response.code() != 200) {
+                        val gson = Gson()
+                        val type = object : TypeToken<ErrorResponse>() {}.type
+                        var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
+                        Toast.makeText(applicationContext, errorResponse!!.message, Toast.LENGTH_LONG).show()
+                    } else {
+                        Log.d("abab", response.body()!!.message)
+                    }
+
+                }
+            })
+        }.execute()
+    }
+
 
 
     fun clearMarkerInArray(arrMarker : ArrayList<Marker>) {
@@ -1136,6 +1261,36 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         arrMarker.clear()
     }
 
+
+    fun ApiRequestUpdateLandingTime() {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceUpdateLandingTime::class.java)
+            val body = JsonObject()
+            body.addProperty("desId", desId)
+            Log.d("ababdes", desId.toString())
+            val call = service.landing(mToken, body)
+            call.enqueue(object : Callback<ResponseUpdateLandingTime> {
+                override fun onFailure(call: Call<ResponseUpdateLandingTime>, t: Throwable) {
+                    Toast.makeText(this@TourFollowActivity, t.message, Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(
+                    call: Call<ResponseUpdateLandingTime>,
+                    response: retrofit2.Response<ResponseUpdateLandingTime>
+                ) {
+                    if (response.code() != 200) {
+                        val gson = Gson()
+                        val type = object : TypeToken<ErrorResponse>() {}.type
+                        var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
+                        Toast.makeText(this@TourFollowActivity, errorResponse!!.message, Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(this@TourFollowActivity, "Update Landing Successfully", Toast.LENGTH_LONG).show()
+                    }
+
+                }
+            })
+        }.execute()
+    }
 
 
 

@@ -325,6 +325,25 @@ interface ApiServiceGetNotificationOnRoad {
     ): Call<ResponseGetNotificationOnRoad>
 }
 
+interface ApiServiceUpdateStopPoint {
+    @POST("/tour/update-stop-point")
+    fun updateStopPoint(
+        @Header("Authorization") token : String,
+        @Body body: JsonObject
+    ): Call<ResponseUpdateStopPoint>
+}
+
+
+interface ApiServiceSendCoordinate {
+    @POST("/tour/current-users-coordinate")
+    fun sendCoordinate(
+        @Header("Authorization") token : String,
+        @Body body: JsonObject
+    ): Call<ResponseSendCoordinate>
+}
+
+
+
 interface ApiServiceUploadRecord {
     @Multipart
     @POST("/tour/recording")
@@ -333,4 +352,22 @@ interface ApiServiceUploadRecord {
         @Part file : MultipartBody.Part
     ): Call<ResponseUploadRecord>
 }
+
+interface ApiServiceUpdateLandingTime {
+    @POST("/tour/update/landing-times-for-destination")
+    fun landing(
+        @Header("Authorization") token : String,
+        @Body body: JsonObject
+    ): Call<ResponseUpdateLandingTime>
+}
+
+interface ApiServiceCloneTour {
+    @POST("/tour/clone")
+    fun clone(
+        @Header("Authorization") token : String,
+        @Body body: JsonObject
+    ): Call<ResponseTourInfo>
+}
+
+
 
