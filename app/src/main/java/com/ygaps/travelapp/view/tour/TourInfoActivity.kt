@@ -33,14 +33,19 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import com.squareup.picasso.Picasso
+import com.taufiqrahman.reviewratings.BarLabels
+import com.taufiqrahman.reviewratings.RatingReviews
+import com.ygaps.travelapp.manager.Constant
 import com.ygaps.travelapp.view.stoppoint.StopPointEditActivity
 import com.ygaps.travelapp.view.tour.TourFollowActivity
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_member_list_of_tour.*
+import kotlinx.android.synthetic.main.activity_stop_point_info.*
 import kotlinx.android.synthetic.main.activity_tour_info.*
 import kotlinx.android.synthetic.main.item_choose_destination.view.*
 import kotlinx.android.synthetic.main.layout_tour_comment.*
 import kotlinx.android.synthetic.main.layout_tour_comment.view.*
+import kotlinx.android.synthetic.main.layout_tour_review.view.*
 import kotlinx.android.synthetic.main.popup_choose_destination.*
 import kotlinx.android.synthetic.main.popup_choose_destination.view.*
 import kotlinx.android.synthetic.main.popup_setting_bottom.view.*
@@ -63,6 +68,7 @@ class TourInfoActivity : AppCompatActivity() {
     var listReviews = ArrayList<review>()
     var listMembers = ArrayList<member>()
     var typeCount = arrayOf(0,0,0,0)
+    var reviewCount = arrayOf(0,0,0,0,0)
     var currentUserId = 126
     lateinit var startLatLang : LatLng
     lateinit var endLatLng: LatLng
@@ -72,6 +78,8 @@ class TourInfoActivity : AppCompatActivity() {
     lateinit var CommentNumCountView : TextView
     lateinit var ReviewNumCountView : TextView
     var hasInitCommentNumCountView = false
+    var tourName : String = ""
+    lateinit var commentView : RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,6 +129,24 @@ class TourInfoActivity : AppCompatActivity() {
 
         btnStartGoingTour.setOnClickListener {
             popupStartGoing()
+        }
+
+        serviceRatingStarSelect_tour.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
+            if (rating != 0f) {
+                serviceFeedbackEditContent_tour.visibility = View.VISIBLE
+            }
+        }
+        btnFeedbackCancel_tour.setOnClickListener {
+            serviceFeedbackEditContent_tour.visibility = View.GONE
+            serviceRatingStarSelect_tour.rating = 0f
+        }
+
+        btnFeedbackSubmit_tour.setOnClickListener {
+            var content = editserviceRatingContent_tour.text.toString()
+            ApiRequestAddReview(tourId, serviceRatingStarSelect_tour.rating.toInt(), content)
+            serviceFeedbackEditContent_tour.visibility = View.GONE
+            serviceRatingStarSelect_tour.setIsIndicator(true)
+            serviceRatingStarSelect_tour.isClickable = false
         }
     }
 
@@ -285,32 +311,30 @@ class TourInfoActivity : AppCompatActivity() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
             val inflater = LayoutInflater.from(parent.context)
-            val view = inflater.inflate(R.layout.item_comments_layout, parent, false)
+            val view = inflater.inflate(R.layout.item_reviews_layout, parent, false)
             return RecyclerViewHolder(view)
         }
 
         override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
             val item = data.get(position)
             holder.content.text = item.review
-
+            holder.rating.rating = item.point.toFloat()
+            holder.date.text = util.longToDate(item.createOn)
             if (!item.name.isNullOrEmpty()) {
                 holder.name.text = item.name
                 return
             }
             else {
-                holder.name.text = "<Không tên> : ID = ${item.id}"
+                holder.name.text = "ID = ${item.id}"
             }
 
             if (!item.avatar.isNullOrEmpty()) {
                 Picasso.get()
                     .load(item.avatar)
-                    .resize(50, 50)
+                    .resize(40, 40)
                     .centerCrop()
                     .into(holder.avatar)
             }
-
-
-
 
         }
 
@@ -322,11 +346,15 @@ class TourInfoActivity : AppCompatActivity() {
             internal var name: TextView
             internal var content: TextView
             internal var avatar: CircleImageView
+            internal var rating : RatingBar
+            internal var date : TextView
 
             init {
-                name = itemView.findViewById(R.id.commentName) as TextView
-                content = itemView.findViewById(R.id.commentContent) as TextView
-                avatar = itemView.findViewById(R.id.commentAvatar) as CircleImageView
+                name = itemView.findViewById(R.id.reviewerName) as TextView
+                content = itemView.findViewById(R.id.reviewContent) as TextView
+                date = itemView.findViewById(R.id.reviewDate) as TextView
+                rating = itemView.findViewById(R.id.reviewRating) as RatingBar
+                avatar = itemView.findViewById(R.id.reviewerAvatar) as CircleImageView
             }
         }
     }
@@ -407,6 +435,7 @@ class TourInfoActivity : AppCompatActivity() {
                         val tourInfoCost = tourInfoCost
                         val data = response.body()!!
                         tourInfoName.text = data.name
+                        tourName = data.name
                         var drawable = resources.getDrawable(util.getAssetByStatus(data.status))
                         tourInfoName.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
                         tourInfoDate.text = util.longToDate(data.startDate) + " - " + util.longToDate(data.endDate)
@@ -528,10 +557,34 @@ class TourInfoActivity : AppCompatActivity() {
                         Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
                     } else {
                         Log.d("abab",response.body().toString())
-//                        listReviews.clear()
-//                        listReviews.addAll(response.body()!!.reviews)
-//                        mainReviewCount.text = listReviews.size.toString()
-//                        ReviewAdt.notifyDataSetChanged()
+                        listReviews.clear()
+                        listReviews.addAll(response.body()!!.reviewList)
+                        mainReviewCount.text = "Reviews (${listReviews.size})"
+                        reviewCount = arrayOf(0,0,0,0,0)
+                        for (i in listReviews) {
+                            reviewCount[i.point-1]++
+                        }
+
+                        val raters = reviewCount.toIntArray()
+
+
+                        var maxValue = raters.max()
+
+                        var temp = 0
+                        for (i in 0..reviewCount.size - 1 ) {
+                            temp += (i+1)*reviewCount[i]
+                        }
+
+                        var ratingValue = temp.toFloat() / reviewCount.sum()
+                        var ratingValueString  = "%.1f".format(ratingValue)
+
+                        textView2_tour.text = listReviews.size.toString()
+                        ratingBar_tour.rating = ratingValue
+                        ratingAveragePoint_tour.text = ratingValueString
+                        tourRating.rating = ratingValue
+
+                        rating_reviews_tour.createRatingBars(maxValue!!, BarLabels.STYPE3, Constant.colors, raters.reversedArray())
+                        ReviewAdt.notifyDataSetChanged()
                     }
                 }
             })
@@ -570,7 +623,7 @@ class TourInfoActivity : AppCompatActivity() {
     }
 
 
-    fun ApiRequestAddReview(tourId : Int, point: Int, review: String, ratingPopup : PopupWindow) {
+    fun ApiRequestAddReview(tourId : Int, point: Int, review: String) {
         doAsync {
             val service = WebAccess.retrofit.create(ApiServiceAddReview::class.java)
             val jsonObject = JsonObject()
@@ -592,7 +645,6 @@ class TourInfoActivity : AppCompatActivity() {
                         Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
                     } else {
                         Log.d("abab", point.toString() + " " + review)
-                        ratingPopup.dismiss()
                         ApiRequestGetReviewList(tourId)
                     }
                 }
@@ -655,11 +707,15 @@ class TourInfoActivity : AppCompatActivity() {
             getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.layout_tour_comment, null)
 
-        var commentView = view.findViewById<RecyclerView>(R.id.commentRecyclerView)
+        commentView = view.findViewById<RecyclerView>(R.id.commentRecyclerView)
         val layoutManager = LinearLayoutManager(applicationContext)
         layoutManager.orientation = LinearLayoutManager.VERTICAL
         commentView.layoutManager = layoutManager
         commentView.adapter = CommentAdt
+
+        if (listComment.size > 0) {
+            commentView.scrollToPosition(listComment.size - 1)
+        }
 
 
         var commentNumField = view.findViewById<TextView>(R.id.commentNum)
@@ -709,7 +765,7 @@ class TourInfoActivity : AppCompatActivity() {
 
         // Set a dismiss listener for popup window
         popupWindow.setOnDismissListener {
-            Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
+
         }
 
 
@@ -733,11 +789,11 @@ class TourInfoActivity : AppCompatActivity() {
         reviewView.layoutManager = layoutManager
         reviewView.adapter = ReviewAdt
 
+        view.reviewTourName.text = tourName
 
-        var reviewNumField = view.findViewById<TextView>(R.id.reviewNum)
-        ReviewNumCountView = reviewNumField
-        hasInitCommentNumCountView = true
-        reviewNumField.text = listReviews.size.toString() + " reviews"
+
+
+
 
         val popupWindow = PopupWindow(
             view, // Custom view to show in popup window
@@ -756,61 +812,61 @@ class TourInfoActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // Create a new slide animation for popup window enter transition
             val slideIn = Slide()
-            slideIn.slideEdge = Gravity.TOP
+            slideIn.slideEdge = Gravity.END
             popupWindow.enterTransition = slideIn
 
             // Slide animation for popup window exit transition
             val slideOut = Slide()
-            slideOut.slideEdge = Gravity.RIGHT
+            slideOut.slideEdge = Gravity.END
             popupWindow.exitTransition = slideOut
 
         }
 
         // Get the widgets reference from custom view
         //val tv = view.findViewById<TextView>(R.id.text_view)
-        val btn = view.findViewById<Button>(R.id.addReviewBtn)
-
-        btn.setOnClickListener {
-            val ratingview = inflater.inflate(R.layout.layout_send_rating_tour, null)
-
-            val ratingPopup = PopupWindow(
-                ratingview, // Custom view to show in popup window
-                LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
-                LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
-                true
-            )
-
-            // Set an elevation for the popup window
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                ratingPopup.elevation = 10.0F
-            }
-
-            // Set a dismiss listener for popup window
-            ratingPopup.setOnDismissListener {
-                Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
-            }
-
-            val sendrvbutton = ratingview.findViewById<Button>(R.id.sendReviewBtn)
-            val pointrv = ratingview.findViewById<RatingBar>(R.id.tourRatingStarSelect)
-            val reviewcontent = ratingview.findViewById<EditText>(R.id.editTourRatingContent)
-
-            sendrvbutton.setOnClickListener {
-                ApiRequestAddReview(tourId,pointrv.rating.toInt(), reviewcontent.text.toString(), ratingPopup)
-            }
-
-            // Finally, show the popup window on app
-            ratingPopup.showAtLocation(
-                tourInfoMainLayout, // Location to display popup window
-                Gravity.CENTER, // Exact position of layout to display popup
-                0, // X offset
-                0 // Y offset
-            )
-        }
+//        val btn = view.findViewById<Button>(R.id.addReviewBtn)
+//
+//        btn.setOnClickListener {
+//            val ratingview = inflater.inflate(R.layout.layout_send_rating_tour, null)
+//
+//            val ratingPopup = PopupWindow(
+//                ratingview, // Custom view to show in popup window
+//                LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
+//                LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
+//                true
+//            )
+//
+//            // Set an elevation for the popup window
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                ratingPopup.elevation = 10.0F
+//            }
+//
+//            // Set a dismiss listener for popup window
+//            ratingPopup.setOnDismissListener {
+//
+//            }
+//
+//            val sendrvbutton = ratingview.findViewById<Button>(R.id.sendReviewBtn)
+//            val pointrv = ratingview.findViewById<RatingBar>(R.id.tourRatingStarSelect)
+//            val reviewcontent = ratingview.findViewById<EditText>(R.id.editTourRatingContent)
+//
+//            sendrvbutton.setOnClickListener {
+//                ApiRequestAddReview(tourId,pointrv.rating.toInt(), reviewcontent.text.toString(), ratingPopup)
+//            }
+//
+//            // Finally, show the popup window on app
+//            ratingPopup.showAtLocation(
+//                tourInfoMainLayout, // Location to display popup window
+//                Gravity.CENTER, // Exact position of layout to display popup
+//                0, // X offset
+//                0 // Y offset
+//            )
+//        }
 
 
         // Set a dismiss listener for popup window
         popupWindow.setOnDismissListener {
-            Toast.makeText(applicationContext, "Popup closed", Toast.LENGTH_SHORT).show()
+
         }
 
 

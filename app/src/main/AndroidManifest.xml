@@ -18,7 +18,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".view.stoppoint.StopPointEditActivity"></activity>
+        <activity android:name=".view.tour.TourReviewActivity"></activity>
+        <activity android:name=".view.stoppoint.StopPointEditActivity" />
         <activity android:name=".view.tour.TourFollowActivity" />
         <activity android:name=".view.createtour.ChangeTourInfo" />
         <activity android:name=".view.user.UpdatePassword" />
@@ -38,6 +39,7 @@
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

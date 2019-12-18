@@ -174,6 +174,172 @@
 
                 </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/serviceRatingTextSuggest_tour"
+            android:layout_marginStart="10sp"
+            android:layout_marginBottom="10dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:text="Rate this Tour" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:text="Tell other what you think" />
+        </LinearLayout>
+
+        <RatingBar
+            android:id="@+id/serviceRatingStarSelect_tour"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:max="5"
+
+            android:layout_gravity="center_horizontal"
+            android:progressTint="@color/colorAccent"
+            android:progressBackgroundTint="@color/lightgray"
+            android:stepSize="1"
+            android:isIndicator="false" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:id="@+id/serviceFeedbackEditContent_tour"
+            android:orientation="vertical">
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editserviceRatingContent_tour"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Feedback this Service!">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal">
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel"
+                    android:id="@+id/btnFeedbackCancel_tour"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="30dp"
+                    android:background="@null"/>
+                <Button
+                    android:layout_marginStart="30dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnFeedbackSubmit_tour"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimary"
+                    android:text="Submit"
+                    android:background="@null"/>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <com.taufiqrahman.reviewratings.RatingReviews xmlns:bar="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/rating_reviews_tour"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="42dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/ratingAveragePoint_tour"
+                app:layout_constraintTop_toTopOf="parent"
+                bar:animation="true"
+                bar:layout_constraintVertical_bias="0.19"
+                bar:max_value="100"
+                bar:show_label="true"
+                bar:spaces="0dp"
+                bar:text_color="#808080"
+                bar:text_size="10sp"
+                bar:width="15dp" />
+
+            <TextView
+                android:id="@+id/ratingAveragePoint_tour"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="?android:selectableItemBackground"
+                android:text="4.6"
+                android:textColor="#333333"
+                android:textSize="26sp"
+                app:layout_constraintEnd_toEndOf="@+id/ratingBar_tour"
+                app:layout_constraintHorizontal_bias="0.36"
+                app:layout_constraintStart_toStartOf="@+id/ratingBar_tour"
+                app:layout_constraintTop_toTopOf="@+id/rating_reviews_tour" />
+
+            <RatingBar
+                android:id="@+id/ratingBar_tour"
+                style="@android:style/Widget.Material.Light.RatingBar.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:numStars="5"
+                android:progressTint="#333333"
+                android:rating="4"
+                android:stepSize="0.5"
+                app:layout_constraintBottom_toBottomOf="@+id/rating_reviews_tour"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ratingAveragePoint_tour"
+                app:layout_constraintVertical_bias="0.07999998"
+                android:layout_marginLeft="16dp" />
+
+            <TextView
+                android:id="@+id/textView2_tour"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="2dp"
+                android:text="0"
+                android:textColor="#333333"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/ratingBar_tour"
+                app:layout_constraintTop_toBottomOf="@+id/ratingBar_tour"
+                android:layout_marginLeft="8dp" />
+
+            <ImageView
+                android:id="@+id/imageView_tour"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="#333333"
+                app:layout_constraintEnd_toEndOf="@+id/ratingBar_tour"
+                app:layout_constraintStart_toEndOf="@+id/textView2_tour"
+                app:layout_constraintTop_toTopOf="@+id/textView2_tour"
+                app:srcCompat="@drawable/ic_person"
+                android:layout_marginRight="8dp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

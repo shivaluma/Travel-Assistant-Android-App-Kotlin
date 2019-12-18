@@ -389,6 +389,12 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
     }
 
+
+    override fun onNewIntent(intent: Intent?) {
+        Log.d("onnewintend",intent!!.extras!!.getString("type").toString())
+        super.onNewIntent(intent)
+    }
+
     fun createDirectory() : String{
         val path = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_DCIM);

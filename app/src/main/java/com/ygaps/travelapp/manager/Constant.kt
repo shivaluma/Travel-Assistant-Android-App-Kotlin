@@ -1,5 +1,7 @@
 package com.ygaps.travelapp.manager
 
+import android.graphics.Color
+
 object Constant {
     const val tokenExpire = 24*60*60
     const val BASE_URL = "http://35.197.153.192:3000"
@@ -69,4 +71,12 @@ object Constant {
         "Hà Giang",
         "Bắc Kạn",
         "Cao Bằng")
+
+    val colors = intArrayOf(
+        Color.parseColor("#0e9d58"),
+        Color.parseColor("#bfd047"),
+        Color.parseColor("#ffc105"),
+        Color.parseColor("#ef7e14"),
+        Color.parseColor("#d36259")
+    )
 }

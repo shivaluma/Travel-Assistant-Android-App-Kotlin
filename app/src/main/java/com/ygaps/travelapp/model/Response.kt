@@ -94,6 +94,11 @@ data class ResponseSearchDestination(
     var stopPoints: ArrayList<StopPoint>
 )
 
+data class ResponseListFeedBackService(
+    var total: Int,
+    var feedbackList: ArrayList<feedback>
+)
+
 data class ResponseSuggestDestination(
     var stopPoints: ArrayList<StopPoint>
 )
@@ -206,7 +211,11 @@ data class tourStatus(var status: Int, var total: Int)
 data class ResponseGetReviewsTour(var reviewList: ArrayList<review>)
 
 data class review(
-    var id: Int, var name:String,var review: String, var avatar: String
+    var id: Int, var name:String,var review: String, var avatar: String, var point : Int, var createOn: Long
+)
+
+data class feedback(
+    var id: Int, var name:String,var feedback: String, var avatar: String, var point : Int, var createOn: Long
 )
 
 data class member(var id: Int, var name:String,var phone: String, var avatar: String, var isHost : Boolean) :

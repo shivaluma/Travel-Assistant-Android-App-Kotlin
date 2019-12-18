@@ -234,6 +234,17 @@ interface ApiServiceSearchDestination {
     ): Call<ResponseSearchDestination>
 }
 
+
+interface ApiServiceGetServiceFeedBack {
+    @GET("/tour/get/feedback-service")
+    fun getFeedback(
+        @Header("Authorization") token : String,
+        @Query("serviceId") searchKey: Int,
+        @Query("pageIndex") pageIndex: Int,
+        @Query("pageSize") pageSize: String
+    ): Call<ResponseListFeedBackService>
+}
+
 interface ApiServiceSuggestDestination {
     @POST("/tour/suggested-destination-list")
     fun getSuggest(

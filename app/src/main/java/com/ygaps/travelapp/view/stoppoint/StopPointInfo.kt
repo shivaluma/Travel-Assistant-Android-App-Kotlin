@@ -4,8 +4,15 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
+import android.widget.RatingBar
+import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.ygaps.travelapp.*
 import com.ygaps.travelapp.manager.doAsync
 import com.ygaps.travelapp.util.util
@@ -27,7 +34,11 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
+import com.squareup.picasso.Picasso
+import com.ygaps.travelapp.manager.Constant
 import com.ygaps.travelapp.network.model.*
+import de.hdodenhof.circleimageview.CircleImageView
+import org.jetbrains.anko.scrollView
 
 
 class StopPointInfo : AppCompatActivity(){
@@ -35,13 +46,12 @@ class StopPointInfo : AppCompatActivity(){
     lateinit var mGoogleMap : GoogleMap
     var token : String = ""
     var serviceId : Int = 100
-    val colors = intArrayOf(
-        Color.parseColor("#0e9d58"),
-        Color.parseColor("#bfd047"),
-        Color.parseColor("#ffc105"),
-        Color.parseColor("#ef7e14"),
-        Color.parseColor("#d36259")
-    )
+    lateinit var mReviewAdapter : ReviewAdapter
+    var listFeedback = ArrayList<feedback>()
+    var mCurrentPage = 1
+    var mCurrentItemPerPage = 999
+    var mTotal = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stop_point_info)
@@ -69,13 +79,82 @@ class StopPointInfo : AppCompatActivity(){
         btnFeedbackSubmit.setOnClickListener {
             var content = editserviceRatingContent.text.toString()
             ApiRequestSendFeedBack(serviceId, content, serviceRatingStarSelect.rating.toInt())
+            serviceRatingStarSelect.setIsIndicator(true)
+            serviceFeedbackEditContent.visibility = View.GONE
         }
+
+        val layoutManager = LinearLayoutManager(applicationContext)
+        layoutManager.orientation = LinearLayoutManager.VERTICAL
+        mReviewAdapter = ReviewAdapter(listFeedback)
+        stpReviewRecyclerView.adapter = mReviewAdapter
+        stpReviewRecyclerView.layoutManager = layoutManager
+        stpReviewRecyclerView.setHasFixedSize(false)
 
         ApiRequest()
         ApiRequestGetPoints()
+        ApiRequestGetListFeedBack(mCurrentPage,mCurrentItemPerPage)
 
     }
 
+
+    inner class ReviewAdapter(data: ArrayList<feedback>) :
+        RecyclerView.Adapter<ReviewAdapter.RecyclerViewHolder>() {
+
+        var data = ArrayList<feedback>()
+
+        init {
+            this.data = data
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
+            val inflater = LayoutInflater.from(parent.context)
+            val view = inflater.inflate(R.layout.item_reviews_layout, parent, false)
+            return RecyclerViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
+            val item = data.get(position)
+            holder.content.text = item.feedback
+            holder.rating.rating = item.point.toFloat()
+            holder.date.text = util.longToDate(item.createOn)
+            if (!item.name.isNullOrEmpty()) {
+                holder.name.text = item.name
+                return
+            }
+            else {
+                holder.name.text = "ID = ${item.id}"
+            }
+
+            if (!item.avatar.isNullOrEmpty()) {
+                Picasso.get()
+                    .load(item.avatar)
+                    .resize(40, 40)
+                    .centerCrop()
+                    .into(holder.avatar)
+            }
+
+        }
+
+        override fun getItemCount(): Int {
+            return data.size
+        }
+
+        inner class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            internal var name: TextView
+            internal var content: TextView
+            internal var avatar: CircleImageView
+            internal var rating : RatingBar
+            internal var date : TextView
+
+            init {
+                name = itemView.findViewById(R.id.reviewerName) as TextView
+                content = itemView.findViewById(R.id.reviewContent) as TextView
+                date = itemView.findViewById(R.id.reviewDate) as TextView
+                rating = itemView.findViewById(R.id.reviewRating) as RatingBar
+                avatar = itemView.findViewById(R.id.reviewerAvatar) as CircleImageView
+            }
+        }
+    }
 
 
 
@@ -129,6 +208,34 @@ class StopPointInfo : AppCompatActivity(){
     }
 
 
+    fun ApiRequestGetListFeedBack(page : Int, item : Int) {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceGetServiceFeedBack::class.java)
+
+            val call = service.getFeedback(token,serviceId,page,item.toString())
+            call.enqueue(object : Callback<ResponseListFeedBackService> {
+                override fun onFailure(call: Call<ResponseListFeedBackService>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(
+                    call: Call<ResponseListFeedBackService>,
+                    response: Response<ResponseListFeedBackService>
+                ) {
+                    if (response.code() != 200) {
+                        Toast.makeText(applicationContext, response.message(), Toast.LENGTH_LONG).show()
+                    } else {
+                        listFeedback.clear()
+                        mTotal = response.body()!!.total
+                        listFeedback.addAll(response.body()!!.feedbackList)
+                        mReviewAdapter.notifyDataSetChanged()
+                    }
+                }
+            })
+        }.execute()
+    }
+
+
     fun ApiRequestGetPoints() {
         doAsync {
             val service = WebAccess.retrofit.create(ApiServiceGetStopPointPoints::class.java)
@@ -156,14 +263,21 @@ class StopPointInfo : AppCompatActivity(){
                             response.body()!!.pointStats[3].total,
                             response.body()!!.pointStats[4].total
                         )
-                        var average = "%.1f".format(raters.average())
-                        ratingAveragePoint.text = average.toString()
+
+                        var tempsum = 0
+                        for (i in 0..raters.size-1) {
+                            tempsum+= (i+1)*raters[i]
+                        }
+
+
                         var maxValue = raters.max()
                         var sum = raters.sum()
+                        var average = "%.1f".format(tempsum.toFloat()/sum)
+                        ratingAveragePoint.text = average
                         textView2.text = sum.toString()
                         ratingBar.rating = average.toFloat()
 
-                        ratingReviews.createRatingBars(maxValue!!, BarLabels.STYPE1, colors, raters)
+                        ratingReviews.createRatingBars(maxValue!!, BarLabels.STYPE1, Constant.colors, raters.reversedArray())
                     }
                 }
             })
