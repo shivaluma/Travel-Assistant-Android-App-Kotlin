@@ -19,6 +19,7 @@
             android:layout_height="wrap_content"
             android:padding="20dp"
             android:src="@drawable/ic_arrow_back_black_24dp"
+            android:id="@+id/btnCloseReview"
             android:background="@null"/>
 
         <ImageView

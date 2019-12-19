@@ -40,9 +40,11 @@ import com.ygaps.travelapp.view.stoppoint.StopPointEditActivity
 import com.ygaps.travelapp.view.tour.TourFollowActivity
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_member_list_of_tour.*
+import kotlinx.android.synthetic.main.activity_stop_point_feedback.view.*
 import kotlinx.android.synthetic.main.activity_stop_point_info.*
 import kotlinx.android.synthetic.main.activity_tour_info.*
 import kotlinx.android.synthetic.main.item_choose_destination.view.*
+import kotlinx.android.synthetic.main.item_reviews_layout.view.*
 import kotlinx.android.synthetic.main.layout_tour_comment.*
 import kotlinx.android.synthetic.main.layout_tour_comment.view.*
 import kotlinx.android.synthetic.main.layout_tour_review.view.*
@@ -322,7 +324,6 @@ class TourInfoActivity : AppCompatActivity() {
             holder.date.text = util.longToDate(item.createOn)
             if (!item.name.isNullOrEmpty()) {
                 holder.name.text = item.name
-                return
             }
             else {
                 holder.name.text = "ID = ${item.id}"
@@ -334,6 +335,22 @@ class TourInfoActivity : AppCompatActivity() {
                     .resize(40, 40)
                     .centerCrop()
                     .into(holder.avatar)
+            }
+
+            val btn = holder.itemView.findViewById<ImageButton>(R.id.btnReport)
+            btn.setOnClickListener {
+                val builder = android.app.AlertDialog.Builder(this@TourInfoActivity)
+                builder.setTitle("Report this feedback")
+                builder.setMessage("Are you sure to report this feedback?")
+                builder.setPositiveButton("YES"){dialog, which ->
+                    ApiRequestReportReview(item.id)
+                }
+
+                builder.setNegativeButton("No"){dialog,which ->
+                    Toast.makeText(this@TourInfoActivity,"Declined",Toast.LENGTH_SHORT).show()
+                }
+                val dialog: android.app.AlertDialog = builder.create()
+                dialog.show()
             }
 
         }
@@ -794,7 +811,6 @@ class TourInfoActivity : AppCompatActivity() {
 
 
 
-
         val popupWindow = PopupWindow(
             view, // Custom view to show in popup window
             LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
@@ -821,6 +837,11 @@ class TourInfoActivity : AppCompatActivity() {
             popupWindow.exitTransition = slideOut
 
         }
+
+        view.btnCloseReview.setOnClickListener {
+            popupWindow.dismiss()
+        }
+
 
         // Get the widgets reference from custom view
         //val tv = view.findViewById<TextView>(R.id.text_view)
@@ -999,5 +1020,30 @@ class TourInfoActivity : AppCompatActivity() {
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+
+    fun ApiRequestReportReview(reviewId : Int) {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceReportReview::class.java)
+            val body = JsonObject()
+            body.addProperty("reviewId", reviewId)
+            val call = service.report(token,body)
+            call.enqueue(object : Callback<ResponseReport> {
+                override fun onFailure(call: Call<ResponseReport>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+                override fun onResponse(
+                    call: Call<ResponseReport>,
+                    response: Response<ResponseReport>
+                ) {
+                    if (response.code() != 200) {
+                        Toast.makeText(applicationContext, response.message(), Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(applicationContext, "Report success!", Toast.LENGTH_LONG).show()
+                    }
+                }
+            })
+        }.execute()
     }
 }

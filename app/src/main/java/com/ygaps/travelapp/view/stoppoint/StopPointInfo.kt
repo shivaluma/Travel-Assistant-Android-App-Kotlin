@@ -1,9 +1,11 @@
 package com.ygaps.travelapp.view.stoppoint
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -40,7 +42,9 @@ import com.ygaps.travelapp.manager.Constant
 import com.ygaps.travelapp.network.model.*
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_tour_info.*
+import kotlinx.android.synthetic.main.item_reviews_layout.view.*
 import org.jetbrains.anko.scrollView
+import java.io.File
 
 
 class StopPointInfo : AppCompatActivity(){
@@ -129,10 +133,9 @@ class StopPointInfo : AppCompatActivity(){
             holder.date.text = util.longToDate(item.createOn)
             if (!item.name.isNullOrEmpty()) {
                 holder.name.text = item.name
-                return
             }
             else {
-                holder.name.text = "ID = ${item.id}"
+                holder.name.text = "<No Name>"
             }
 
             if (!item.avatar.isNullOrEmpty()) {
@@ -141,6 +144,22 @@ class StopPointInfo : AppCompatActivity(){
                     .resize(40, 40)
                     .centerCrop()
                     .into(holder.avatar)
+            }
+
+            holder.itemView.btnReport.setOnClickListener {
+                Log.d("abab", "zozozo")
+                val builder = AlertDialog.Builder(this@StopPointInfo)
+                builder.setTitle("Report this feedback")
+                builder.setMessage("Are you sure to report this feedback?")
+                builder.setPositiveButton("YES"){dialog, which ->
+                    ApiRequestReportFeedBack(item.id)
+                }
+
+                builder.setNegativeButton("No"){dialog,which ->
+                    Toast.makeText(this@StopPointInfo,"Declined",Toast.LENGTH_SHORT).show()
+                }
+                val dialog: AlertDialog = builder.create()
+                dialog.show()
             }
 
         }
@@ -326,4 +345,27 @@ class StopPointInfo : AppCompatActivity(){
         }.execute()
     }
 
+    fun ApiRequestReportFeedBack(feedbackId : Int) {
+        doAsync {
+            val service = WebAccess.retrofit.create(ApiServiceReportFeedback::class.java)
+            val body = JsonObject()
+            body.addProperty("feedbackId", feedbackId)
+            val call = service.report(token,body)
+            call.enqueue(object : Callback<ResponseReport> {
+                override fun onFailure(call: Call<ResponseReport>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+                override fun onResponse(
+                    call: Call<ResponseReport>,
+                    response: Response<ResponseReport>
+                ) {
+                    if (response.code() != 200) {
+                        Toast.makeText(applicationContext, response.message(), Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(applicationContext, "Report success!", Toast.LENGTH_LONG).show()
+                    }
+                }
+            })
+        }.execute()
+    }
 }

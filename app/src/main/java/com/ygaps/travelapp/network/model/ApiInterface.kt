@@ -381,4 +381,21 @@ interface ApiServiceCloneTour {
 }
 
 
+interface ApiServiceReportReview {
+    @POST("/tour/report/review")
+    fun report(
+        @Header("Authorization") token : String,
+        @Body body: JsonObject
+    ): Call<ResponseReport>
+}
+
+interface ApiServiceReportFeedback {
+    @POST("/tour/report/feedback")
+    fun report(
+        @Header("Authorization") token : String,
+        @Body body: JsonObject
+    ): Call<ResponseReport>
+}
+
+
 

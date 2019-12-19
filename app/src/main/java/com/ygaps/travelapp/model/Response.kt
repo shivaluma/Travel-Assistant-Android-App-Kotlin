@@ -89,6 +89,8 @@ data class ResponseUserNotification (
     var tours: ArrayList<TourNotification>
 )
 
+data class ResponseReport(val message : String)
+
 data class ResponseSearchDestination(
     var total: Int,
     var stopPoints: ArrayList<StopPoint>

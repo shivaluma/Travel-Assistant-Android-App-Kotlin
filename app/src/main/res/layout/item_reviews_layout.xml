@@ -37,9 +37,14 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end|center_vertical"
-            android:src="@drawable/ic_menu_black_32dp"
-            android:background="@null" />
+            android:src="@drawable/ic_report"
+            android:layout_gravity="end"
+            android:clickable="true"
+            android:focusable="true"
+            android:id="@+id/btnReport"
+            android:background="@null"/>
+
+
     </LinearLayout>
 
     <LinearLayout
@@ -85,6 +90,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/reviewContent"
         android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis orci lacus, dapibus vitae fermentum et, ultrices et mi. Aenean varius erat id aliquet tristique. Curabitur diam tortor, mollis eu elementum a, bibendum vitae lorem. In vitae erat consequat, pulvinar libero ac, aliquet neque. Morbi sit amet molestie massa, ut varius ipsum. Aliquam aliquet pulvinar dolor. Praesent quam nisi, sagittis ac ante et, mollis tincidunt sapien. Vivamus vel bibendum libero, et vehicula risus."/>
+
 
 
 
