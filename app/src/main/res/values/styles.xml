@@ -8,7 +8,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowTranslucentNavigation">false</item>
-        <item name="android:fontFamily">@font/gr</item>
+        <item name="android:fontFamily">@font/hr</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

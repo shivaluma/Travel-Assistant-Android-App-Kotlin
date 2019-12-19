@@ -1,5 +1,6 @@
 package com.ygaps.travelapp.view.stoppoint
 
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -38,6 +39,7 @@ import com.squareup.picasso.Picasso
 import com.ygaps.travelapp.manager.Constant
 import com.ygaps.travelapp.network.model.*
 import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.android.synthetic.main.activity_tour_info.*
 import org.jetbrains.anko.scrollView
 
 
@@ -46,10 +48,11 @@ class StopPointInfo : AppCompatActivity(){
     lateinit var mGoogleMap : GoogleMap
     var token : String = ""
     var serviceId : Int = 100
+    var name: String = ""
     lateinit var mReviewAdapter : ReviewAdapter
     var listFeedback = ArrayList<feedback>()
     var mCurrentPage = 1
-    var mCurrentItemPerPage = 999
+    var mCurrentItemPerPage = 3
     var mTotal = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,6 +86,14 @@ class StopPointInfo : AppCompatActivity(){
             serviceFeedbackEditContent.visibility = View.GONE
         }
 
+        stoppointSeeAllReview.setOnClickListener {
+            var intent = Intent(this, StopPointFeedbackActivity::class.java)
+            intent.putExtra("token", token)
+            intent.putExtra("serviceId", serviceId)
+            intent.putExtra("name", name)
+            startActivity(intent)
+        }
+
         val layoutManager = LinearLayoutManager(applicationContext)
         layoutManager.orientation = LinearLayoutManager.VERTICAL
         mReviewAdapter = ReviewAdapter(listFeedback)
@@ -93,7 +104,6 @@ class StopPointInfo : AppCompatActivity(){
         ApiRequest()
         ApiRequestGetPoints()
         ApiRequestGetListFeedBack(mCurrentPage,mCurrentItemPerPage)
-
     }
 
 
@@ -192,6 +202,7 @@ class StopPointInfo : AppCompatActivity(){
                         // Setting the title for the marker.
                         // This will be displayed on taping the marker
                         markerOptions.title(response.body()!!.name)
+                        name = response.body()!!.name!!
 
                         mGoogleMap.addMarker(markerOptions)
                         var type = util.StopPointTypeToString(response.body()!!.serviceTypeId!!)
@@ -226,7 +237,6 @@ class StopPointInfo : AppCompatActivity(){
                         Toast.makeText(applicationContext, response.message(), Toast.LENGTH_LONG).show()
                     } else {
                         listFeedback.clear()
-                        mTotal = response.body()!!.total
                         listFeedback.addAll(response.body()!!.feedbackList)
                         mReviewAdapter.notifyDataSetChanged()
                     }

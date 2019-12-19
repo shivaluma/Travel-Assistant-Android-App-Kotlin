@@ -1,11 +1,89 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.tour.TourReviewActivity">
+    android:background="@color/white"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:src="@drawable/ic_arrow_back_black_24dp"
+            android:background="@null"/>
+
+        <ImageView
+            android:layout_marginStart="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-6dp"
+            android:src="@drawable/ic_icons8_rating"
+            android:layout_marginEnd="5dp"
+            android:layout_gravity="center"
+            />
+
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/reviewTourName"
+                android:text="Shiro Dep Trai"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:minLines="1"
+                android:textStyle="bold" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/reviewDummy"
+                android:text="Ratings and reviews"
+                android:maxLines="1"
+                android:minLines="1"
+
+                android:textStyle="bold" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.2dp"
+        android:id="@+id/divider"
+        android:background="@color/gray"
+        android:layout_weight="0"/>
 
 
 
-</RelativeLayout>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.2dp"
+        android:background="@color/gray"
+        android:layout_weight="0"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/reviewRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+
+</LinearLayout>

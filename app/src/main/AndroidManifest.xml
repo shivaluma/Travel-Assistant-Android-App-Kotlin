@@ -18,7 +18,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".view.tour.TourReviewActivity"></activity>
+        <activity android:name=".view.stoppoint.StopPointFeedbackActivity"></activity>
+        <activity android:name=".view.tour.TourReviewActivity" />
         <activity android:name=".view.stoppoint.StopPointEditActivity" />
         <activity android:name=".view.tour.TourFollowActivity" />
         <activity android:name=".view.createtour.ChangeTourInfo" />

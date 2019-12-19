@@ -364,6 +364,18 @@
             android:id="@+id/stpReviewRecyclerView"
             />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="See all reviews ->"
+            android:clickable="true"
+            android:focusable="true"
+            android:textColor="@color/primaryTextColor"
+            android:textStyle="bold"
+            android:id="@+id/stoppointSeeAllReview"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="30dp"/>
+
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
