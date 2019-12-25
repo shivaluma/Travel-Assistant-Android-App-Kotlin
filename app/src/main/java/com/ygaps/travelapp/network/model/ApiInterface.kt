@@ -6,6 +6,8 @@ import com.ygaps.travelapp.model.StopPoint
 import com.ygaps.travelapp.ui.home.HomeFragment
 import com.google.gson.JsonObject
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -337,7 +339,7 @@ interface ApiServiceGetNotificationOnRoad {
 }
 
 interface ApiServiceUpdateStopPoint {
-    @POST("/tour/update-stop-point")
+    @POST("/tour/set-stop-point")
     fun updateStopPoint(
         @Header("Authorization") token : String,
         @Body body: JsonObject
@@ -350,18 +352,29 @@ interface ApiServiceSendCoordinate {
     fun sendCoordinate(
         @Header("Authorization") token : String,
         @Body body: JsonObject
-    ): Call<ResponseSendCoordinate>
+    ): Call<ArrayList<memPosChild>>
 }
 
 
 
 interface ApiServiceUploadRecord {
-    @Multipart
     @POST("/tour/recording")
     fun upRecord(
         @Header("Authorization") token : String,
-        @Part file : MultipartBody.Part
+        @Body body : RequestBody
     ): Call<ResponseUploadRecord>
+
+//    @Multipart
+//    @POST("/tour/recording")
+//    fun upRecord(
+//        @Header("Authorization") token : String,
+//        @Part file : MultipartBody.Part,
+//        @Part("tourId") tourId : RequestBody,
+//        @Part("fullName") fullName : RequestBody,
+//        @Part("avatar") avatar : RequestBody,
+//        @Part("lat") lat : RequestBody,
+//        @Part("long") long : RequestBody
+//    ) : Call<ResponseUploadRecord>
 }
 
 interface ApiServiceUpdateLandingTime {

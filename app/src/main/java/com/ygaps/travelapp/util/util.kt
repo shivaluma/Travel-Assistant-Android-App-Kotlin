@@ -52,7 +52,7 @@ object util {
         return LocalDateTime.parse(
             datetime,
             DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy")
-        ).toInstant(ZoneOffset.ofTotalSeconds(0)).toEpochMilli()
+        ).atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()!!
     }
 
     fun getProvinceID(province: String): Int {

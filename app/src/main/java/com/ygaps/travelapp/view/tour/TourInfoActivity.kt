@@ -152,6 +152,10 @@ class TourInfoActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        ApiRequest()
+        super.onResume()
+    }
 
     inner class StopPointAdapter(data: ArrayList<StopPoint>) :
         RecyclerView.Adapter<StopPointAdapter.RecyclerViewHolder>() {
@@ -186,10 +190,12 @@ class TourInfoActivity : AppCompatActivity() {
                 override fun onMenuItemClick(menuitem: MenuItem?): Boolean {
                     if (menuitem!!.itemId == R.id.edit_stoppoint) {
                         val intent = Intent(applicationContext, StopPointEditActivity::class.java)
+                        intent.putExtra("tourId", tourId)
                         intent.putExtra("id", item.id)
                         intent.putExtra("serviceId", item.serviceId)
                         intent.putExtra("serviceTypeId", item.serviceTypeId!!)
                         intent.putExtra("name", item.name)
+                        intent.putExtra("provinceId", item.provinceId)
                         intent.putExtra("lat", item.lat)
                         intent.putExtra("long", item.long)
                         intent.putExtra("arriveAt", item.arrivalAt!!)

@@ -18,6 +18,7 @@ data class StopPoint(
     var maxCost: Long? ,
     var arrivalAt: Long? ,
     var leaveAt: Long? ,
+    var provinceId : Int?,
     var serviceTypeId: Int?,
     var avatar: String?,
     var contact: String?,

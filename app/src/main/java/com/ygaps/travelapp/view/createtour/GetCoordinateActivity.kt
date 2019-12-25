@@ -52,6 +52,7 @@ import com.google.android.libraries.places.api.model.TypeFilter
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -59,8 +60,10 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import com.jaredrummler.materialspinner.MaterialSpinner
 import com.mancj.materialsearchbar.MaterialSearchBar
+import com.mancj.materialsearchbar.adapter.SuggestionsAdapter
 import kotlinx.android.synthetic.main.activity_get_coordinate.*
 import kotlinx.android.synthetic.main.activity_stop_point_info.view.*
+import kotlinx.android.synthetic.main.fragment_explorer.view.*
 import kotlinx.android.synthetic.main.popup_stoppoint_suggest.view.*
 import kotlinx.android.synthetic.main.popup_suggest_point_onclick.view.*
 import kotlinx.android.synthetic.main.stoppoint.*
@@ -180,6 +183,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                                 Toast.LENGTH_SHORT
                             ).show()
 
+                            val newTourId = response.body()!!.id
                             deleteStartEndPoint(mStopPointArrayList)
                             val stpJsonObj = JsonObject()
                             stpJsonObj.addProperty("tourId", response.body()!!.id.toString())
@@ -218,8 +222,10 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                                         Log.d("resres", response.body().toString())
                                         val intent = Intent(
                                             applicationContext,
-                                            NavigationBottomActivity::class.java
+                                            TourInfoActivity::class.java
                                         )
+                                        intent.putExtra("token", token)
+                                        intent.putExtra("tourID", newTourId)
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                                         startActivity(intent)
                                         finish()
@@ -349,6 +355,16 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         )
 
 
+        searchMapBar.setSuggestionsClickListener(object : SuggestionsAdapter.OnItemViewClickListener {
+            override fun OnItemDeleteListener(position: Int, v: View?) {
+
+            }
+
+            override fun OnItemClickListener(position: Int, v: View?) {
+                popupSuggestPointInfoFromSearch(position)
+            }
+        })
+
 
 
         searchMapBar.addTextChangeListener(object : TextWatcher {
@@ -361,7 +377,12 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                ApiRequestSearchDestination(s.toString())
+                if (!s.isNullOrEmpty()) {
+                    ApiRequestSearchDestination(s.toString())
+                }
+                else {
+                    searchMapBar.clearSuggestions()
+                }
             }
         })
     }
@@ -392,8 +413,6 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             val latlng = it
 
             val view = inflateAddStopPointView()
-
-
 
             val addressField = view.findViewById<EditText>(R.id.editAddress)
             addressField.setText(getAddressByLocation(latlng!!))
@@ -479,31 +498,28 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                     }
 
                     else if (listSuggestPoint.size > 1) {
-                        if (listSuggestPoint.size % 2 == 1) {
-                            Toast.makeText(applicationContext, "Số điểm chấm phải là số chẵn", Toast.LENGTH_LONG).show()
-                        }
-                        else {
-                            var body = JsonObject()
-                            var coorlist = JsonArray()
-                            var array = JsonArray()
 
-                            for (i in 0..listSuggestPoint.size-1) {
-                                var coor = JsonObject()
-                                coor.addProperty("lat", listSuggestPoint[i].latitude)
-                                coor.addProperty("long", listSuggestPoint[i].longitude)
-                                array.add(coor)
-                                if (i > 0 && i % 2 == 1) {
-                                    var coorListObject = JsonObject()
-                                    coorListObject.add("coordinateSet", array)
-                                    array = JsonArray()
-                                    coorlist.add(coorListObject)
-                                }
-                            }
-                            body.addProperty("hasOneCoordinate", false)
-                            body.add("coordList", coorlist)
-                            ApiRequestGetNearbyPoint(body)
-                        }
+                        var body = JsonObject()
+                        var coorlist = JsonArray()
+                        var array = JsonArray()
 
+                        for (i in 0..listSuggestPoint.size - 2) {
+                            var coor = JsonObject()
+                            coor.addProperty("lat", listSuggestPoint[i].latitude)
+                            coor.addProperty("long", listSuggestPoint[i].longitude)
+                            var coor2 = JsonObject()
+                            coor2.addProperty("lat", listSuggestPoint[i+1].latitude)
+                            coor2.addProperty("long", listSuggestPoint[i+1].longitude)
+                            array.add(coor)
+                            array.add(coor2)
+                            var coorListObject = JsonObject()
+                            coorListObject.add("coordinateSet", array)
+                            array = JsonArray()
+                            coorlist.add(coorListObject)
+                        }
+                        body.addProperty("hasOneCoordinate", false)
+                        body.add("coordList", coorlist)
+                        ApiRequestGetNearbyPoint(body)
                     }
                 }
 
@@ -536,62 +552,88 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
                  }
                 else {
-                    val inflater: LayoutInflater =
-                        getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                    val view = inflater.inflate(R.layout.popup_suggest_point_onclick, null)
-                    val popupWindow = PopupWindow(
-                        view, // Custom view to show in popup window
-                        LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
-                        LinearLayout.LayoutParams.WRAP_CONTENT // Window height
-                    )
+                     val view = layoutInflater.inflate(R.layout.bottomsheet_add_point, null)
+                     val dialog = BottomSheetDialog(this@GetCoordinateActivity)
+                     dialog.setContentView(view)
+                     dialog.show()
+                     val remove = view.findViewById<LinearLayout>(R.id.deleteSuggestBtn)
+                     remove.setOnClickListener {
+                         var index = findIndexByTag(p0.tag.toString())
+                         Log.d("indexd", index.toString())
+                         if (index > -1) {
+                             mStopPointArrayList.removeAt(index)
+                         }
+                         p0.remove()
+                         dialog.dismiss()
+                         drawThePath()
+                         Toast.makeText(applicationContext, "Deleted", Toast.LENGTH_LONG)
+                             .show()
+                     }
 
-                    // Set an elevation for the popup window
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        popupWindow.elevation = 10.0F
-                    }
+                     view.editSuggestBtn.setOnClickListener {
+                         dialog.dismiss()
+
+                         var index = findIndexByTag(p0.tag.toString())
+                         Log.d("indexd", index.toString())
+                         p0.remove()
+                         val popup = inflateAddStopPointView()
+                         val item = mStopPointArrayList[index]
+                         var latlng = LatLng(item.lat!!, item.long!!)
+
+                         try {
+                             popup.editStopPointName.setText(item.name)
+                             popup.editAddress.setText(item.address)
+                             popup.editMinCost.setText(item.minCost.toString())
+                             popup.editMaxCost.setText(item.maxCost.toString())
+                             val splitArrive = util.longToDateTime(item.arrivalAt!!).split(" ")
+                             popup.editTimeArrive.setText(splitArrive[0])
+                             popup.editDateArrive.setText(splitArrive[1])
+
+                             val splitLeave = util.longToDateTime(item.leaveAt!!).split(" ")
+                             popup.editTimeLeave.setText(splitLeave[0])
+                             popup.editDateLeave.setText(splitLeave[1])
+
+                             popup.spinnerProvince.selectedIndex = item.provinceId!!
+
+                             Log.d("ababab", item.serviceTypeId.toString())
+                             if (item.type == "Start Point") {
+                                 popup.spinnerType.selectedIndex = 0
+                             }
+                             else if (item.type == "End Point") {
+                                 popup.spinnerType.selectedIndex = 1
+                             }
+                             else {
+                                 popup.spinnerType.selectedIndex = item.serviceTypeId!! + 1
+                             }
+                         }
+                         catch ( e : Exception) {
+                             e.printStackTrace()
+                         }
 
 
-                    // If API level 23 or higher then execute the code
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        // Create a new slide animation for popup window enter transition
-                        val slideIn = Slide()
-                        slideIn.slideEdge = Gravity.BOTTOM
-                        popupWindow.enterTransition = slideIn
-
-                        // Slide animation for popup window exit transition
-                        val slideOut = Slide()
-                        slideOut.slideEdge = Gravity.BOTTOM
-                        popupWindow.exitTransition = slideOut
-
-                    }
 
 
 
 
-                    // Finally, show the popup window on app
-                    TransitionManager.beginDelayedTransition(root_layout)
-                    popupWindow.showAtLocation(
-                        root_layout, // Location to display popup window
-                        Gravity.BOTTOM, // Exact position of layout to display popup
-                        0, // X offset
-                        0 // Y offset
-                    )
+                         val popupAddSuggest = PopupWindow(
+                             popup, // Custom view to show in popup window
+                             LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
+                             LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
+                             true
+                         )
 
+                         popup.btnCloseStopPoint.setOnClickListener {
+                             saveStopPointToList(popup,latlng,popupAddSuggest,item.serviceId,index)
+                         }
 
-                    val remove = view.findViewById<LinearLayout>(R.id.deleteSuggestBtn)
-                    remove.setOnClickListener {
-                        var index = findIndexByTag(p0.tag.toString())
-                        Log.d("indexd", index.toString())
-                        if (index > -1) {
-                            mStopPointArrayList.removeAt(index)
-                        }
-                        p0.remove()
-                        popupWindow.dismiss()
-                        drawThePath()
-                        Toast.makeText(applicationContext, "Deleted", Toast.LENGTH_LONG)
-                            .show()
-                    }
-                }
+                         popupAddSuggest.showAtLocation(
+                             root_layout, // Location to display popup window
+                             Gravity.CENTER, // Exact position of layout to display popup
+                             0, // X offset
+                             0 // Y offset
+                         )
+                     }
+                 }
                 return false
             }
         })
@@ -740,6 +782,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
     inner class stopPoint {
         var id : Int ?= null
+        var serviceId : Int ?= null
         var name: String = ""
         var type: String = ""
         var address: String = ""
@@ -1075,8 +1118,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             )
 
             view.btnCloseStopPoint.setOnClickListener {
-                saveStopPointToList(view,latlng,popupAddSuggest,item.id)
-
+                saveStopPointToList(view,latlng,popupAddSuggest,item.serviceId)
             }
 
             popupAddSuggest.showAtLocation(
@@ -1092,6 +1134,91 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
         popupWindow.setOnDismissListener {
 
 
+
+        }
+
+
+        // Finally, show the popup window on app
+        popupWindow.showAtLocation(
+            root_layout, // Location to display popup window
+            Gravity.BOTTOM, // Exact position of layout to display popup
+            0, // X offset
+            0 // Y offset
+        )
+    }
+
+
+    fun popupSuggestPointInfoFromSearch(pos : Int) {
+        val inflater: LayoutInflater =
+            getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.popup_stoppoint_suggest, null)
+
+        val popupWindow = PopupWindow(
+            view, // Custom view to show in popup window
+            LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
+            LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
+            true
+        )
+
+        // Set an elevation for the popup window
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            popupWindow.elevation = 10.0F
+        }
+
+
+        // If API level 23 or higher then execute the code
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Create a new slide animation for popup window enter transition
+            val slideIn = Slide()
+            slideIn.slideEdge = Gravity.BOTTOM
+            popupWindow.enterTransition = slideIn
+
+
+        }
+
+
+        view.stpSuggestName.text = listStopPointSearch[pos].name
+        view.stpSuggestAddress.text = listStopPointSearch[pos].address
+        view.stpSuggestContact.text = listStopPointSearch[pos].contact
+        var costString = listStopPointSearch[pos].minCost.toString() + " - " + listStopPointSearch[pos].maxCost.toString()
+        view.stpSuggestCost.text = costString
+        view.serviceSuggestTypeText.text = util.StopPointTypeToString(listStopPointSearch[pos].serviceTypeId!!)
+
+        view.addSuggestToTour.setOnClickListener {
+            var item = listStopPointSearch[pos]
+            popupWindow.dismiss()
+            val view = inflateAddStopPointView()
+            var latlng = LatLng(item.lat!!, item.long!!)
+
+            view.editStopPointName.setText(item.name)
+            view.editAddress.setText(item.address)
+            view.editMinCost.setText(item.minCost.toString())
+            view.editMaxCost.setText(item.minCost.toString())
+            view.spinnerType.selectedIndex = item.serviceTypeId!! + 1
+
+
+            val popupAddSuggest = PopupWindow(
+                view, // Custom view to show in popup window
+                LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
+                LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
+                true
+            )
+
+            view.btnCloseStopPoint.setOnClickListener {
+                saveStopPointToList(view,latlng,popupAddSuggest,item.serviceId)
+            }
+
+            popupAddSuggest.showAtLocation(
+                root_layout, // Location to display popup window
+                Gravity.CENTER, // Exact position of layout to display popup
+                0, // X offset
+                0 // Y offset
+            )
+        }
+
+
+        // Set a dismiss listener for popup window
+        popupWindow.setOnDismissListener {
 
         }
 
@@ -1214,7 +1341,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     }
 
 
-    fun saveStopPointToList(view : View, latlng : LatLng, popupWindow: PopupWindow, id : Int = -1) {
+    fun saveStopPointToList(view : View, latlng : LatLng, popupWindow: PopupWindow, id : Int? = -1, oldIndex : Int = -1) {
         var stoppint = stopPoint()
         var namefield = view.findViewById<EditText>(R.id.editStopPointName)
         var addressfield = view.findViewById<EditText>(R.id.editAddress)
@@ -1241,7 +1368,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
             dateleavefield.error = "Required*"
             dateleavefield.requestFocus()
         } else {
-            if (id != -1) stoppint.id = id
+            if (id != -1) stoppint.serviceId = id
             stoppint.name =
                 view.findViewById<EditText>(R.id.editStopPointName).text.toString()
             stoppint.address = view.findViewById<EditText>(R.id.editAddress).text.toString()
@@ -1318,7 +1445,14 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
 
             curMarker.tag = stoppint.name + stoppint.address + stoppint.type
-            mStopPointArrayList.add(stoppint)
+            if (oldIndex > -1 && mStopPointArrayList.size > oldIndex) {
+                mStopPointArrayList.removeAt(oldIndex)
+                mStopPointArrayList.add(oldIndex,stoppint)
+            }
+            else {
+                mStopPointArrayList.add(stoppint)
+            }
+
             drawThePath()
 
             // Dismiss the popup window

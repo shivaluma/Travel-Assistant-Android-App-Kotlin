@@ -11,8 +11,8 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <!-- Overriding Default Bottom Navigation sizes-->
-    <dimen name="design_bottom_navigation_text_size" tools:override="true">10sp</dimen>
-    <dimen name="design_bottom_navigation_active_text_size" tools:override="true">10sp</dimen>
+    <dimen name="design_bottom_navigation_text_size" tools:override="true">8sp</dimen>
+    <dimen name="design_bottom_navigation_active_text_size" tools:override="true">8sp</dimen>
     <dimen name="design_bottom_navigation_height" tools:override="true">40dp</dimen>
 
 </resources>

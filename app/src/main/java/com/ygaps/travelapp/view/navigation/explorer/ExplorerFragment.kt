@@ -1,6 +1,7 @@
 package com.ygaps.travelapp.view.navigation.explorer
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -10,19 +11,18 @@ import android.location.Geocoder
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
+import android.text.Html
 import android.text.TextWatcher
 import android.transition.Slide
 import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.PopupWindow
-import android.widget.Toast
+import android.view.*
+import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.ygaps.travelapp.*
 import com.ygaps.travelapp.manager.doAsync
 import com.ygaps.travelapp.model.StopPoint
@@ -34,6 +34,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.chip.Chip
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mancj.materialsearchbar.MaterialSearchBar
@@ -41,8 +43,11 @@ import com.mancj.materialsearchbar.adapter.SuggestionsAdapter
 import com.taufiqrahman.reviewratings.BarLabels
 import com.taufiqrahman.reviewratings.RatingReviews
 import com.ygaps.travelapp.network.model.ApiServiceGetStopPointPoints
+import com.ygaps.travelapp.view.stoppoint.StopPointInfo
 import kotlinx.android.synthetic.main.activity_get_coordinate.*
 import kotlinx.android.synthetic.main.activity_stop_point_info.*
+import kotlinx.android.synthetic.main.bottomsheet.*
+import kotlinx.android.synthetic.main.bottomsheet.view.*
 import kotlinx.android.synthetic.main.fragment_explorer.*
 import kotlinx.android.synthetic.main.fragment_explorer.view.*
 import kotlinx.android.synthetic.main.popup_stoppoint_suggest.view.*
@@ -64,6 +69,7 @@ class ExplorerFragment : Fragment() {
     var listSuggestPointMarker = ArrayList<Marker>()
     var listStopPointSearch = ArrayList<StopPoint>()
     var suggestionsList = ArrayList<String>()
+    lateinit var mRecycleSuggestAdapter : StopPointAdapter
 
     val colors = intArrayOf(
         Color.parseColor("#0e9d58"),
@@ -123,12 +129,18 @@ class ExplorerFragment : Fragment() {
         }
 
 
+
+        root.btnShowListSuggest.visibility = View.GONE
+
         root.clearSuggestPointBtn.setOnClickListener {
             listSuggestPoint.clear()
             for (i in listSuggestPointMarker) i.remove()
             listSuggestPointMarker.clear()
             clearSuggestPointOnMap()
+            root.btnShowListSuggest.visibility = View.GONE
         }
+
+
 
         root.showSuggestPointBtn.setOnClickListener {
             if (listSuggestPoint.size == 0) {
@@ -212,13 +224,17 @@ class ExplorerFragment : Fragment() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                ApiRequestSearchDestination(s.toString())
+                val key = s.toString()
+                root.searchMapBarExplorer.clearSuggestions()
+                if (key.isNotEmpty()) {
+                    ApiRequestSearchDestination(key)
+                }
             }
         })
 
         root.searchMapBarExplorer.setSuggestionsClickListener(object : SuggestionsAdapter.OnItemViewClickListener {
             override fun OnItemDeleteListener(position: Int, v: View?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
             }
 
             override fun OnItemClickListener(position: Int, v: View?) {
@@ -227,10 +243,69 @@ class ExplorerFragment : Fragment() {
         })
 
 
+        mRecycleSuggestAdapter = StopPointAdapter(listStopPointSuggest)
+        val layoutManager = LinearLayoutManager(context)
+        root.showSuggestRecyclerView.adapter = mRecycleSuggestAdapter
+        root.showSuggestRecyclerView.layoutManager = layoutManager
+        layoutManager.orientation = LinearLayoutManager.VERTICAL
+        var bottomSheetBehavior = BottomSheetBehavior.from(root.bottom_sheet_layout)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+
+
+//        root.chipGroup.setOnCheckedChangeListener { chipGroup, i ->
+//            Log.d("abab", i.toString())
+//        }
+        bottomSheetBehavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                // React to state change
+                when (newState) {
+                    BottomSheetBehavior.STATE_HIDDEN -> {
+                        root.btnShowListSuggest.visibility = View.VISIBLE
+                        root.clearSuggestPointBtn.show()
+                        root.showSuggestPointBtn.show()
+                    }
+                    BottomSheetBehavior.STATE_EXPANDED -> {
+                    }
+                    BottomSheetBehavior.STATE_COLLAPSED -> {
+                    }
+                    BottomSheetBehavior.STATE_DRAGGING -> {
+                    }
+                    BottomSheetBehavior.STATE_SETTLING -> {
+                    }
+                    BottomSheetBehavior.STATE_HALF_EXPANDED -> {
+                    }
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                // React to dragging events
+            }
+        })
+
+        root.showMap.setOnClickListener {
+            root.btnShowListSuggest.visibility = View.VISIBLE
+            root.clearSuggestPointBtn.show()
+            root.showSuggestPointBtn.show()
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        }
+
+
+        root.btnShowListSuggest.setOnClickListener {
+            it.visibility = View.GONE
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            root.clearSuggestPointBtn.hide()
+            root.showSuggestPointBtn.hide()
+
+        }
+
         return root
     }
 
 
+    fun onFilterChipClicked(v : View) {
+        val chip : Chip = v as Chip
+        Log.d("abab", chip.id.toString())
+    }
 
     fun ApiRequestGetNearbyPoint(body : JsonObject) {
         doAsync {
@@ -250,7 +325,12 @@ class ExplorerFragment : Fragment() {
                         Toast.makeText(context, response.errorBody().toString(), Toast.LENGTH_LONG).show()
                     } else {
                         Log.d("abab",response.body().toString())
+                        listStopPointSuggest.clear()
                         listStopPointSuggest.addAll(response.body()!!.stopPoints)
+                        if (listStopPointSuggest.size > 0) {
+                            root.btnShowListSuggest.visibility = View.VISIBLE
+                        }
+                        mRecycleSuggestAdapter.notifyDataSetChanged()
                         showSuggestPointToMap()
                     }
                 }
@@ -288,121 +368,18 @@ class ExplorerFragment : Fragment() {
     }
 
     fun popupSuggestPointInfo(pos : Int) {
-        val inflater: LayoutInflater =
-            activity!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val view = inflater.inflate(R.layout.popup_stoppoint_suggest, null)
 
-        view.addSuggestToTour.visibility = View.GONE
-        val popupWindow = PopupWindow(
-            view, // Custom view to show in popup window
-            LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
-            LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
-            true
-        )
-
-        ApiRequestGetPoints(view, listStopPointSuggest[pos].id)
-
-        // Set an elevation for the popup window
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            popupWindow.elevation = 10.0F
-        }
-
-
-        // If API level 23 or higher then execute the code
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // Create a new slide animation for popup window enter transition
-            val slideIn = Slide()
-            slideIn.slideEdge = Gravity.BOTTOM
-            popupWindow.enterTransition = slideIn
-
-
-        }
-
-
-        view.stpSuggestName.text = listStopPointSuggest[pos].name
-        view.stpSuggestAddress.text = listStopPointSuggest[pos].address
-        view.stpSuggestContact.text = listStopPointSuggest[pos].contact
-        var costString = listStopPointSuggest[pos].minCost.toString() + " - " + listStopPointSuggest[pos].maxCost.toString()
-        view.stpSuggestCost.text = costString
-        view.serviceSuggestTypeText.text = util.StopPointTypeToString(listStopPointSuggest[pos].serviceTypeId!!)
-
-        
-
-
-        // Set a dismiss listener for popup window
-        popupWindow.setOnDismissListener {
-
-
-
-        }
-
-
-        // Finally, show the popup window on app
-        popupWindow.showAtLocation(
-            explorer_rootview, // Location to display popup window
-            Gravity.BOTTOM, // Exact position of layout to display popup
-            0, // X offset
-            0 // Y offset
-        )
+        val intent = Intent(context, StopPointInfo::class.java)
+        intent.putExtra("token", token)
+        intent.putExtra("stpid", listStopPointSuggest[pos].id)
+        startActivity(intent)
     }
 
     fun popupSuggestPointInfoFromSearch(pos : Int) {
-        val inflater: LayoutInflater =
-            activity!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val view = inflater.inflate(R.layout.popup_stoppoint_suggest, null)
-
-        view.addSuggestToTour.visibility = View.GONE
-        val popupWindow = PopupWindow(
-            view, // Custom view to show in popup window
-            LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
-            LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
-            true
-        )
-
-        ApiRequestGetPoints(view, listStopPointSearch[pos].id)
-
-        // Set an elevation for the popup window
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            popupWindow.elevation = 10.0F
-        }
-
-
-        // If API level 23 or higher then execute the code
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // Create a new slide animation for popup window enter transition
-            val slideIn = Slide()
-            slideIn.slideEdge = Gravity.BOTTOM
-            popupWindow.enterTransition = slideIn
-
-
-        }
-
-
-        view.stpSuggestName.text = listStopPointSearch[pos].name
-        view.stpSuggestAddress.text = listStopPointSearch[pos].address
-        view.stpSuggestContact.text = listStopPointSearch[pos].contact
-        var costString = listStopPointSearch[pos].minCost.toString() + " - " + listStopPointSearch[pos].maxCost.toString()
-        view.stpSuggestCost.text = costString
-        view.serviceSuggestTypeText.text = util.StopPointTypeToString(listStopPointSearch[pos].serviceTypeId!!)
-
-
-
-
-        // Set a dismiss listener for popup window
-        popupWindow.setOnDismissListener {
-
-
-
-        }
-
-
-        // Finally, show the popup window on app
-        popupWindow.showAtLocation(
-            explorer_rootview, // Location to display popup window
-            Gravity.BOTTOM, // Exact position of layout to display popup
-            0, // X offset
-            0 // Y offset
-        )
+        val intent = Intent(context, StopPointInfo::class.java)
+        intent.putExtra("token", token)
+        intent.putExtra("stpid", listStopPointSearch[pos].id)
+        startActivity(intent)
     }
 
 
@@ -423,6 +400,64 @@ class ExplorerFragment : Fragment() {
                 Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
             draw(Canvas(bitmap))
             BitmapDescriptorFactory.fromBitmap(bitmap)
+        }
+    }
+
+
+    inner class StopPointAdapter(data: ArrayList<StopPoint>) :
+        RecyclerView.Adapter<StopPointAdapter.RecyclerViewHolder>() {
+
+        var data = ArrayList<StopPoint>()
+
+        init {
+            this.data = data
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
+            val inflater = LayoutInflater.from(parent.context)
+            val view = inflater.inflate(R.layout.stoppointsuggestview, parent, false)
+            return RecyclerViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
+            val item = data.get(position)
+
+            try {
+                holder.name.text = item.name
+                holder.type.text = util.StopPointTypeToString(item.serviceTypeId!!)
+                holder.cost.text = item.minCost.toString() + " - " + item.maxCost.toString()
+                holder.address.text = item.address
+
+
+                holder.itemView.setOnClickListener {
+                    val intent = Intent(context, StopPointInfo::class.java)
+                    intent.putExtra("token", token)
+                    intent.putExtra("stpid", item.id)
+                    startActivity(intent)
+                }
+            }
+            catch (e : Exception) {
+                e.printStackTrace()
+            }
+
+        }
+
+        override fun getItemCount(): Int {
+            return data.size
+        }
+
+        inner class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            internal var name: TextView
+            internal var type: TextView
+            internal var cost: TextView
+            internal var address: TextView
+
+            init {
+                name = itemView.findViewById(R.id.titleItem) as TextView
+                address = itemView.findViewById(R.id.addressItem) as TextView
+                type = itemView.findViewById(R.id.typeItem) as TextView
+                cost = itemView.findViewById(R.id.costItem) as TextView
+            }
         }
     }
 

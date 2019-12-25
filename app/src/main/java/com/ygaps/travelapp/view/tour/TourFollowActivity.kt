@@ -90,9 +90,8 @@ import retrofit2.Callback
 import retrofit2.http.Multipart
 import java.io.File
 import java.io.IOException
-import java.lang.Exception
-import java.net.URL
-import java.util.*
+
+import kotlin.Exception
 import kotlin.collections.ArrayList
 
 
@@ -141,6 +140,8 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
     internal var currentMemberChoosing = 0
     internal var desId = 0
+
+
 
 
     internal val mLocationCallback = object : LocationCallback() {
@@ -234,23 +235,23 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 }
 
-                if (notiType == 9) {
-                    memberPos.clear()
-                    for (i in memberPosMarker) i.remove()
-                    memberPosMarker.clear()
-                    val data = intent!!.extras!!.getString("data")
-                    Log.d("abab", data)
-                    val JsonArr = JSONArray(data)
-                    for (i in 0..JsonArr.length()-1) {
-                        var temp : JSONObject = JsonArr.getJSONObject(i)
-                        if (temp.getInt("id") == mUserId) continue
-                        var memPosChildTemp = memPosChild(temp.getInt("id"), temp.getDouble("lat"),temp.getDouble("long"))
-                        memberPos.add(memPosChildTemp)
-                        val marker = addMarker(mGoogleMap, LatLng(memPosChildTemp.lat, memPosChildTemp.long), memPosChildTemp.id.toString(), R.drawable.ic_person_pin_circle_black_24dp )
-                        memberPosMarker.add(marker)
-                    }
-                    currentFollowingTour.setText(" : ${memberPos.size+1}")
-                }
+//                if (notiType == 9) {
+//                    memberPos.clear()
+//                    for (i in memberPosMarker) i.remove()
+//                    memberPosMarker.clear()
+//                    val data = intent!!.extras!!.getString("data")
+//                    Log.d("abab", data)
+//                    val JsonArr = JSONArray(data)
+//                    for (i in 0..JsonArr.length()-1) {
+//                        var temp : JSONObject = JsonArr.getJSONObject(i)
+//                        if (temp.getInt("id") == mUserId) continue
+//                        var memPosChildTemp = memPosChild(temp.getInt("id"), temp.getDouble("lat"),temp.getDouble("long"))
+//                        memberPos.add(memPosChildTemp)
+//                        val marker = addMarker(mGoogleMap, LatLng(memPosChildTemp.lat, memPosChildTemp.long), memPosChildTemp.id.toString(), R.drawable.ic_person_pin_circle_black_24dp )
+//                        memberPosMarker.add(marker)
+//                    }
+//                    currentFollowingTour.setText(" : ${memberPos.size+1}")
+//                }
                 else if (notiType == 1 || notiType == 2 || notiType == 3) {
                     val lat = intent!!.extras!!.getDouble("lat")!!
                     val long = intent!!.extras!!.getDouble("long")!!
@@ -386,6 +387,8 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
             .oval(false)
             .build()
 
+        val arrayPosType = object : TypeToken<ArrayList<memPosChild>>() {}.type
+
 
     }
 
@@ -430,9 +433,8 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
             mediaRecorder?.start()
             Toast.makeText(this, "Recording started!", Toast.LENGTH_SHORT).show()
             isRecording = true
-        } catch (e: IllegalStateException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
+        }
+        catch (e: Exception) {
             e.printStackTrace()
         }
     }
@@ -1114,67 +1116,69 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     fun ApiRequestUploadRecord(pos : LatLng, tourId : Int, UserId : Int, file : File) {
-//        //Thread(Runnable {
-//            val service = WebAccess.retrofit.create(ApiServiceUploadRecord::class.java)
-//
-//            val body = JsonObject()
-//            body.addProperty("lat", pos.latitude)
-//            body.addProperty("long", pos.longitude)
-//            body.addProperty("avatar", getAvatarFromList(UserId))
-//            body.addProperty("fullName", "Shiro")
-//            body.addProperty("tourId", tourId)
-//
-//            // create RequestBody instance from file
-//            val requestFile =
-//                RequestBody.create(
-//                    MediaType.parse("audio/mp3"),
-//                    file
-//                )
-//
-//            // MultipartBody.Part is used to send also the actual file name
-//            val f =
-//                MultipartBody.Part.createFormData("file", file.getName(), requestFile)
-//
-//            val requestBody : RequestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
-//                .addFormDataPart("file", file.getName(),
-//                        RequestBody.create(MediaType.parse("audio/mp3"), file))
-//                .addFormDataPart("lat", pos.latitude.toString())
-//                .addFormDataPart("lat", pos.latitude)
-//                .addFormDataPart("lat", pos.latitude)
-//                .addFormDataPart("lat", pos.latitude)
-//                .build()
-//
-//
-//
-//            val call = service.upRecord(mToken, f, body)
-//            call.enqueue(object : Callback<ResponseUploadRecord> {
-//                override fun onFailure(call: Call<ResponseUploadRecord>, t: Throwable) {
-//                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
-//                    Log.d("abab" , "toang")
-//                }
-//
-//                override fun onResponse(
-//                    call: Call<ResponseUploadRecord>,
-//                    response: retrofit2.Response<ResponseUploadRecord>
-//                ) {
-//                    if (response.code() != 200) {
-//                        val gson = Gson()
-//                        val type = object : TypeToken<ErrorResponse>() {}.type
-//                        var errorResponse: ErrorResponse? =
-//                            gson.fromJson(response.errorBody()!!.charStream(), type)
-//                        Toast.makeText(
-//                            applicationContext,
-//                            errorResponse!!.message,
-//                            Toast.LENGTH_LONG
-//                        ).show()
-//                        Log.d("abab" , errorResponse!!.message)
-//                    } else {
-//                        Toast.makeText(applicationContext, "Success!", Toast.LENGTH_LONG).show()
-//                        Log.d("abab" , "OK")
-//                    }
-//                }
-//           // })
-//        })
+        Thread(Runnable {
+        val service = WebAccess.retrofit.create(ApiServiceUploadRecord::class.java)
+
+
+
+            Log.d("ababb", file.name)
+
+        val requestBody : RequestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
+            .addFormDataPart("file", file.getName(),
+                RequestBody.create(MediaType.parse("audio/mp3"), file))
+            .addFormDataPart("lat", pos.latitude.toString())
+            .addFormDataPart("long", pos.longitude.toString())
+            .addFormDataPart("tourId", mTourId.toString())
+            .addFormDataPart("fullName", mUserId.toString())
+            .addFormDataPart("avatar", "")
+            .build()
+
+
+
+//        val requestBodyForFile = RequestBody.create(MediaType.parse("audio/*"), file)
+//        val file : MultipartBody.Part = MultipartBody.Part.createFormData("file", file.getName(), requestBody)
+//        val tourId = RequestBody.create(MultipartBody.FORM, tourId.toString())
+//        val fullName = RequestBody.create(MultipartBody.FORM, mUserId.toString())
+//        val avatar = RequestBody.create(MultipartBody.FORM, "")
+//        val lat = RequestBody.create(MultipartBody.FORM, pos.latitude.toString())
+//        val long = RequestBody.create(MultipartBody.FORM, pos.longitude.toString())
+        val call = service.upRecord(mToken, requestBody)
+        call.enqueue(object : Callback<ResponseUploadRecord> {
+            override fun onFailure(call: Call<ResponseUploadRecord>, t: Throwable) {
+                runOnUiThread {
+                    Toast.makeText(
+                        this@TourFollowActivity,
+                        t.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+
+            override fun onResponse(
+                call: Call<ResponseUploadRecord>,
+                response: retrofit2.Response<ResponseUploadRecord>
+            ) {
+                if (response.code() != 200) {
+                    val gson = Gson()
+                    val type = object : TypeToken<ErrorResponse>() {}.type
+                    var errorResponse: ErrorResponse? =
+                        gson.fromJson(response.errorBody()!!.charStream(), type)
+
+                    runOnUiThread {
+                        Toast.makeText(
+                            this@TourFollowActivity,
+                            errorResponse!!.message,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(this@TourFollowActivity, "Success!", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+             })
+        }).start()
     }
 
 
@@ -1235,22 +1239,32 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
             body.addProperty("long", myLocation.longitude)
 
             val call = service.sendCoordinate(mToken, body)
-            call.enqueue(object : Callback<ResponseSendCoordinate> {
-                override fun onFailure(call: Call<ResponseSendCoordinate>, t: Throwable) {
+            call.enqueue(object : Callback<ArrayList<memPosChild>> {
+                override fun onFailure(call: Call<ArrayList<memPosChild>>, t: Throwable) {
                     Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
                 }
 
                 override fun onResponse(
-                    call: Call<ResponseSendCoordinate>,
-                    response: retrofit2.Response<ResponseSendCoordinate>
+                    call: Call<ArrayList<memPosChild>>,
+                    response: retrofit2.Response<ArrayList<memPosChild>>
                 ) {
                     if (response.code() != 200) {
                         val gson = Gson()
                         val type = object : TypeToken<ErrorResponse>() {}.type
                         var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
-                        Toast.makeText(applicationContext, errorResponse!!.message, Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@TourFollowActivity, errorResponse!!.message, Toast.LENGTH_LONG).show()
                     } else {
-                        Log.d("abab", response.body()!!.message)
+
+                        memberPos.clear()
+                        for (i in memberPosMarker) i.remove()
+                        memberPosMarker.clear()
+                        memberPos.addAll(response.body()!!)
+                        for (i in memberPos) {
+                            if (i.id == mUserId) continue
+                            val marker = addMarker(mGoogleMap, LatLng(i.lat, i.long), i.id.toString(), R.drawable.ic_person_pin_circle_black_24dp )
+                            memberPosMarker.add(marker)
+                        }
+                        currentFollowingTour.setText(" : ${memberPos.size}")
                     }
 
                 }

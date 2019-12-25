@@ -13,6 +13,8 @@ import retrofit2.http.Query
 
 data class ErrorResponse(val message: String)
 
+data class ErrorResponseArray(val message: ArrayList<message>)
+
 data class ResponseLogin(val message:String, val userId:Int, val token:String)
 data class ResponseOthersLogin(val message:String, val avatar:Int, val fullname:String, val token:String)
 data class ResponseRegister(val error:Int, val message:ArrayList<message>)

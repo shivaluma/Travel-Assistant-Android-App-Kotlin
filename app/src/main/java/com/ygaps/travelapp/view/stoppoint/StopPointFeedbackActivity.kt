@@ -168,7 +168,6 @@ class StopPointFeedbackActivity : AppCompatActivity() {
                         Toast.makeText(applicationContext, response.message(), Toast.LENGTH_LONG).show()
                     } else {
                         mListFeedback.addAll(response.body()!!.feedbackList)
-                        if (mListFeedback.size == 0) stoppointSeeAllReview.visibility = View.GONE
                         mReviewAdapter.notifyDataSetChanged()
                     }
                 }

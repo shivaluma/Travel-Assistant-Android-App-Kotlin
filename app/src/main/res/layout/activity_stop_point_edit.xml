@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+<LinearLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -204,6 +210,15 @@
 
     <!--ImageView where image will be set-->
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Stop Point Province"/>
+    <com.jaredrummler.materialspinner.MaterialSpinner
+        android:layout_width="match_parent"
+        android:id="@+id/spinnerStopPointProvince"
+        android:layout_height="wrap_content" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -214,15 +229,15 @@
         android:layout_width="match_parent"
         android:id="@+id/spinnerStopPointType"
         android:layout_height="wrap_content" />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Stop Point Index"/>
-    <com.jaredrummler.materialspinner.MaterialSpinner
-        android:layout_width="match_parent"
-        android:id="@+id/spinnerStopPointIndex"
-        android:layout_height="wrap_content" />
+<!--    <TextView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="10dp"-->
+<!--        android:text="Stop Point Index"/>-->
+<!--    <com.jaredrummler.materialspinner.MaterialSpinner-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:id="@+id/spinnerStopPointIndex"-->
+<!--        android:layout_height="wrap_content" />-->
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -272,3 +287,5 @@
             android:textStyle="bold"/>
     </FrameLayout>
 </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

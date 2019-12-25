@@ -22,14 +22,14 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
-import com.ygaps.travelapp.ErrorResponse
-import com.ygaps.travelapp.R
-import com.ygaps.travelapp.ResponseGetNotificationOnRoad
-import com.ygaps.travelapp.ResponseUpdateStopPoint
+import com.ygaps.travelapp.*
+import com.ygaps.travelapp.manager.Constant
 import com.ygaps.travelapp.manager.doAsync
 import com.ygaps.travelapp.model.StopPoint
+import com.ygaps.travelapp.network.model.ApiServiceAddStopPointToTour
 import com.ygaps.travelapp.network.model.ApiServiceGetNotificationOnRoad
 import com.ygaps.travelapp.network.model.ApiServiceUpdateStopPoint
 import com.ygaps.travelapp.network.model.WebAccess
@@ -46,6 +46,7 @@ import java.io.IOException
 class StopPointEditActivity : AppCompatActivity() {
 
     var mStopPointId = 0
+    var mTourId = 0
     lateinit var mGoogleMap : GoogleMap
     var hasSetMarker = false
 
@@ -62,7 +63,7 @@ class StopPointEditActivity : AppCompatActivity() {
         setContentView(R.layout.activity_stop_point_edit)
         supportActionBar?.hide()
 
-
+        mTourId = intent.extras!!.getInt("tourId")
         mStopPointId = intent.extras!!.getInt("id")
         var mServiceid = intent.extras!!.getInt("serviceId")
         var mName = intent.extras!!.getString("name")
@@ -72,6 +73,7 @@ class StopPointEditActivity : AppCompatActivity() {
         var mLeaveAt = intent.extras!!.getLong("leaveAt")
         var mMinCost = intent.extras!!.getLong("minCost")
         var mMaxCost = intent.extras!!.getLong("maxCost")
+        var mProvinceId = intent.extras!!.getInt("provinceId")
         var mIndex = intent.extras!!.getInt("index")
         var mMaxIndex = intent.extras!!.getInt("maxindex")
         var mAddress = intent.extras!!.getString("address")
@@ -111,9 +113,12 @@ class StopPointEditActivity : AppCompatActivity() {
             val type = spinnerStopPointType.selectedIndex+1
             val min = editChangeMinCostStopPoint.text.toString().toLong()
             val max = editChangeMaxCostStopPoint.text.toString().toLong()
-            val index = spinnerStopPointIndex.selectedIndex
+            //val index = spinnerStopPointIndex.selectedIndex
             val addr = editStopPointAddress.text.toString()
-            ApiRequestUpdateStopPoint(mStopPointId, name, currentPointLatLng, timeArrive, timeLeave,type,min,max,index,addr)
+            val provinceId = spinnerStopPointProvince.selectedIndex+1
+
+            Log.d("abab", timeArrive.toString() + " - " + timeLeave.toString())
+            ApiRequestUpdateStopPoint(mTourId, name, currentPointLatLng, timeArrive, timeLeave,type,min,max,provinceId)
         }
 
         editStopPointTimeArrive.setText(dateTimeArrive[0])
@@ -125,11 +130,13 @@ class StopPointEditActivity : AppCompatActivity() {
         for (i in 1..mMaxIndex) {
             data.add(i.toString())
         }
-        spinnerStopPointIndex.setItems(data)
-        spinnerStopPointIndex.selectedIndex = mIndex
+//        spinnerStopPointIndex.setItems(data)
+//        spinnerStopPointIndex.selectedIndex = mIndex
         spinnerStopPointType.setItems("Restaurant", "Hotel", "Rest Station", "Others")
         spinnerStopPointType.selectedIndex = mServiceTypeId-1
 
+        spinnerStopPointProvince.setItems(Constant.provinceList)
+        spinnerStopPointProvince.selectedIndex = mProvinceId
 
         val inflater: LayoutInflater =
             getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -237,41 +244,51 @@ class StopPointEditActivity : AppCompatActivity() {
         return address.getAddressLine(0)
     }
 
-    fun ApiRequestUpdateStopPoint(tourId : Int, name : String, pos :LatLng, arri : Long, leav : Long, type : Int, min : Long, max : Long, index : Int, addr : String) {
+    fun ApiRequestUpdateStopPoint(tourId : Int, name : String, pos :LatLng, arri : Long, leav : Long, type : Int, min : Long, max : Long, provinceId : Int) {
         doAsync {
-            val service = WebAccess.retrofit.create(ApiServiceUpdateStopPoint::class.java)
+            val service = WebAccess.retrofit.create(ApiServiceAddStopPointToTour::class.java)
+
+            val mainbody = JsonObject()
+            val stopPointArray = JsonArray()
 
             val body = JsonObject()
-            body.addProperty("id",tourId)
+            body.addProperty("id", mStopPointId)
             body.addProperty("name",name)
             body.addProperty("lat", pos.latitude)
             body.addProperty("long", pos.longitude)
-            body.addProperty("arriveAt", arri)
+            body.addProperty("provinceId", provinceId)
+            body.addProperty("arrivalAt", arri)
             body.addProperty("leaveAt",leav)
             body.addProperty("serviceTypeId",type)
             body.addProperty("minCost",min)
             body.addProperty("maxCost",max)
-            body.addProperty("index",index)
+
+            stopPointArray.add(body)
+
+            mainbody.addProperty("tourId", tourId)
+            mainbody.add("stopPoints", stopPointArray)
             //body.addProperty("address",addr)
 
 
-            val call = service.updateStopPoint(mToken, body)
-            call.enqueue(object : Callback<ResponseUpdateStopPoint> {
-                override fun onFailure(call: Call<ResponseUpdateStopPoint>, t: Throwable) {
+            val call = service.postData(mToken, mainbody)
+            call.enqueue(object : Callback<ResponseAddStopPoint> {
+                override fun onFailure(call: Call<ResponseAddStopPoint>, t: Throwable) {
                     Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
                 }
 
                 override fun onResponse(
-                    call: Call<ResponseUpdateStopPoint>,
-                    response: Response<ResponseUpdateStopPoint>
+                    call: Call<ResponseAddStopPoint>,
+                    response: Response<ResponseAddStopPoint>
                 ) {
                     if (response.code() != 200) {
                         val gson = Gson()
                         val type = object : TypeToken<ErrorResponse>() {}.type
                         var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
-                        Toast.makeText(applicationContext, errorResponse!!.message, Toast.LENGTH_LONG).show()
+                        Toast.makeText(applicationContext, errorResponse!!.message.toString(), Toast.LENGTH_LONG).show()
+                        Log.d("abab",errorResponse!!.message.toString())
                     } else {
-
+                        Toast.makeText(applicationContext, "Update successfully!", Toast.LENGTH_LONG).show()
+                        finish()
                     }
                 }
             })

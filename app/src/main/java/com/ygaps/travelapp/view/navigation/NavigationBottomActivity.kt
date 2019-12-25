@@ -56,8 +56,6 @@ class NavigationBottomActivity : AppCompatActivity() {
         var token = intent.extras!!.getString("userToken")!!
 
 
-
-
         FirebaseInstanceId.getInstance().instanceId
             .addOnCompleteListener(OnCompleteListener { task ->
                 if (!task.isSuccessful) {
