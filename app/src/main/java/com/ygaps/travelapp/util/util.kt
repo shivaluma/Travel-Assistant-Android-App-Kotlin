@@ -6,25 +6,15 @@ import android.content.Context
 import android.icu.text.SimpleDateFormat
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Toast
 import com.squareup.picasso.Picasso
-import com.ygaps.travelapp.R
-import com.ygaps.travelapp.ResponseTourInfo
-import com.ygaps.travelapp.ResponseUserInfo
 import com.ygaps.travelapp.manager.Constant
-import com.ygaps.travelapp.network.model.ApiServiceGetTourInfo
-import com.ygaps.travelapp.network.model.ApiServiceGetUserInfo
-import com.ygaps.travelapp.network.model.WebAccess
-import kotlinx.android.synthetic.main.activity_tour_info.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
+import com.ygaps.travelapp.R
+
 
 object util {
     fun dateToLong(dateString : String, pattern: String = "dd/MM/yyyy"): Long {
@@ -34,8 +24,8 @@ object util {
     }
 
     fun longToDateTime(time: Long): String {
-        var zero: Long = 0
-        if (time == zero) return ""
+//        var zero: Long = 0
+//        if (time == zero) return ""
         var instant: Instant = Instant.ofEpochMilli(time)
         var date: LocalDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime()
         var formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy")
@@ -160,6 +150,9 @@ object util {
     }
 
 
+    fun secondsToString(pTime: Int): String? {
+        return String.format("%02d:%02d", pTime / 60, pTime % 60)
+    }
 
 
 

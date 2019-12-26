@@ -612,9 +612,6 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
 
 
-
-
-
                          val popupAddSuggest = PopupWindow(
                              popup, // Custom view to show in popup window
                              LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window

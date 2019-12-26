@@ -18,6 +18,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import android.Manifest.permission
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.animation.Animator
+import android.animation.TimeAnimator
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.*
@@ -25,9 +27,9 @@ import android.content.IntentSender.*
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
+import android.graphics.drawable.*
 import android.location.LocationManager
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.*
@@ -41,6 +43,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.cardview.widget.CardView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -76,6 +80,8 @@ import kotlinx.android.synthetic.main.activity_tour_follow.*
 import kotlinx.android.synthetic.main.activity_tour_follow.view.*
 import kotlinx.android.synthetic.main.activity_tour_info.*
 import kotlinx.android.synthetic.main.alert_to_destination.view.*
+import kotlinx.android.synthetic.main.audio_play_layout.*
+import kotlinx.android.synthetic.main.audio_play_layout.view.*
 import kotlinx.android.synthetic.main.popup_chat.view.*
 import kotlinx.android.synthetic.main.popup_create_notification_on_road.*
 import kotlinx.android.synthetic.main.popup_create_notification_on_road.view.*
@@ -83,6 +89,7 @@ import kotlinx.coroutines.delay
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.jetbrains.anko.backgroundDrawable
 import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Call
@@ -93,6 +100,7 @@ import java.io.IOException
 
 import kotlin.Exception
 import kotlin.collections.ArrayList
+import kotlin.math.min
 
 
 class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -169,6 +177,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                         .setView(mDialogView)
                     //show dialog
                     val  mAlertDialog = mBuilder.show()
+
                     //login button click of custom layout
 
                     //cancel button click of custom layout
@@ -355,7 +364,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     val builder = AlertDialog.Builder(this)
                     builder.setTitle("Confirm")
-                    builder.setMessage("Are you want to send this record to notification?")
+                    builder.setMessage("Do you want to send this record to notification?")
                     builder.setPositiveButton("YES"){dialog, which ->
                         val path = Environment.getExternalStoragePublicDirectory(
                             Environment.DIRECTORY_DCIM);
@@ -366,6 +375,59 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                     builder.setNegativeButton("No"){dialog,which ->
                         Toast.makeText(applicationContext,"Declined",Toast.LENGTH_SHORT).show()
                     }
+                    // Display a neutral button on alert dialog
+                    builder.setNeutralButton("Open"){_,_ ->
+                        //Inflate the dialog with custom view
+                        val mDialogView = LayoutInflater.from(this@TourFollowActivity).inflate(R.layout.audio_play_layout, null)
+                        //AlertDialogBuilder
+                        val mBuilder = AlertDialog.Builder(this@TourFollowActivity)
+                            .setView(mDialogView)
+                        //show dialog
+
+                        val  mAlertDialog = mBuilder.show()
+                        mAlertDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                        val mLayerDrawable = mDialogView.findViewById<CoordinatorLayout>(R.id.audioplaybtn).background as LayerDrawable
+                        var mClipDrawable = mLayerDrawable.findDrawableByLayerId(R.id.clip_drawable) as ClipDrawable
+                        var mCurrentLevel = 0
+
+                        val path = Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DCIM)
+                        val file = File(path, "TS.mp3")
+                        val mediaPlayer = MediaPlayer()
+                        mediaPlayer.setDataSource(file.path)
+                        mediaPlayer.prepare()
+
+                        val duration = mediaPlayer.duration.toLong()
+                        val increaseByTime = (10000.0f/duration)*50
+                        mDialogView.audioTimeRemaining.setText(util.secondsToString((duration/1000).toInt()))
+                        var currentMiliseconds = 0
+
+                        val timer = object: CountDownTimer(mediaPlayer.duration.toLong(), 50) {
+                            override fun onTick(millisUntilFinished: Long) {
+                                currentMiliseconds += 50
+                                mClipDrawable.level = mCurrentLevel
+                                mDialogView.audioTimeRemaining.setText(util.secondsToString((millisUntilFinished/1000).toInt()))
+                                if (mCurrentLevel >= 10000) {
+                                    this.cancel()
+                                } else {
+                                    mCurrentLevel = 10000.coerceAtMost(mCurrentLevel + increaseByTime.toInt())
+                                }
+                            }
+
+                            override fun onFinish() {
+                                mClipDrawable.level = 10000
+                            }
+                        }
+                        mediaPlayer.start()
+                        timer.start()
+
+//                        audioplaybtn.setOnClickListener {
+//                            if (mediaPlayer.isPlaying == true) {
+//                                mediaPlayer.pause()
+//                                timer.
+//                            }
+//                        }
+                    }
                     val dialog: AlertDialog = builder.create()
                     dialog.show()
                 }
@@ -375,6 +437,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
         ApiRequestGetNotices()
     }
+
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1

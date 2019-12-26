@@ -30,7 +30,19 @@ class CreateTourActivity : AppCompatActivity() {
                 editDateStart.error = "Required*"
             } else if (editDateEnd.text.toString().isEmpty()) {
                 editDateEnd.error = "Required*"
-            } else {
+            } else if (editAdultNum.text.isNullOrEmpty()) {
+                editAdultNum.error = "Required*"
+            }
+            else if (editChildNum.text.isNullOrEmpty()) {
+                editChildNum.error = "Required*"
+            }
+            else if (editMinCostTour.text.isNullOrEmpty()) {
+                editMinCostTour.error = "Required*"
+            }
+            else if (editMaxCostTour.text.isNullOrEmpty()) {
+                editMaxCostTour.error = "Required*"
+            }
+            else {
                 val intent = Intent(this, GetCoordinateActivity::class.java)
                 intent.putExtra("iTourName", editTourName.text.toString())
                 intent.putExtra("iStartDate", util.dateToLong(editDateStart.text.toString()))

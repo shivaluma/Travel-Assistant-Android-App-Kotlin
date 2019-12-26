@@ -69,8 +69,7 @@ class DashboardFragment : Fragment() {
         override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
             val item = data.get(position)
             holder.content.text = Html.fromHtml("<b>${item.hostName}</b> has invited you to join tour <b>${item.name}</b>")
-            holder.time.text = util.longToDate(item.createOn)
-
+            holder.time.text = util.longToDate(item.createdOn)
 
             holder.itemView.notiAcceptButton.setOnClickListener {
                 ApiRequestResponseInvitation(root,item.id,true)
