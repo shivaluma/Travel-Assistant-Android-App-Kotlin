@@ -307,7 +307,7 @@ class HomeFragment : Fragment() {
             val call = service.getTours(token, requestRow, requestPage, order, isDes)
             call.enqueue(object : Callback<ResponseListTours> {
                 override fun onFailure(call: Call<ResponseListTours>, t: Throwable) {
-                    Toast.makeText(activity!!.applicationContext, t.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
                 }
 
                 override fun onResponse(
@@ -316,7 +316,7 @@ class HomeFragment : Fragment() {
                 ) {
                     if (response.code() != 200) {
                         Toast.makeText(
-                            activity!!.applicationContext,
+                            context,
                             "Load list tours failed",
                             Toast.LENGTH_LONG
                         ).show()
@@ -359,7 +359,7 @@ class HomeFragment : Fragment() {
             val call = service.clone(token, body)
             call.enqueue(object : Callback<ResponseTourInfo> {
                 override fun onFailure(call: Call<ResponseTourInfo>, t: Throwable) {
-                    Toast.makeText(activity!!.applicationContext, t.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
                 }
 
                 override fun onResponse(
@@ -368,12 +368,12 @@ class HomeFragment : Fragment() {
                 ) {
                     if (response.code() != 200) {
                         Toast.makeText(
-                            activity!!.applicationContext,
+                            context,
                             "Load list tours failed",
                             Toast.LENGTH_LONG
                         ).show()
                     } else {
-                        Toast.makeText(activity!!.applicationContext, "Clone success!!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Clone success!!", Toast.LENGTH_LONG).show()
                     }
                 }
             })

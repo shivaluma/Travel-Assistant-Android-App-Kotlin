@@ -97,14 +97,15 @@ class NavigationBottomActivity : AppCompatActivity() {
         }.execute()
     }
 
-
+    // da dang nhap roi thi se nhay vo man hinh nay
+    // ham gui fcmtoken len server
     fun ApiRequestPutFcmToken(logintoken : String, fcmToken : String) {
         doAsync {
 
             val service = WebAccess.retrofit.create(ApiServicePutFcmToken::class.java)
             val jsonObject = JsonObject()
             var uniqueId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID)
-
+//di cua m la j z 126
 
             jsonObject.addProperty("fcmToken", fcmToken)
             jsonObject.addProperty("deviceId", uniqueId)

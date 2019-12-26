@@ -151,7 +151,6 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
-
     internal val mLocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             myLocation = locationResult.lastLocation
@@ -216,14 +215,9 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
             ,intent.extras!!.getDouble("destinationLng", 106.6822))
 
         desId = intent.extras!!.getInt("desId")
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            val permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
-            ActivityCompat.requestPermissions(this, permissions,0)
-        }
 
 
+        requestRecordPermission()
 
 
         mMessageReceiver = object : BroadcastReceiver() {
@@ -367,7 +361,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                     builder.setMessage("Do you want to send this record to notification?")
                     builder.setPositiveButton("YES"){dialog, which ->
                         val path = Environment.getExternalStoragePublicDirectory(
-                            Environment.DIRECTORY_DCIM);
+                            Environment.DIRECTORY_DCIM)
                         val file = File(path, "TS.mp3")
                         ApiRequestUploadRecord(LatLng(myLocation.latitude,myLocation.longitude), mTourId, mUserId , file)
                     }
@@ -561,7 +555,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
             }
             else {
-                finish()
+                Toast.makeText(this@TourFollowActivity, "No permission for record to work", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -1375,6 +1369,15 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         }.execute()
     }
 
+
+    fun requestRecordPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            val permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+            ActivityCompat.requestPermissions(this, permissions,0)
+        }
+    }
 
 
 
