@@ -55,6 +55,15 @@
             android:textSize="16sp"
             android:text=" notifications"/>
 
+        <ImageButton
+            android:id="@+id/sortNotifications"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_sort_black_24dp"
+            android:background="@null"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"/>
+
 
     </RelativeLayout>
 

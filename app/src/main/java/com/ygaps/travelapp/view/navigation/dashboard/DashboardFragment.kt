@@ -9,22 +9,26 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ygaps.travelapp.*
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.gson.JsonObject
+import com.ygaps.travelapp.R
+import com.ygaps.travelapp.ResponseToInvitation
+import com.ygaps.travelapp.ResponseUserNotification
+import com.ygaps.travelapp.TourNotification
 import com.ygaps.travelapp.manager.doAsync
 import com.ygaps.travelapp.network.model.ApiServiceGetNotifications
-import com.ygaps.travelapp.network.model.ApiServiceGetTourInfo
 import com.ygaps.travelapp.network.model.ApiServiceResponseInvitaion
 import com.ygaps.travelapp.network.model.WebAccess
 import com.ygaps.travelapp.util.util
-import com.google.gson.JsonObject
+import kotlinx.android.synthetic.main.bottom_sheet_sort.view.*
+import kotlinx.android.synthetic.main.fragment_dashboard.view.*
 import kotlinx.android.synthetic.main.item_notification_layout.view.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
 
 class DashboardFragment : Fragment() {
     lateinit var view : RecyclerView
@@ -32,6 +36,7 @@ class DashboardFragment : Fragment() {
     var listNotification = ArrayList<TourNotification>()
     var token : String = ""
     lateinit var root : View
+    var isAscending = true
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -48,6 +53,33 @@ class DashboardFragment : Fragment() {
         notifiAdapter = NotificationAdapter(listNotification)
         view.adapter = notifiAdapter
         ApiRequest(root)
+
+        root.sortNotifications.setOnClickListener {
+            val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_sort, null)
+            val dialog = BottomSheetDialog(context!!)
+            dialog.setContentView(bottomSheetView)
+            dialog.show()
+
+            bottomSheetView.sortAscending.setOnClickListener {
+                if (!isAscending) {
+                    layoutManager.reverseLayout = false
+                    layoutManager.stackFromEnd = false
+                    view.layoutManager = layoutManager
+                    isAscending = true
+                }
+                dialog.dismiss()
+            }
+
+            bottomSheetView.sortDescending.setOnClickListener {
+                if (isAscending) {
+                    layoutManager.reverseLayout = true
+                    layoutManager.stackFromEnd = true
+                    view.layoutManager = layoutManager
+                    isAscending = false
+                }
+                dialog.dismiss()
+            }
+        }
         return root
     }
 
