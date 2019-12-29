@@ -58,7 +58,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Shivaluma@gmail.com"
+                            android:text="Brogrammers"
                             android:textColor="@color/white"
                             android:textSize="18sp"
 

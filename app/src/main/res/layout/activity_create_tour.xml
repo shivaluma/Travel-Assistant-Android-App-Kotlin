@@ -90,7 +90,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
+                android:inputType="numberSigned"
+                android:digits="0123456789"
                 android:text="0"
                 android:id="@+id/editAdultNum"
                 android:hint="Người lớn">
@@ -109,7 +110,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
+                android:inputType="numberSigned"
+                android:digits="0123456789"
                 android:text="0"
                 android:id="@+id/editChildNum"
                 android:hint="Trẻ em">
@@ -134,9 +136,10 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
+                android:inputType="numberSigned"
                 android:id="@+id/editMinCostTour"
                 android:text="0"
+                android:digits="0123456789"
                 android:hint="Chi phí thấp nhất">
             </com.google.android.material.textfield.TextInputEditText>
 
@@ -153,9 +156,10 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
+                android:inputType="numberSigned"
                 android:id="@+id/editMaxCostTour"
                 android:text="0"
+                android:digits="0123456789"
                 android:hint="Chi phí cao nhất">
             </com.google.android.material.textfield.TextInputEditText>
         </com.google.android.material.textfield.TextInputLayout>
@@ -212,9 +216,5 @@
             android:layout_gravity="bottom|end"
             android:clickable="true" />
     </FrameLayout>
-
-
-
-
 
 </LinearLayout>

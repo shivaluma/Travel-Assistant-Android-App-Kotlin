@@ -51,6 +51,18 @@ interface ApiServiceGetTours {
     ): Call<ResponseListTours>
 }
 
+
+interface ApiServiceSearchTours {
+    @GET("/tour/search")
+    fun getTours(
+        @Header("Authorization") token : String,
+        @Query("searchKey") searchKey: String,
+        @Query("pageIndex") pageIndex: Int,
+        @Query("pageSize") pageSize: String
+    ): Call<ResponseListTours>
+}
+
+
 interface ApiServiceGetHistoryTours {
     @GET("/tour/history-user")
     fun getTours(

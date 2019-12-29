@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottom_sheet_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:behavior_hideable="true"
+    app:behavior_peekHeight="56dp"
+    android:background="@color/white"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/topCorner"
+            android:layout_width="30dp"
+            android:layout_height="5dp"
+            android:background="@drawable/shape_top_bottomsheet"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_horizontal"
+            />
+
+
+        <!--    <HorizontalScrollView-->
+        <!--        android:layout_width="match_parent"-->
+        <!--        android:layout_height="wrap_content"-->
+        <!--        android:layout_marginStart="10dp"-->
+        <!--        android:scrollbars="none">-->
+
+        <!--        <com.google.android.material.chip.ChipGroup-->
+        <!--            android:id="@+id/chipGroup"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            app:chipSpacing="20dp"-->
+        <!--            app:singleLine="true">-->
+
+        <!--            <com.google.android.material.chip.Chip-->
+        <!--                style="@style/Widget.MaterialComponents.Chip.Filter"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:text="All"-->
+        <!--                android:textSize="20sp"-->
+        <!--                android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"-->
+        <!--                />-->
+
+        <!--            <com.google.android.material.chip.Chip-->
+        <!--                style="@style/Widget.MaterialComponents.Chip.Filter"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:text="Restaurant"-->
+        <!--                android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"-->
+
+        <!--                />-->
+        <!--            <com.google.android.material.chip.Chip-->
+        <!--                style="@style/Widget.MaterialComponents.Chip.Filter"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:text="Hotel"-->
+
+        <!--                android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"-->
+        <!--                android:clickable="true"-->
+
+        <!--                />-->
+        <!--            <com.google.android.material.chip.Chip-->
+        <!--                style="@style/Widget.MaterialComponents.Chip.Filter"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:text="Rest Station"-->
+        <!--                android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"-->
+
+        <!--                />-->
+        <!--            <com.google.android.material.chip.Chip-->
+        <!--                style="@style/Widget.MaterialComponents.Chip.Filter"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:text="Others"-->
+        <!--                android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"-->
+        <!--                />-->
+
+        <!--        </com.google.android.material.chip.ChipGroup>-->
+
+
+        <!--    </HorizontalScrollView>-->
+        <androidx.recyclerview.widget.RecyclerView
+            app:layout_anchor="@id/topCorner"
+            app:layout_anchorGravity="bottom"
+            android:id="@+id/showListNotiRecyclerView"
+            android:paddingTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"/>
+
+    </LinearLayout>
+
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/showMapFollow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_map_black_24dp"
+        android:background="@drawable/fab"
+        android:layout_gravity="bottom|end"
+        app:fabSize="normal"
+        app:backgroundTint="@android:color/white"
+        app:rippleColor="@android:color/black"
+        app:borderWidth="1dp"
+        app:elevation="2dp"
+        app:pressedTranslationZ="12dp"
+        android:layout_margin="20dp"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

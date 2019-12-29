@@ -144,6 +144,8 @@ class HistoryFragment : Fragment() {
 
         override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
             val item = data.get(position)
+
+
             holder.titleItem.text = item.name
 
             //date
@@ -220,9 +222,16 @@ class HistoryFragment : Fragment() {
                             Toast.LENGTH_LONG
                         ).show()
                     } else {
+
                         listTour.addAll(response.body()!!.tours)
-                        curTourCount.text = response.body()!!.total.toString()
+                        listTour.removeIf {
+                            it.status == -1
+                        }
+                        if (response.body()!!.total.toString() != "0") {
+                            curTourCount.text = response.body()!!.total.toString()
+                        }
                         tourAdapter.notifyDataSetChanged()
+
                         loaded.text = listTour.size.toString()
                         curLoaded = listTour.size
                     }

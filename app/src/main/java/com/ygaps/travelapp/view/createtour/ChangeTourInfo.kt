@@ -37,6 +37,14 @@ class ChangeTourInfo : AppCompatActivity() {
         spinnerTourStatus.setItems("Cancel", "Open", "Started" , "Closed")
         ApiRequest()
 
+        editChangeDateStart.setOnClickListener {
+            util.setOnClickDate(editChangeDateStart,this@ChangeTourInfo)
+        }
+
+        editChangeDateEnd.setOnClickListener {
+            util.setOnClickDate(editChangeDateEnd,this@ChangeTourInfo)
+        }
+
 
         saveInfo.setOnClickListener {
             ApiRequestSaveUpdate()

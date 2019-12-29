@@ -95,7 +95,7 @@ class StopPointFeedbackActivity : AppCompatActivity() {
             val item = data.get(position)
             holder.content.text = item.feedback
             holder.rating.rating = item.point.toFloat()
-            holder.date.text = util.longToDate(item.createOn)
+            holder.date.text = util.longToDate(item.createdOn)
             if (!item.name.isNullOrEmpty()) {
                 holder.name.text = item.name
             }
@@ -116,10 +116,10 @@ class StopPointFeedbackActivity : AppCompatActivity() {
                 val builder = AlertDialog.Builder(this@StopPointFeedbackActivity)
                 builder.setTitle("Report this feedback")
                 builder.setMessage("Are you sure to report this feedback?")
-                builder.setPositiveButton("YES"){dialog, which ->
+                builder.setPositiveButton("YES"){_, _ ->
                     ApiRequestReportFeedBack(item.id)
                 }
-                builder.setNegativeButton("No"){dialog,which ->
+                builder.setNegativeButton("No"){_,_ ->
                     Toast.makeText(this@StopPointFeedbackActivity,"Declined",Toast.LENGTH_SHORT).show()
                 }
                 val dialog: AlertDialog = builder.create()

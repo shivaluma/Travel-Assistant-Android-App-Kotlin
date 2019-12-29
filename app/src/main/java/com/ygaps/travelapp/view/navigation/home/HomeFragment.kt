@@ -25,6 +25,7 @@ import com.ygaps.travelapp.util.util
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.materialspinner.MaterialSpinner
 import com.ygaps.travelapp.network.model.ApiServiceCloneTour
+import com.ygaps.travelapp.network.model.ApiServiceSearchTours
 import kotlinx.android.synthetic.main.activity_get_coordinate.*
 import kotlinx.android.synthetic.main.activity_get_coordinate.view.*
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -53,6 +54,8 @@ class HomeFragment : Fragment() {
     lateinit var loaded: TextView
     lateinit var tourNumber: TextView
     var isQuerying = false
+    var currentQuery = ""
+    var toSearch = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -103,12 +106,13 @@ class HomeFragment : Fragment() {
         sv.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 isQuerying = true
-                ApiRequest(root,rowPerPage,pageNum,orderBy,isDesc,query)
+                pageNum = 1
+                listTour.clear()
+                ApiRequestSearchTour(query)
                 return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-
                 return false
             }
         })
@@ -205,9 +209,18 @@ class HomeFragment : Fragment() {
 
         lv.addOnScrollListener(object : RecyclerView.OnScrollListener(){
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (!recyclerView.canScrollVertically(1) && !isQuerying) {
+                if (!recyclerView.canScrollVertically(1)) {
                     pageNum++
-                    ApiRequest(root,rowPerPage,pageNum,orderBy,isDesc)
+                    if (!isQuerying) {
+                        ApiRequest(root,rowPerPage,pageNum,orderBy,isDesc)
+                    }
+                    else {
+                        ApiRequestSearchTour(currentQuery)
+                    }
+
+                }
+                else {
+
                 }
                 super.onScrolled(recyclerView, dx, dy)
             }
@@ -295,15 +308,12 @@ class HomeFragment : Fragment() {
     }
 
 
-    fun ApiRequest(root: View, rowPerPage: Int, pageNum: Int, order: String?, isDes: Boolean, query: String = "") {
+    fun ApiRequest(root: View, rowPerPage: Int, pageNum: Int, order: String?, isDes: Boolean) {
         doAsync {
             val service = WebAccess.retrofit.create(ApiServiceGetTours::class.java)
             var requestRow = rowPerPage
             var requestPage = pageNum
-            if (query.isNotEmpty()) {
-                requestRow = 9999
-                requestPage = 0
-            }
+
             val call = service.getTours(token, requestRow, requestPage, order, isDes)
             call.enqueue(object : Callback<ResponseListTours> {
                 override fun onFailure(call: Call<ResponseListTours>, t: Throwable) {
@@ -323,24 +333,7 @@ class HomeFragment : Fragment() {
                     } else {
 
                         var total = response.body()!!.total
-                        if (query.isNotEmpty()) {
-                            listTour.clear()
-                        }
                         listTour.addAll(response.body()!!.tours)
-                        if (query.isNotEmpty()) {
-                            val filterList = ArrayList<Tour>()
-                            var tourName = ""
-                            for (i in listTour) {
-                                if (!i.name.isNullOrEmpty()) {
-                                    if (i.name.contains(query)) {
-                                        filterList.add(i)
-                                    }
-                                }
-                            }
-                            listTour.clear()
-                            listTour.addAll(filterList)
-                            total = listTour.size
-                        }
                         tourNumber.text = total.toString()
                         tourAdapter.notifyDataSetChanged()
                         loaded.text = listTour.size.toString()
@@ -350,6 +343,37 @@ class HomeFragment : Fragment() {
         }.execute()
     }
 
+    fun ApiRequestSearchTour(query : String) {
+        doAsync {
+            currentQuery = query
+            val service = WebAccess.retrofit.create(ApiServiceSearchTours::class.java)
+            val call = service.getTours(token, query, pageNum, rowPerPage.toString())
+            call.enqueue(object : Callback<ResponseListTours> {
+                override fun onFailure(call: Call<ResponseListTours>, t: Throwable) {
+                    Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(
+                    call: Call<ResponseListTours>,
+                    response: Response<ResponseListTours>
+                ) {
+                    if (response.code() != 200) {
+                        Toast.makeText(
+                            context,
+                            "Load list tours failed",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        var total = response.body()!!.total
+                        listTour.addAll(response.body()!!.tours)
+                        tourNumber.text = total.toString()
+                        tourAdapter.notifyDataSetChanged()
+                        loaded.text = listTour.size.toString()
+                    }
+                }
+            })
+        }.execute()
+    }
 
     fun ApiRequestCloneTour(tourId : Int) {
         doAsync {

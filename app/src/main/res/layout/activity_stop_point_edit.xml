@@ -94,6 +94,7 @@
                 android:inputType="numberDecimal"
                 android:id="@+id/editChangeMinCostStopPoint"
                 android:text="0"
+                android:digits="0123456789"
                 android:hint="Min Cost">
             </com.google.android.material.textfield.TextInputEditText>
 
@@ -113,6 +114,7 @@
                 android:inputType="numberDecimal"
                 android:id="@+id/editChangeMaxCostStopPoint"
                 android:text="0"
+                android:digits="0123456789"
                 android:hint="Max Cost">
             </com.google.android.material.textfield.TextInputEditText>
         </com.google.android.material.textfield.TextInputLayout>

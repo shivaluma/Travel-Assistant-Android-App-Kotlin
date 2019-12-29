@@ -3,7 +3,6 @@ package com.ygaps.travelapp.view.tour
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.maps.GoogleMap
@@ -24,9 +23,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.*
 import android.content.IntentSender.*
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
+import android.graphics.*
 import android.graphics.drawable.*
 import android.location.LocationManager
 import android.media.MediaPlayer
@@ -61,6 +58,7 @@ import com.google.android.gms.location.*
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.Task
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -74,14 +72,20 @@ import com.ygaps.travelapp.*
 import com.ygaps.travelapp.R
 import com.ygaps.travelapp.manager.Constant
 import com.ygaps.travelapp.manager.doAsync
+import com.ygaps.travelapp.model.StopPoint
 import com.ygaps.travelapp.network.model.*
 import com.ygaps.travelapp.util.util
+import com.ygaps.travelapp.view.stoppoint.StopPointInfo
 import kotlinx.android.synthetic.main.activity_tour_follow.*
 import kotlinx.android.synthetic.main.activity_tour_follow.view.*
 import kotlinx.android.synthetic.main.activity_tour_info.*
 import kotlinx.android.synthetic.main.alert_to_destination.view.*
 import kotlinx.android.synthetic.main.audio_play_layout.*
 import kotlinx.android.synthetic.main.audio_play_layout.view.*
+import kotlinx.android.synthetic.main.bottom_sheet_notifi_on_road.*
+import kotlinx.android.synthetic.main.bottomsheet.view.*
+import kotlinx.android.synthetic.main.fragment_explorer.view.*
+import kotlinx.android.synthetic.main.item_notification_on_road.view.*
 import kotlinx.android.synthetic.main.popup_chat.view.*
 import kotlinx.android.synthetic.main.popup_create_notification_on_road.*
 import kotlinx.android.synthetic.main.popup_create_notification_on_road.view.*
@@ -109,13 +113,15 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var myLocation: Location
     lateinit var destinationLatLng: LatLng
     lateinit var polyLineToDestination : Polyline
-    lateinit var fusedLocationProviderClient : FusedLocationProviderClient
+    private lateinit var fusedLocationProviderClient : FusedLocationProviderClient
     var mUserId : Int = 0
     var mTourId : Int = 0
     var mToken : String = ""
     var mListChat = ArrayList<notification>()
     var mListMember = ArrayList<member>()
     var mChatAdapter = ChatAdapter(mListChat)
+
+
     var isPopupOpen = false
     val runningTargets = mutableListOf<Target>()
     lateinit var mChatRecyclerView: RecyclerView
@@ -128,6 +134,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
     internal var hasInitTimeCounter = false
 
     var notiOnRoad = ArrayList<notificationonroad>()
+    var mNotificationOnRoadAdapter = NotificationOnRoadAdapter(notiOnRoad)
     var notiOnRoadMarker = ArrayList<Marker>()
 
     var currentPathPolyline = ArrayList<Polyline>()
@@ -149,6 +156,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
     internal var currentMemberChoosing = 0
     internal var desId = 0
 
+    lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
 
     internal val mLocationCallback = object : LocationCallback() {
@@ -191,7 +199,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 // send api finish
             }
-            ApiRequestGetNotificationOnRoad(mTourId)
+
             ApiRequestSendCoordinate()
         }
     }
@@ -225,6 +233,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                 val onTourId = intent!!.extras!!.getString("tourId", "-1")
                 val notiType = intent!!.extras!!.getString("type", "0").toInt()
                 Log.d("abab", notiType.toString())
+                ApiRequestGetNotificationOnRoad(mTourId)
                 if (onTourId!!.toInt() == mTourId) {
                      object :  CountDownTimer(500, 500) {
                          override fun onFinish() {
@@ -281,6 +290,39 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         fetchLocation()
 
 
+        ApiRequestGetNotificationOnRoad(mTourId)
+
+
+        bottomSheetBehavior = BottomSheetBehavior.from(bottom_sheet_layout)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+
+        bottomSheetBehavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                // React to state change
+                when (newState) {
+                    BottomSheetBehavior.STATE_HIDDEN -> {
+
+                    }
+                    BottomSheetBehavior.STATE_EXPANDED -> {
+                    }
+                    BottomSheetBehavior.STATE_COLLAPSED -> {
+                    }
+                    BottomSheetBehavior.STATE_DRAGGING -> {
+                    }
+                    BottomSheetBehavior.STATE_SETTLING -> {
+                    }
+                    BottomSheetBehavior.STATE_HALF_EXPANDED -> {
+                    }
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                // React to dragging events
+            }
+        })
+
+
+
         val mapFragment =
             supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this@TourFollowActivity)
@@ -318,6 +360,19 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                     mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(myLocation.latitude,myLocation.longitude),15.0f))
                 }
             }
+        }
+
+        listNotificationOnRoads.setOnClickListener {
+            showListNotiRecyclerView.adapter = mNotificationOnRoadAdapter
+            val layoutManager = LinearLayoutManager(applicationContext)
+            layoutManager.orientation = LinearLayoutManager.VERTICAL
+            showListNotiRecyclerView.layoutManager = layoutManager
+
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        showMapFollow.setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
 
         var mainHandler = Handler(Looper.getMainLooper())
@@ -363,7 +418,13 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                         val path = Environment.getExternalStoragePublicDirectory(
                             Environment.DIRECTORY_DCIM)
                         val file = File(path, "TS.mp3")
-                        ApiRequestUploadRecord(LatLng(myLocation.latitude,myLocation.longitude), mTourId, mUserId , file)
+                        if (::myLocation.isInitialized) {
+                            ApiRequestUploadRecord(LatLng(myLocation.latitude,myLocation.longitude), mTourId, mUserId , file)
+                        }
+                        else {
+                            Toast.makeText(this@TourFollowActivity, "Cant get location", Toast.LENGTH_SHORT).show()
+                        }
+
                     }
 
                     builder.setNegativeButton("No"){dialog,which ->
@@ -978,6 +1039,84 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+
+    inner class NotificationOnRoadAdapter(data: ArrayList<notificationonroad>) :
+        RecyclerView.Adapter<NotificationOnRoadAdapter.RecyclerViewHolder>() {
+
+        var data = ArrayList<notificationonroad>()
+
+        init {
+            this.data = data
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
+            val inflater = LayoutInflater.from(parent.context)
+            val view = inflater.inflate(R.layout.item_notification_on_road, parent, false)
+            return RecyclerViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
+            val item = data.get(position)
+
+            when (item.notificationType) {
+                1 -> {
+                    holder.itemView.notiPolice.visibility = View.VISIBLE
+                    holder.itemView.notiProblem.visibility = View.GONE
+                    holder.itemView.notiSpeed.visibility = View.GONE
+                    holder.itemView.notiSpeedView.visibility = View.GONE
+                }
+                2 -> {
+                    holder.itemView.notiProblem.visibility = View.VISIBLE
+                    holder.itemView.notiPolice.visibility = View.GONE
+                    holder.itemView.notiSpeed.visibility = View.GONE
+                    holder.itemView.notiSpeedView.visibility = View.GONE
+                }
+                3 -> {
+                    holder.itemView.notiSpeed.visibility = View.VISIBLE
+                    holder.itemView.notiSpeedView.visibility = View.VISIBLE
+                    holder.itemView.notiPolice.visibility = View.GONE
+                    holder.itemView.notiProblem.visibility = View.GONE
+                    holder.speed.text = item.speed.toString()
+                }
+            }
+
+            holder.note.text = item.note
+            if (::myLocation.isInitialized) {
+                val currentLocation = LatLng(myLocation.latitude, myLocation.longitude)
+                val notiLocation = LatLng(item.lat,item.long)
+                holder.distance.text = distanceBetweenTwoPoint(currentLocation, notiLocation, destinationLatLng).toInt().toString()
+            }
+
+            holder.itemView.setOnClickListener {
+                val notiLocation = LatLng(item.lat,item.long)
+                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(notiLocation,15.0f))
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            }
+
+
+        }
+
+        override fun getItemCount(): Int {
+            return data.size
+        }
+
+        inner class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            internal var note: TextView
+            internal var distance: TextView
+            internal var speed: TextView
+
+
+            init {
+                note = itemView.notiNote
+                distance = itemView.notiDistance
+                speed = itemView.notiSpeedEdit
+            }
+        }
+    }
+
+
+
+
     fun popupCreateNotification(location : LatLng) {
         val inflater: LayoutInflater =
             getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -998,40 +1137,19 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
+        //AlertDialogBuilder
+        val mBuilder = AlertDialog.Builder(this@TourFollowActivity)
+            .setView(view)
+        //show dialog
+        val  mAlertDialog = mBuilder.show()
 
+        //login button click of custom layout
 
-
-        val popupWindow = PopupWindow(
-            view, // Custom view to show in popup window
-            LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
-            LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
-            true
-        )
-
+        //cancel button click of custom layout
         view.dismissBtn.setOnClickListener {
-            popupWindow.dismiss()
+            //dismiss dialog
+            mAlertDialog.dismiss()
         }
-
-        // Set an elevation for the popup window
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            popupWindow.elevation = 10.0F
-        }
-
-
-        // If API level 23 or higher then execute the code
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // Create a new slide animation for popup window enter transition
-            val slideIn = Slide()
-            slideIn.slideEdge = Gravity.LEFT
-            popupWindow.enterTransition = slideIn
-
-            // Slide animation for popup window exit transition
-            val slideOut = Slide()
-            slideOut.slideEdge = Gravity.RIGHT
-            popupWindow.exitTransition = slideOut
-
-        }
-
 
         view.addNoti.setOnClickListener {
             if (view.spinnerType.selectedIndex == 2) {
@@ -1041,31 +1159,19 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                 else {
                     val speed = view.editSpeedLimit.text.toString().toInt()
                     val note = view.editNote.text.toString()
-                    ApiRequestAddNotificationOnRoad(LatLng(myLocation.latitude,myLocation.longitude), mTourId, mUserId, 3, speed, note, popupWindow)
+                    ApiRequestAddNotificationOnRoad(LatLng(myLocation.latitude,myLocation.longitude), mTourId, mUserId, 3, speed, note, mAlertDialog)
                 }
             }
             else {
                 val note = view.editNote.text.toString()
                 val type = view.spinnerType.selectedIndex + 1
-                ApiRequestAddNotificationOnRoad(LatLng(myLocation.latitude,myLocation.longitude), mTourId, mUserId, type, -1, note, popupWindow)
+                ApiRequestAddNotificationOnRoad(LatLng(myLocation.latitude,myLocation.longitude), mTourId, mUserId, type, -1, note, mAlertDialog)
             }
         }
 
 
 
-        // Set a dismiss listener for popup window
-        popupWindow.setOnDismissListener {
-            isPopupOpen = false
-        }
 
-
-        // Finally, show the popup window on app
-        popupWindow.showAtLocation(
-            tourFollowMainLayout, // Location to display popup window
-            Gravity.CENTER, // Exact position of layout to display popup
-            0, // X offset
-            0 // Y offset
-        )
     }
 
     fun ApiRequestGetTourInfo() {
@@ -1131,7 +1237,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
-    fun ApiRequestAddNotificationOnRoad(pos : LatLng, tourId : Int, UserId : Int, notificationType : Int, speed : Int = -1, note : String = "", pop : PopupWindow) {
+    fun ApiRequestAddNotificationOnRoad(pos : LatLng, tourId : Int, UserId : Int, notificationType : Int, speed : Int = -1, note : String = "", pop : AlertDialog) {
         doAsync {
             val service = WebAccess.retrofit.create(ApiServiceCreateNotificationOnRoad::class.java)
 
@@ -1261,6 +1367,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                     } else {
                         notiOnRoad.clear()
                         notiOnRoad.addAll(response.body()!!.notiList)
+                        notiOnRoadCount.text = " : " + notiOnRoad.size.toString()
                         clearMarkerInArray(notiOnRoadMarker)
                         var marker : Marker
                         for (i in notiOnRoad) {
@@ -1378,6 +1485,29 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
             ActivityCompat.requestPermissions(this, permissions,0)
         }
     }
+
+
+    fun distanceBetweenTwoPoint(user : LatLng, point: LatLng, dest: LatLng) : Float {
+        var userpoint = floatArrayOf(0f)
+        Location.distanceBetween(user.latitude, user.longitude,
+            point.latitude, point.longitude, userpoint)
+        var userdest = floatArrayOf(0f)
+        Location.distanceBetween(user.latitude, user.longitude,
+            dest.latitude, dest.longitude, userdest)
+        var pointdest = floatArrayOf(0f)
+        Location.distanceBetween(point.latitude, point.longitude,
+            dest.latitude, dest.longitude, pointdest)
+        if (userdest[0] > pointdest[0])
+        {
+            return userpoint[0]
+        }
+        else {
+            return 0f
+        }
+    }
+
+
+
 
 
 

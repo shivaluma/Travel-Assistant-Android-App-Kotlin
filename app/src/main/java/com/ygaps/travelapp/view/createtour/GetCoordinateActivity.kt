@@ -95,6 +95,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     lateinit var mLocationRequest: LocationRequest
 
     var mStopPointArrayList = ArrayList<stopPoint>()
+    var mStopPointMarkerArrayList = ArrayList<Marker>()
     var mPolyLineArrayList = ArrayList<Polyline>()
     internal var mGoogleApiClient: GoogleApiClient? = null
     internal var mCurrLocationMarker: Marker? = null
@@ -580,7 +581,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                          val item = mStopPointArrayList[index]
                          var latlng = LatLng(item.lat!!, item.long!!)
 
-                         try {
+
                              popup.editStopPointName.setText(item.name)
                              popup.editAddress.setText(item.address)
                              popup.editMinCost.setText(item.minCost.toString())
@@ -605,10 +606,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                              else {
                                  popup.spinnerType.selectedIndex = item.serviceTypeId!! + 1
                              }
-                         }
-                         catch ( e : Exception) {
-                             e.printStackTrace()
-                         }
+
 
 
 
@@ -842,6 +840,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
     }
 
     fun checkNoStartEndPoint(): Boolean {
+        sortTheListStopPoint()
         return (mStopPointArrayList.size < 2 || mStopPointArrayList[0].type != "Start Point" || mStopPointArrayList[mStopPointArrayList.size - 1].type != "End Point")
     }
 
@@ -1403,9 +1402,16 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
 
             val curMarker: Marker
 
+            var oldIndexType = "none"
+            if (oldIndex >= 0) {
+                oldIndexType = mStopPointArrayList[oldIndex].type
+            }
+
             if (type == "Start Point") {
                 if (mStopPointArrayList.size > 0 && mStopPointArrayList[0].type == "Start Point") {
-                    mStopPointArrayList.removeAt(0)
+                    if (oldIndex <= -1) {
+                        mStopPointArrayList.removeAt(0)
+                    }
                     LastStartMarker.remove()
                 }
                 LastStartMarker =
@@ -1414,7 +1420,9 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 curMarker = LastStartMarker
             } else if (type == "End Point") {
                 if (mStopPointArrayList.size > 0 && mStopPointArrayList[mStopPointArrayList.size - 1].type == "End Point") {
-                    mStopPointArrayList.removeAt(mStopPointArrayList.size - 1)
+                    if (oldIndex <= -1) {
+                        mStopPointArrayList.removeAt(mStopPointArrayList.size - 1)
+                    }
                     LastEndMarker.remove()
                 }
                 LastEndMarker =
@@ -1437,17 +1445,40 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 stoppint.serviceTypeId = 4
             } else {
                 curMarker = addMarker(googleMap, latlng, stoppint.name, R.drawable.ic_pin)
-                stoppint.serviceTypeId = 4
+                stoppint.serviceTypeId = 5
             }
 
 
             curMarker.tag = stoppint.name + stoppint.address + stoppint.type
-            if (oldIndex > -1 && mStopPointArrayList.size > oldIndex) {
-                mStopPointArrayList.removeAt(oldIndex)
-                mStopPointArrayList.add(oldIndex,stoppint)
+            if (oldIndex > -1) {
+
+                if (type == "Start Point") {
+                    mStopPointArrayList.removeAt(oldIndex)
+                    if (mStopPointArrayList.size > 0 && mStopPointArrayList[0].type == "Start Point") {
+                        mStopPointArrayList.removeAt(0)
+                    }
+                    mStopPointArrayList.add(0,stoppint)
+                    mStopPointMarkerArrayList.add(0,curMarker)
+
+
+                }
+                else if (type == "End Point") {
+                    if (mStopPointArrayList.size > 0 && mStopPointArrayList[mStopPointArrayList.size-1].type == "End Point") {
+                        mStopPointArrayList.removeAt(mStopPointArrayList.size-1)
+                    }
+                    mStopPointArrayList.removeAt(oldIndex)
+                    mStopPointArrayList.add(stoppint)
+                    mStopPointMarkerArrayList.add(curMarker)
+                }
+                else {
+                    mStopPointArrayList[oldIndex] = stoppint
+                    mStopPointMarkerArrayList[oldIndex] = curMarker
+                }
+
             }
             else {
                 mStopPointArrayList.add(stoppint)
+                mStopPointMarkerArrayList.add(curMarker)
             }
 
             drawThePath()

@@ -105,7 +105,6 @@ class NavigationBottomActivity : AppCompatActivity() {
             val service = WebAccess.retrofit.create(ApiServicePutFcmToken::class.java)
             val jsonObject = JsonObject()
             var uniqueId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID)
-//di cua m la j z 126
 
             jsonObject.addProperty("fcmToken", fcmToken)
             jsonObject.addProperty("deviceId", uniqueId)

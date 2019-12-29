@@ -41,11 +41,7 @@ import org.jetbrains.anko.accessibilityManager
 
 
 class FirebaseMessagingService : FirebaseMessagingService() {
-
-
     internal var userToken : String ?= null
-
-
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.d("notifas", "NOTIFICATION")
 

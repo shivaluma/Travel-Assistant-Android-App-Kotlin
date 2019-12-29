@@ -133,7 +133,7 @@ class TourInfoActivity : AppCompatActivity() {
             popupStartGoing()
         }
 
-        serviceRatingStarSelect_tour.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
+        serviceRatingStarSelect_tour.setOnRatingBarChangeListener { _, rating, _ ->
             if (rating != 0f) {
                 serviceFeedbackEditContent_tour.visibility = View.VISIBLE
             }
@@ -327,7 +327,7 @@ class TourInfoActivity : AppCompatActivity() {
             val item = data.get(position)
             holder.content.text = item.review
             holder.rating.rating = item.point.toFloat()
-            holder.date.text = util.longToDate(item.createOn)
+            holder.date.text = util.longToDate(item.createdOn)
             if (!item.name.isNullOrEmpty()) {
                 holder.name.text = item.name
             }

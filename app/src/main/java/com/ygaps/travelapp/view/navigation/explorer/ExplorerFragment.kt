@@ -17,6 +17,7 @@ import android.transition.Slide
 import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
@@ -64,12 +65,17 @@ class ExplorerFragment : Fragment() {
     lateinit var mGoogleMap: GoogleMap
     var listStopPointSuggest = ArrayList<StopPoint>()
     var listStopPointSuggestMarker = ArrayList<Marker>()
-
+    var listStopPoint = ArrayList<StopPoint>()
     var listSuggestPoint = ArrayList<LatLng>()
     var listSuggestPointMarker = ArrayList<Marker>()
     var listStopPointSearch = ArrayList<StopPoint>()
     var suggestionsList = ArrayList<String>()
     lateinit var mRecycleSuggestAdapter : StopPointAdapter
+    var currentQuery = ""
+    var pageIndex = 0
+    var pageSize = 10
+    var searchMode = false
+    var currentTotal = 0
 
     val colors = intArrayOf(
         Color.parseColor("#0e9d58"),
@@ -128,16 +134,15 @@ class ExplorerFragment : Fragment() {
             })
         }
 
+        ApiRequestGetDestination()
 
 
-        root.btnShowListSuggest.visibility = View.GONE
 
         root.clearSuggestPointBtn.setOnClickListener {
             listSuggestPoint.clear()
             for (i in listSuggestPointMarker) i.remove()
             listSuggestPointMarker.clear()
             clearSuggestPointOnMap()
-            root.btnShowListSuggest.visibility = View.GONE
         }
 
 
@@ -241,9 +246,24 @@ class ExplorerFragment : Fragment() {
                 popupSuggestPointInfoFromSearch(position)
             }
         })
+        
+        root.destinationSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (!query.isNullOrEmpty()) {
+                    pageIndex = 0
+                    searchMode = true
+                    ApiRequestGetDestination(query)
+                }
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
 
 
-        mRecycleSuggestAdapter = StopPointAdapter(listStopPointSuggest)
+        mRecycleSuggestAdapter = StopPointAdapter(listStopPoint)
         val layoutManager = LinearLayoutManager(context)
         root.showSuggestRecyclerView.adapter = mRecycleSuggestAdapter
         root.showSuggestRecyclerView.layoutManager = layoutManager
@@ -251,6 +271,15 @@ class ExplorerFragment : Fragment() {
         var bottomSheetBehavior = BottomSheetBehavior.from(root.bottom_sheet_layout)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
+        root.showSuggestRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener(){
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (!recyclerView.canScrollVertically(1) && currentTotal > 0 && (pageSize-1)*10 < currentTotal) {
+                    ApiRequestGetDestination(currentQuery)
+                }
+                super.onScrolled(recyclerView, dx, dy)
+            }
+        })
 
 //        root.chipGroup.setOnCheckedChangeListener { chipGroup, i ->
 //            Log.d("abab", i.toString())
@@ -302,10 +331,6 @@ class ExplorerFragment : Fragment() {
     }
 
 
-    fun onFilterChipClicked(v : View) {
-        val chip : Chip = v as Chip
-        Log.d("abab", chip.id.toString())
-    }
 
     fun ApiRequestGetNearbyPoint(body : JsonObject) {
         doAsync {
@@ -330,7 +355,6 @@ class ExplorerFragment : Fragment() {
                         if (listStopPointSuggest.size > 0) {
                             root.btnShowListSuggest.visibility = View.VISIBLE
                         }
-                        mRecycleSuggestAdapter.notifyDataSetChanged()
                         showSuggestPointToMap()
                     }
                 }
@@ -530,44 +554,41 @@ class ExplorerFragment : Fragment() {
     }
 
 
-    fun ApiRequestGetPoints(root : View, serviceId : Int) {
+    fun ApiRequestGetDestination(query : String = "") {
         doAsync {
-            val service = WebAccess.retrofit.create(ApiServiceGetStopPointPoints::class.java)
-            val call = service.getPoints(token,serviceId)
-            call.enqueue(object : Callback<ResponseStopPointRatingPoints> {
-                override fun onFailure(call: Call<ResponseStopPointRatingPoints>, t: Throwable) {
+            currentQuery = query
+            val service = WebAccess.retrofit.create(ApiServiceSearchDestination::class.java)
+            pageIndex++
+            val call = service.search(token,query,pageIndex,"10")
+            call.enqueue(object : Callback<ResponseSearchDestination> {
+                override fun onFailure(call: Call<ResponseSearchDestination>, t: Throwable) {
                     Toast.makeText(context, t.message, Toast.LENGTH_LONG).show()
                 }
-
                 override fun onResponse(
-                    call: Call<ResponseStopPointRatingPoints>,
-                    response: Response<ResponseStopPointRatingPoints>
+                    call: Call<ResponseSearchDestination>,
+                    response: Response<ResponseSearchDestination>
                 ) {
                     if (response.code() != 200) {
-                        Toast.makeText(context, response.message(), Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, response.errorBody().toString(), Toast.LENGTH_LONG).show()
                     } else {
-                        val ratingReviews = root.findViewById<RatingReviews>(R.id.rating_reviews)
-
-                        val raters = intArrayOf(
-                            response.body()!!.pointStats[0].total,
-                            response.body()!!.pointStats[1].total,
-                            response.body()!!.pointStats[2].total,
-                            response.body()!!.pointStats[3].total,
-                            response.body()!!.pointStats[4].total
-                        )
-                        var average = "%.1f".format(raters.average())
-                        root.ratingAveragePoint.text = average.toString()
-                        var maxValue = raters.max()
-                        var sum = raters.sum()
-                        root.textView2.text = sum.toString()
-                        root.ratingBar.rating = average.toFloat()
-
-                        ratingReviews.createRatingBars(maxValue!!, BarLabels.STYPE1, colors, raters)
+                        Log.d("abab",response.body().toString())
+                        if (searchMode) {
+                            listStopPoint.clear()
+                            searchMode = false
+                        }
+                        listStopPoint.addAll(response.body()!!.stopPoints)
+                        currentTotal = response.body()!!.total
+                        root.destinationNumber.text = currentTotal.toString()
+                        root.destinationLoaded.text = listStopPoint.size.toString()
+                        mRecycleSuggestAdapter.notifyDataSetChanged()
                     }
                 }
             })
         }.execute()
     }
+
+
+
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1

@@ -79,7 +79,6 @@ class LoginActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks,
             jsonObject.addProperty("emailPhone", emailPhone)
             jsonObject.addProperty("password", password)
             val service = WebAccess.retrofit.create(ApiServiceLogin::class.java)
-
             val call = service.postData(jsonObject)
 
             call.enqueue(object : Callback<ResponseLogin> {
