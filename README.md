@@ -48,8 +48,8 @@ _No ads._
 - [**Runnable**](https://developer.android.com/reference/java/lang/Runnable) and [**Thread**](https://developer.android.com/guide/components/processes-and-threads) for running complex tasks under background.
 - [**IntentService**](https://developer.android.com/reference/android/app/IntentService) for handling interaction from pushNotification to Activity.
 - [**LocalBroadcastManager**](https://developer.android.com/reference/android/support/v4/content/LocalBroadcastManager) for listening requests from API.
-- [**Callback**] for updating location from Google Map each 10 seconds.
-- **Android Support Libraries**, the almighty ;-)
+- [**LocationCallback**](https://developers.google.com/android/reference/com/google/android/gms/location/LocationCallback) for updating location from Google Map each 10 seconds.
+- [**Android Support Libraries**](https://developer.android.com/topic/libraries/support-library), the almighty ;-)
 - And more technologies...
 
 ## Contribution
