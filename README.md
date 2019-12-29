@@ -6,6 +6,8 @@
 [![Nguyễn Tấn Thái](https://img.shields.io/badge/1712753-view-blue.svg)](http://github.com/crepp5299)
 [![Nguyễn Viết Thanh](https://img.shields.io/badge/1712767-view-red.svg)](http://github.com/shivaluma)
 
+![Logo](/home.jpg "Logo")
+
 # TravelGroup  
 
 Yet another **open-source** GitHub android app but unlike any other app, FastHub was built from passion and friendship.  
