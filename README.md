@@ -35,7 +35,7 @@ _Free and Always free._
 _No ads._
 ## Specs / Open-source libraries:
 
-- Dev on **Android 9.0**
+- Dev on [**Android 9.0**](https://developer.android.com/about/versions/pie)
 - [**Kotlin**](https://github.com/JetBrains/kotlin)
 - [**Retrofit**](https://github.com/square/retrofit) and [**Okhttp3**](https://github.com/MrZhousf/OkHttp3) for request API.
 - [**GSON**](https://github.com/google/gson) to handling JSON objects from API.
