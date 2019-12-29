@@ -36,12 +36,12 @@ _No ads._
 ## Specs / Open-source libraries:
 
 - Dev on [**Android 9.0**](https://developer.android.com/about/versions/pie)
-- [**Kotlin**](https://github.com/JetBrains/kotlin)
+- [**Kotlin**](https://github.com/JetBrains/kotlin) as main programming language
 - [**Retrofit**](https://github.com/square/retrofit) and [**Okhttp3**](https://github.com/MrZhousf/OkHttp3) for request API.
-- [**GSON**](https://github.com/google/gson) to handling JSON objects from API.
-- [**Facebook-login**](https://developers.facebook.com/docs/facebook-login/android) to signin with Facebook.
-- [**PopupWindow**](https://developer.android.com/reference/android/widget/PopupWindow) to show popup.
-- [**MapView**](https://developers.google.com/android/reference/com/google/android/gms/maps/MapView) and [**SupportMapFragment**](https://developers.google.com/android/reference/com/google/android/gms/maps/SupportMapFragment) to select and show location of stop points.
+- [**GSON**](https://github.com/google/gson) for handling JSON objects from API.
+- [**Facebook-login**](https://developers.facebook.com/docs/facebook-login/android) for signing in with Facebook.
+- [**PopupWindow**](https://developer.android.com/reference/android/widget/PopupWindow) for showing popup.
+- [**MapView**](https://developers.google.com/android/reference/com/google/android/gms/maps/MapView) and [**SupportMapFragment**](https://developers.google.com/android/reference/com/google/android/gms/maps/SupportMapFragment) for selecting and show location of stop points.
 - [**MediaRecorder**](https://developer.android.com/reference/android/media/MediaRecorder) and [**MediaPlayer**](https://developer.android.com/reference/android/media/MediaPlayer) for recording and playing records.
 - [**FirebaseMessagingService**](https://firebase.google.com/docs/reference/android/com/google/firebase/messaging/FirebaseMessagingService) for receiving notifications from Firebase and push notifications on device by both [**NotificationCompat**](https://developer.android.com/reference/android/support/v4/app/NotificationCompat) and [**NotificationManager**](https://developer.android.com/reference/android/app/NotificationManager).
 - [**Picasso**](https://square.github.io/picasso) for loading images and setting them into views.
