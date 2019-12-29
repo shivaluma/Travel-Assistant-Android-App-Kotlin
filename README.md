@@ -1,7 +1,7 @@
 #### TravelGroup is a simple app help you to follow a custom tour or tours have made by others people all over the world
 ##### You could contribution in this [PR](https://github.com/shivaluma/cq2017_32_13_doan/pulls)
 
-[![Release](https://img.shields.io/badge/release-1.0-green.svg)](http://github.com/shivaluma/cq2017_32_13_doan)
+[![Release](https://img.shields.io/badge/release-1.0-green.svg)](https://github.com/shivaluma/cq2017_32_13_doan/blob/master/app-release.apk)
 [![Nguyễn Tấn Tài](https://img.shields.io/badge/1712742-view-e01563.svg)](http://github.com/nguyyentantai)
 [![Nguyễn Tấn Thái](https://img.shields.io/badge/1712753-view-blue.svg)](http://github.com/crepp5299)
 [![Nguyễn Viết Thanh](https://img.shields.io/badge/1712767-view-red.svg)](http://github.com/shivaluma)
@@ -74,6 +74,6 @@ Read the [**contribution guide**](.github/CONTRIBUTING.md) for more detailed inf
 > Licensed under the [GPL-3.0](https://www.gnu.org/licenses/gpl.html) license.
 
 ## TravelGroup Logo
-
+![TravelGroup Logo](https://i.imgur.com/r9TbfEX.png)
 **TravelGroup** logo is designed by us, **Brogrammers2527**.  
 Our website [Brogrammers2527](https://brogrammers2527.github.io/default.html).
