@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.OnSuccessListener
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import com.ygaps.travelapp.manager.doAsync
@@ -82,12 +83,14 @@ class TourInfoActivity : AppCompatActivity() {
     var hasInitCommentNumCountView = false
     var tourName : String = ""
     lateinit var commentView : RecyclerView
+    var position : Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tour_info)
         token = this.intent.extras!!.getString("token","notoken")!!
         tourId = this.intent.extras!!.getInt("tourID",100)
+        position = intent.extras!!.getInt("position", -1)
         supportActionBar!!.hide()
         tourRating.rating = 3.2f
         Log.d("abab", tourId.toString())
@@ -441,7 +444,7 @@ class TourInfoActivity : AppCompatActivity() {
             val call = service.getTourInfo(token,tourId)
             call.enqueue(object : Callback<ResponseTourInfo> {
                 override fun onFailure(call: Call<ResponseTourInfo>, t: Throwable) {
-                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@TourInfoActivity, t.message, Toast.LENGTH_LONG).show()
                 }
 
                 override fun onResponse(
@@ -449,7 +452,7 @@ class TourInfoActivity : AppCompatActivity() {
                     response: Response<ResponseTourInfo>
                 ) {
                     if (response.code() != 200) {
-                        Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@TourInfoActivity, response.errorBody().toString(), Toast.LENGTH_LONG).show()
                     } else {
                         Log.d("abab",response.body().toString())
                         val tourInfoName = tourInfoName
@@ -517,7 +520,7 @@ class TourInfoActivity : AppCompatActivity() {
             val call = service.comment(token,jsonObject)
             call.enqueue(object : Callback<ResponseToComment> {
                 override fun onFailure(call: Call<ResponseToComment>, t: Throwable) {
-                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@TourInfoActivity, t.message, Toast.LENGTH_LONG).show()
                 }
 
                 override fun onResponse(
@@ -525,7 +528,7 @@ class TourInfoActivity : AppCompatActivity() {
                     response: Response<ResponseToComment>
                 ) {
                     if (response.code() != 200) {
-                        Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@TourInfoActivity, response.errorBody().toString(), Toast.LENGTH_LONG).show()
                     } else {
                         ApiRequestGetComment(tourId)
                     }
@@ -540,7 +543,7 @@ class TourInfoActivity : AppCompatActivity() {
             val call = service.getList(token,tourId,1,"9999")
             call.enqueue(object : Callback<ResponseCommentList> {
                 override fun onFailure(call: Call<ResponseCommentList>, t: Throwable) {
-                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@TourInfoActivity, t.message, Toast.LENGTH_LONG).show()
                 }
 
                 override fun onResponse(
@@ -548,7 +551,7 @@ class TourInfoActivity : AppCompatActivity() {
                     response: Response<ResponseCommentList>
                 ) {
                     if (response.code() != 200) {
-                        Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@TourInfoActivity, response.errorBody().toString(), Toast.LENGTH_LONG).show()
                     } else {
                         var data = response.body()
                         listComment.clear()
@@ -570,14 +573,14 @@ class TourInfoActivity : AppCompatActivity() {
             val call = service.getReview(token,tourId,1,"9999")
             call.enqueue(object : Callback<ResponseGetReviewsTour> {
                 override fun onFailure(call: Call<ResponseGetReviewsTour>, t: Throwable) {
-                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@TourInfoActivity, t.message, Toast.LENGTH_LONG).show()
                 }
                 override fun onResponse(
                     call: Call<ResponseGetReviewsTour>,
                     response: Response<ResponseGetReviewsTour>
                 ) {
                     if (response.code() != 200) {
-                        Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@TourInfoActivity, response.errorBody().toString(), Toast.LENGTH_LONG).show()
                     } else {
                         Log.d("abab",response.body().toString())
                         listReviews.clear()
@@ -910,43 +913,22 @@ class TourInfoActivity : AppCompatActivity() {
     fun popupSetting() {
         val inflater: LayoutInflater =
             getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val view = inflater.inflate(R.layout.popup_setting_bottom, null)
+
+        //Inflate the dialog with custom view
+        val view = LayoutInflater.from(this@TourInfoActivity).inflate(R.layout.popup_setting_bottom, null)
+        //AlertDialogBuilder
+        val mAlertDialog = BottomSheetDialog(this@TourInfoActivity)
+        mAlertDialog.setContentView(view)
+        mAlertDialog.show()
 
 
-
-        val popupWindow = PopupWindow(
-            view, // Custom view to show in popup window
-            LinearLayout.LayoutParams.MATCH_PARENT, // Width of popup window
-            LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
-            true
-        )
-
-        // Set an elevation for the popup window
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            popupWindow.elevation = 10.0F
-        }
-
-
-        // If API level 23 or higher then execute the code
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // Create a new slide animation for popup window enter transition
-            val slideIn = Slide()
-            slideIn.slideEdge = Gravity.BOTTOM
-            popupWindow.enterTransition = slideIn
-
-            // Slide animation for popup window exit transition
-            val slideOut = Slide()
-            slideOut.slideEdge = Gravity.BOTTOM
-            popupWindow.exitTransition = slideOut
-
-        }
 
         // Get the widgets reference from custom view
         //val tv = view.findViewById<TextView>(R.id.text_view)
 
         view.btnTourEditInfomation.setOnClickListener {
-            popupWindow.dismiss()
-            var editIntent = Intent(applicationContext, ChangeTourInfo::class.java)
+            mAlertDialog.dismiss()
+            var editIntent = Intent(this@TourInfoActivity, ChangeTourInfo::class.java)
             editIntent.putExtra("token", token)
             editIntent.putExtra("userId", tourId)
             startActivityForResult(editIntent,6969)
@@ -959,21 +941,18 @@ class TourInfoActivity : AppCompatActivity() {
                 if (!task.isSuccessful) {
                     msg = "Subscribe failed"
                 }
-                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@TourInfoActivity, msg, Toast.LENGTH_SHORT).show()
             }
-            popupWindow.dismiss()
+            mAlertDialog.dismiss()
+        }
+
+        view.btnDeleteTour.setOnClickListener {
+            mAlertDialog.dismiss()
+            ApiRequestDeleteTour()
         }
 
         // Set a dismiss listener for popup window
 
-
-        // Finally, show the popup window on app
-        popupWindow.showAtLocation(
-            tourInfoMainLayout, // Location to display popup window
-            Gravity.BOTTOM, // Exact position of layout to display popup
-            0, // X offset
-            0 // Y offset
-        )
     }
 
     fun popupStartGoing() {
@@ -1037,19 +1016,51 @@ class TourInfoActivity : AppCompatActivity() {
             val call = service.report(token,body)
             call.enqueue(object : Callback<ResponseReport> {
                 override fun onFailure(call: Call<ResponseReport>, t: Throwable) {
-                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@TourInfoActivity, t.message, Toast.LENGTH_LONG).show()
                 }
                 override fun onResponse(
                     call: Call<ResponseReport>,
                     response: Response<ResponseReport>
                 ) {
                     if (response.code() != 200) {
-                        Toast.makeText(applicationContext, response.message(), Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@TourInfoActivity, response.message(), Toast.LENGTH_LONG).show()
                     } else {
-                        Toast.makeText(applicationContext, "Report success!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@TourInfoActivity, "Report success!", Toast.LENGTH_LONG).show()
                     }
                 }
             })
         }.execute()
+    }
+
+
+    fun ApiRequestDeleteTour() {
+        val service = WebAccess.retrofit.create(ApiServiceUpdateTour::class.java)
+        val body = JsonObject()
+        body.addProperty("id", tourId)
+        body.addProperty("status", -1)
+        val call = service.update(token,body)
+        call.enqueue(object : Callback<ResponseUpdateTourInfo> {
+            override fun onFailure(call: Call<ResponseUpdateTourInfo>, t: Throwable) {
+                Toast.makeText(this@TourInfoActivity, t.message, Toast.LENGTH_LONG).show()
+            }
+
+            override fun onResponse(
+                call: Call<ResponseUpdateTourInfo>,
+                response: Response<ResponseUpdateTourInfo>
+            ) {
+                if (response.code() != 200) {
+                    val gson = Gson()
+                    val type = object : TypeToken<ErrorResponse>() {}.type
+                    var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
+                    Toast.makeText(this@TourInfoActivity, errorResponse!!.message, Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this@TourInfoActivity, "Delete Successfully", Toast.LENGTH_LONG).show()
+                    intent = Intent()
+                    intent.putExtra("position", position)
+                    setResult(RESULT_OK, intent)
+                    finish()
+                }
+            }
+        })
     }
 }

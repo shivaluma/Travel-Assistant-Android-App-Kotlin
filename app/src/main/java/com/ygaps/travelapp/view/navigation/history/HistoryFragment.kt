@@ -1,5 +1,6 @@
 package com.ygaps.travelapp.view.navigation.history
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -127,6 +128,24 @@ class HistoryFragment : Fragment() {
     }
 
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        if (requestCode == 12321 && resultCode == Activity.RESULT_OK) {
+            try {
+                var position = data?.extras?.getInt("position", -1)
+                Log.d("tss", position.toString())
+                if (position != -1 && position != null) {
+                    listTour.removeAt(position)
+                    tourAdapter.notifyDataSetChanged()
+                }
+            }
+            catch (ex : Exception) {
+                ex.printStackTrace()
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     inner class RecyclerViewAdapter(data: ArrayList<Tour>) :
         RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder>() {
 
@@ -175,7 +194,8 @@ class HistoryFragment : Fragment() {
                 val intent = Intent(context, TourInfoActivity::class.java)
                 intent.putExtra("token", token)
                 intent.putExtra("tourID", item.id)
-                startActivity(intent)
+                intent.putExtra("position", position)
+                startActivityForResult(intent,12321)
             }
         }
 
@@ -296,6 +316,9 @@ class HistoryFragment : Fragment() {
                     } else {
                         listTour.clear()
                         listTour.addAll(response.body()!!.tours)
+                        listTour.removeIf {
+                            it.status == -1
+                        }
                         curTourCount.text = response.body()!!.total.toString()
                         tourAdapter.notifyDataSetChanged()
                         loaded.text = listTour.size.toString()
