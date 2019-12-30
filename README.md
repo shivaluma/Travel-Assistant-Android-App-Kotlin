@@ -1,10 +1,9 @@
 #### TravelGroup is a simple app help you to follow a custom tour or tours have made by others people all over the world
 ##### You could contribution in this [PR](https://github.com/shivaluma/cq2017_32_13_doan/pulls)
 
-[![Release](https://img.shields.io/badge/release-1.0-green.svg)](https://github.com/shivaluma/cq2017_32_13_doan/blob/master/app-release.apk)
-[![Nguyễn Tấn Tài](https://img.shields.io/badge/1712742-view-e01563.svg)](http://github.com/nguyyentantai)
-[![Nguyễn Tấn Thái](https://img.shields.io/badge/1712753-view-blue.svg)](http://github.com/crepp5299)
-[![Nguyễn Viết Thanh](https://img.shields.io/badge/1712767-view-red.svg)](http://github.com/shivaluma)
+[![Release](https://img.shields.io/badge/release-v1.0-green.svg)](https://github.com/shivaluma/cq2017_32_13_doan/blob/master/app-release.apk)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Nguyễn Tấn Tài](https://img.shields.io/badge/about_us-view-e01563.svg)](https://brogrammers2527.github.io/default.html)
 
 ![Logo](/home.jpg "Logo")
 
@@ -53,6 +52,19 @@ _No ads._
 - [**LocationCallback**](https://developers.google.com/android/reference/com/google/android/gms/location/LocationCallback) for updating location from Google Map each 10 seconds.
 - [**Android Support Libraries**](https://developer.android.com/topic/libraries/support-library), the almighty ;-)
 - And more technologies...
+
+## Special thanks to:
+
+- [**mancj**](https://github.com/mancj) for [**MaterialSearchBar**](https://github.com/mancj/MaterialSearchBar).
+- [**jaredrummler**](https://github.com/jaredrummler) for [**MaterialSpinner**](https://github.com/jaredrummler/MaterialSpinner).
+- [**cbeust**](https://github.com/cbeust) for [**klaxon**](https://github.com/cbeust/klaxon).
+- [**hdodenhof**](https://github.com/hdodenhof) for [**CircleImageView**](https://github.com/hdodenhof/CircleImageView).
+- [**square**](https://github.com/square) for [**picasso**](https://github.com/square/picasso).
+- [**Inconnu08**](https://github.com/Inconnu08) for [**android-ratingreviews**](https://github.com/Inconnu08/android-ratingreviews).
+- [**3llomi**](https://github.com/3llomi) for [**RecordView**](https://github.com/3llomi/RecordView).
+- [**vinc3m1**](https://github.com/vinc3m1) for [**RoundedImageView**](https://github.com/vinc3m1/RoundedImageView).
+- [**hendraanggrian**](https://github.com/hendraanggrian) for [**pikasso**](https://github.com/hendraanggrian/pikasso).
+
 
 ## Contribution
 
