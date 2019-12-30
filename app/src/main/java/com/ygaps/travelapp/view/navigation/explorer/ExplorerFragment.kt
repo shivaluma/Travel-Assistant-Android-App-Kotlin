@@ -166,30 +166,26 @@ class ExplorerFragment : Fragment() {
             }
 
             else if (listSuggestPoint.size > 1) {
-                if (listSuggestPoint.size % 2 == 1) {
-                    Toast.makeText(context, "Số điểm chấm phải là số chẵn", Toast.LENGTH_LONG).show()
+                var body = JsonObject()
+                var coorlist = JsonArray()
+                var array = JsonArray()
+                for (i in 0..listSuggestPoint.size - 2) {
+                    var coor = JsonObject()
+                    coor.addProperty("lat", listSuggestPoint[i].latitude)
+                    coor.addProperty("long", listSuggestPoint[i].longitude)
+                    var coor2 = JsonObject()
+                    coor2.addProperty("lat", listSuggestPoint[i+1].latitude)
+                    coor2.addProperty("long", listSuggestPoint[i+1].longitude)
+                    array.add(coor)
+                    array.add(coor2)
+                    var coorListObject = JsonObject()
+                    coorListObject.add("coordinateSet", array)
+                    array = JsonArray()
+                    coorlist.add(coorListObject)
                 }
-                else {
-                    var body = JsonObject()
-                    var coorlist = JsonArray()
-                    var array = JsonArray()
-
-                    for (i in 0..listSuggestPoint.size-1) {
-                        var coor = JsonObject()
-                        coor.addProperty("lat", listSuggestPoint[i].latitude)
-                        coor.addProperty("long", listSuggestPoint[i].longitude)
-                        array.add(coor)
-                        if (i > 0 && i % 2 == 1) {
-                            var coorListObject = JsonObject()
-                            coorListObject.add("coordinateSet", array)
-                            array = JsonArray()
-                            coorlist.add(coorListObject)
-                        }
-                    }
-                    body.addProperty("hasOneCoordinate", false)
-                    body.add("coordList", coorlist)
-                    ApiRequestGetNearbyPoint(body)
-                }
+                body.addProperty("hasOneCoordinate", false)
+                body.add("coordList", coorlist)
+                ApiRequestGetNearbyPoint(body)
             }
         }
 
