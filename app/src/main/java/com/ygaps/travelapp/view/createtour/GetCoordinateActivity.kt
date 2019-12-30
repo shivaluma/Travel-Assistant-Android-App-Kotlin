@@ -503,7 +503,6 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                         var body = JsonObject()
                         var coorlist = JsonArray()
                         var array = JsonArray()
-
                         for (i in 0..listSuggestPoint.size - 2) {
                             var coor = JsonObject()
                             coor.addProperty("lat", listSuggestPoint[i].latitude)
@@ -1018,6 +1017,7 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                         Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
                     } else {
                         Log.d("abab",response.body().toString())
+                        listStopPointSuggest.clear()
                         listStopPointSuggest.addAll(response.body()!!.stopPoints)
                         showSuggestPointToMap()
                     }
