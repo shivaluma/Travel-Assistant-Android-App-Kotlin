@@ -1,10 +1,12 @@
 #### TravelGroup is a simple app help you to follow a custom tour or tours have made by others people all over the world
 ##### You could contribution in this [PR](https://github.com/shivaluma/cq2017_32_13_doan/pulls)
 
-[![Release](https://img.shields.io/badge/release-1.0-green.svg)](http://github.com/shivaluma/cq2017_32_13_doan)
+[![Release](https://img.shields.io/badge/release-1.0-green.svg)](https://github.com/shivaluma/cq2017_32_13_doan/blob/master/app-release.apk)
 [![Nguyễn Tấn Tài](https://img.shields.io/badge/1712742-view-e01563.svg)](http://github.com/nguyyentantai)
 [![Nguyễn Tấn Thái](https://img.shields.io/badge/1712753-view-blue.svg)](http://github.com/crepp5299)
 [![Nguyễn Viết Thanh](https://img.shields.io/badge/1712767-view-red.svg)](http://github.com/shivaluma)
+
+![Logo](/home.jpg "Logo")
 
 # TravelGroup  
 
@@ -33,27 +35,23 @@ _Free and Always free._
 _No ads._
 ## Specs / Open-source libraries:
 
-- Dev on **Android 9.0**
-- [**Kotlin**](https://github.com/JetBrains/kotlin)
+- Dev on [**Android 9.0**](https://developer.android.com/about/versions/pie)
+- [**Kotlin**](https://github.com/JetBrains/kotlin) as main programming language
 - [**Retrofit**](https://github.com/square/retrofit) and [**Okhttp3**](https://github.com/MrZhousf/OkHttp3) for request API.
-- [**SharedPreferences**] to save necessary information.
-- [**GSON**] to handling JSON objects from API.
-- [**Facebook-login**] to signin with Facebook.
-- [**RecycleView**] to show list tours.
-- [**NavigationBottomBar**] to create tabs on nav bar such as history, list tours, invitations,...
-- [**PopupWindow**] to show popup.
-- [**MapView**] and [**mapSupportFragment**] to select and show location of stop points.
-- [**BottomSheet**] to create dialog menu, lists.
-- [**MediaRecorder**] and [**MediaPlayer**] for recording and playing records.
-- [**FirebaseMessagingService**] for receiving notifications from Firebase and push notifications on device by both [**NotificationCompat**] and [**NotificationManager**].
+- [**GSON**](https://github.com/google/gson) for handling JSON objects from API.
+- [**Facebook-login**](https://developers.facebook.com/docs/facebook-login/android) for signing in with Facebook.
+- [**PopupWindow**](https://developer.android.com/reference/android/widget/PopupWindow) for showing popup.
+- [**MapView**](https://developers.google.com/android/reference/com/google/android/gms/maps/MapView) and [**SupportMapFragment**](https://developers.google.com/android/reference/com/google/android/gms/maps/SupportMapFragment) for selecting and show location of stop points.
+- [**MediaRecorder**](https://developer.android.com/reference/android/media/MediaRecorder) and [**MediaPlayer**](https://developer.android.com/reference/android/media/MediaPlayer) for recording and playing records.
+- [**FirebaseMessagingService**](https://firebase.google.com/docs/reference/android/com/google/firebase/messaging/FirebaseMessagingService) for receiving notifications from Firebase and push notifications on device by both [**NotificationCompat**](https://developer.android.com/reference/android/support/v4/app/NotificationCompat) and [**NotificationManager**](https://developer.android.com/reference/android/app/NotificationManager).
 - [**Picasso**](https://square.github.io/picasso) for loading images and setting them into views.
-- [**Google_Map_API_v2**] for drawing path of tours.
-- [**AsyncTask**] for handling asynchronous actions.
-- [**Runnable**] and [**Thread**] for running complex tasks under background.
-- [**IntentService**] for handling interaction from pushNotification to Activity.
-- [**LocalBroadcast**] for listening requests from API.
-- [**Callback**] for updating location from Google Map each 10 seconds.
-- **Android Support Libraries**, the almighty ;-)
+- [**Google_Map_API_v2**](https://developers.google.com/maps/documentation) for drawing path of tours.
+- [**AsyncTask**](https://developer.android.com/reference/android/os/AsyncTask) for handling asynchronous actions.
+- [**Runnable**](https://developer.android.com/reference/java/lang/Runnable) and [**Thread**](https://developer.android.com/guide/components/processes-and-threads) for running complex tasks under background.
+- [**IntentService**](https://developer.android.com/reference/android/app/IntentService) for handling interaction from pushNotification to Activity.
+- [**LocalBroadcastManager**](https://developer.android.com/reference/android/support/v4/content/LocalBroadcastManager) for listening requests from API.
+- [**LocationCallback**](https://developers.google.com/android/reference/com/google/android/gms/location/LocationCallback) for updating location from Google Map each 10 seconds.
+- [**Android Support Libraries**](https://developer.android.com/topic/libraries/support-library), the almighty ;-)
 - And more technologies...
 
 ## Contribution
@@ -78,6 +76,7 @@ Read the [**contribution guide**](.github/CONTRIBUTING.md) for more detailed inf
 > Licensed under the [GPL-3.0](https://www.gnu.org/licenses/gpl.html) license.
 
 ## TravelGroup Logo
+![TravelGroup Logo](https://i.imgur.com/r9TbfEX.png)
 
 **TravelGroup** logo is designed by us, **Brogrammers2527**.  
 Our website [Brogrammers2527](https://brogrammers2527.github.io/default.html).
