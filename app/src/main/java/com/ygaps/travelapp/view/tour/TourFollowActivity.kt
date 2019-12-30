@@ -233,6 +233,11 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         desId = intent.extras!!.getInt("desId")
 
 
+
+        if (!checkPermissions()) {
+            requestPermissions()
+        }
+
         requestRecordPermission()
 
 
@@ -673,6 +678,14 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
         if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
         }
+        if (requestCode == PERMISSION_ID) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                val intent = getIntent()
+                finish()
+                startActivity(intent)
+            }
+        }
+
         if (requestCode == 1212) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
@@ -967,7 +980,6 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
     fun ApiRequestGetNotices() {
         doAsync {
             val service = WebAccess.retrofit.create(ApiServiceGetTourNotices::class.java)
-
             val call = service.getNotices(mToken , mTourId, 1, "999" )
             call.enqueue(object : Callback<ResponseGetTourNotice> {
                 override fun onFailure(call: Call<ResponseGetTourNotice>, t: Throwable) {
@@ -981,7 +993,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (response.code() != 200) {
                         Toast.makeText(applicationContext, response.errorBody().toString(), Toast.LENGTH_LONG).show()
                     } else {
-                        Log.d("abab",response.body().toString())
+
                         mListChat.clear()
                         mListChat.addAll(response.body()!!.notiList)
                         mChatAdapter.notifyDataSetChanged()

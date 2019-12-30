@@ -425,7 +425,6 @@ class GetCoordinateActivity : AppCompatActivity(), OnMapReadyCallback, LocationL
                 LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
                 LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
                 true
-
             )
 
             // Set an elevation for the popup window

@@ -722,9 +722,9 @@ class TourInfoActivity : AppCompatActivity() {
         for (i in listStopPoint) {
             typeCount[i.serviceTypeId!!-1]++
         }
-        countRes.text = typeCount[0].toString()
+        countRest.text = typeCount[0].toString()
         countHotel.text = typeCount[1].toString()
-        countRest.text = typeCount[2].toString()
+        countRes.text = typeCount[2].toString()
         countOthers.text = typeCount[3].toString()
     }
 

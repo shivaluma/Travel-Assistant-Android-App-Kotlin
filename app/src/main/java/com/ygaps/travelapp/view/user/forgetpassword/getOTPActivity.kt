@@ -48,7 +48,7 @@ class getOTPActivity : AppCompatActivity() {
             val call = service.getOTP(body)
             call.enqueue(object : Callback<ResponseGetOTP> {
                 override fun onFailure(call: Call<ResponseGetOTP>, t: Throwable) {
-                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@getOTPActivity, t.message, Toast.LENGTH_LONG).show()
                 }
 
                 override fun onResponse(
@@ -59,13 +59,13 @@ class getOTPActivity : AppCompatActivity() {
                         val gson = Gson()
                         val type = object : TypeToken<ErrorResponse>() {}.type
                         var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
-                        Toast.makeText(applicationContext, errorResponse!!.message, Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@getOTPActivity, errorResponse!!.message, Toast.LENGTH_LONG).show()
                     } else {
                         var type = response.body()!!.type
                         var expire = response.body()!!.expiredOn
                         var userId = response.body()!!.userId
 
-                        var intent = Intent(applicationContext, CheckOTPActivity::class.java)
+                        var intent = Intent(this@getOTPActivity, CheckOTPActivity::class.java)
                         intent.putExtra("type", type)
                         intent.putExtra("expiredOn", expire)
                         intent.putExtra("userId", userId)

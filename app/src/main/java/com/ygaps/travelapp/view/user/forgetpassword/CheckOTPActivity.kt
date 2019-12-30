@@ -36,6 +36,7 @@ class CheckOTPActivity : AppCompatActivity() {
             }
 
             override fun onFinish() {
+                finish()
                 remainingTime.text = "Time Out!!"
             }
         }
@@ -73,15 +74,14 @@ class CheckOTPActivity : AppCompatActivity() {
                     val gson = Gson()
                     val type = object : TypeToken<ErrorResponse>() {}.type
                     var errorResponse: ErrorResponse? = gson.fromJson(response.errorBody()!!.charStream(), type)
-                    Toast.makeText(applicationContext, errorResponse!!.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@CheckOTPActivity, errorResponse!!.message, Toast.LENGTH_LONG).show()
                 } else {
-                    Toast.makeText(applicationContext, "Reset password successful!!", Toast.LENGTH_LONG).show()
-                    val intent = Intent(applicationContext, LoginActivity::class.java)
+                    Toast.makeText(this@CheckOTPActivity, "Reset password successful!!", Toast.LENGTH_LONG).show()
+                    val intent = Intent(this@CheckOTPActivity, LoginActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
                 }
             }
         })
-
     }
 }

@@ -44,7 +44,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     internal var userToken : String ?= null
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.d("notifas", "NOTIFICATION")
-
         for (i in remoteMessage.data) {
             Log.d("notifas", i.key + " -> " + i.value )
         }
