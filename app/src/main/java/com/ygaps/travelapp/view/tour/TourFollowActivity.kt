@@ -86,9 +86,17 @@ import kotlinx.android.synthetic.main.bottom_sheet_notifi_on_road.*
 import kotlinx.android.synthetic.main.bottomsheet.view.*
 import kotlinx.android.synthetic.main.fragment_explorer.view.*
 import kotlinx.android.synthetic.main.item_notification_on_road.view.*
+import kotlinx.android.synthetic.main.item_notification_on_road.view.notiDistance
+import kotlinx.android.synthetic.main.item_notification_on_road.view.notiNote
+import kotlinx.android.synthetic.main.item_notification_on_road.view.notiPolice
+import kotlinx.android.synthetic.main.item_notification_on_road.view.notiProblem
+import kotlinx.android.synthetic.main.item_notification_on_road.view.notiSpeed
+import kotlinx.android.synthetic.main.item_notification_on_road.view.notiSpeedEdit
+import kotlinx.android.synthetic.main.item_notification_on_road.view.notiSpeedView
 import kotlinx.android.synthetic.main.popup_chat.view.*
 import kotlinx.android.synthetic.main.popup_create_notification_on_road.*
 import kotlinx.android.synthetic.main.popup_create_notification_on_road.view.*
+import kotlinx.android.synthetic.main.popup_notification_onroad.view.*
 import kotlinx.coroutines.delay
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -598,6 +606,60 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
             mGoogleMap.isMyLocationEnabled = true
         }
 
+        mGoogleMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
+            override fun onMarkerClick(p0: Marker?): Boolean {
+                if (p0?.tag != null && p0.tag.toString().contains("noti")) {
+                    val index = p0.tag.toString().split(" ")[1].toInt()
+                    val item = notiOnRoad[index]
+                    //AlertDialogBuilder
+                    val inflater: LayoutInflater =
+                        getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+                    val view = inflater.inflate(R.layout.popup_notification_onroad, null)
+                    val mBuilder = AlertDialog.Builder(this@TourFollowActivity)
+                        .setView(view)
+
+
+                    when (item.notificationType) {
+                        1 -> {
+                            view.notiPolice.visibility = View.VISIBLE
+                            view.notiProblem.visibility = View.GONE
+                            view.notiSpeed.visibility = View.GONE
+                            view.notiSpeedView.visibility = View.GONE
+                        }
+                        2 -> {
+                            view.notiProblem.visibility = View.VISIBLE
+                            view.notiPolice.visibility = View.GONE
+                            view.notiSpeed.visibility = View.GONE
+                            view.notiSpeedView.visibility = View.GONE
+                        }
+                        3 -> {
+                            view.notiSpeed.visibility = View.VISIBLE
+                            view.notiSpeedView.visibility = View.VISIBLE
+                            view.notiPolice.visibility = View.GONE
+                            view.notiProblem.visibility = View.GONE
+                            view.notiSpeedEdit.text = item.speed.toString()
+                        }
+                    }
+
+                    view.notiNote.text = item.note
+                    if (::myLocation.isInitialized) {
+                        val currentLocation = LatLng(myLocation.latitude, myLocation.longitude)
+                        val notiLocation = LatLng(item.lat,item.long)
+                        view.notiDistance.text = distanceBetweenTwoPoint(currentLocation, notiLocation, destinationLatLng).toInt().toString()
+                    }
+
+                    //show dialog
+                    val  mAlertDialog = mBuilder.show()
+
+                    view.dismissBtnNotiOnRoad.setOnClickListener {
+                        mAlertDialog.dismiss()
+                    }
+
+                }
+                return false
+            }
+        })
+
     }
 
 
@@ -694,30 +756,36 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                 resetCurrentPolyLine(currentPathPolyline)
                 val jsonResponse = JSONObject(response)
                 // Get routes
-                val routes = jsonResponse.getJSONArray("routes")
-                val legs = routes.getJSONObject(0).getJSONArray("legs")
-                val steps = legs.getJSONObject(0).getJSONArray("steps")
+                try {
+                    val routes = jsonResponse.getJSONArray("routes")
+                    val legs = routes.getJSONObject(0).getJSONArray("legs")
+                    val steps = legs.getJSONObject(0).getJSONArray("steps")
 
-                val distance = legs.getJSONObject(0).getJSONObject("distance").getDouble("value")+steps.getJSONObject(0).getJSONObject("distance").getDouble("value")
-                val duration = legs.getJSONObject(0).getJSONObject("duration").getInt("value")+steps.getJSONObject(0).getJSONObject("duration").getInt("value")
+                    val distance = legs.getJSONObject(0).getJSONObject("distance").getDouble("value")+steps.getJSONObject(0).getJSONObject("distance").getDouble("value")
+                    val duration = legs.getJSONObject(0).getJSONObject("duration").getInt("value")+steps.getJSONObject(0).getJSONObject("duration").getInt("value")
 
-                if (distance < 200) {
-                    reachedDestination = true
+                    if (distance < 200) {
+                        reachedDestination = true
+                    }
+
+                    distanceToDestination.text = "%.2f".format(distance/1000)
+                    timeRemainingToDestination.text = (duration/60 + 1).toString()
+
+
+                    for (i in 0 until steps.length()) {
+                        val points = steps.getJSONObject(i).getJSONObject("polyline").getString("points")
+                        path.add(PolyUtil.decode(points))
+                    }
+                    for (i in 0 until path.size) {
+                        var pol =  mGoogleMap.addPolyline(PolylineOptions().addAll(path[i]).color(Color.BLUE).width(5.0f))
+
+                        currentPathPolyline.add(pol)
+                    }
+                }
+                catch (ex : Exception) {
+                    ex.printStackTrace()
                 }
 
-                distanceToDestination.text = "%.2f".format(distance/1000)
-                timeRemainingToDestination.text = (duration/60 + 1).toString()
-
-
-                for (i in 0 until steps.length()) {
-                    val points = steps.getJSONObject(i).getJSONObject("polyline").getString("points")
-                    path.add(PolyUtil.decode(points))
-                }
-                for (i in 0 until path.size) {
-                   var pol =  mGoogleMap.addPolyline(PolylineOptions().addAll(path[i]).color(Color.BLUE).width(5.0f))
-
-                   currentPathPolyline.add(pol)
-                }
             }, Response.ErrorListener {
                     _ ->
             }){}
@@ -1370,18 +1438,22 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                         notiOnRoadCount.text = " : " + notiOnRoad.size.toString()
                         clearMarkerInArray(notiOnRoadMarker)
                         var marker : Marker
-                        for (i in notiOnRoad) {
+                        for (c in 0..notiOnRoad.size-1) {
+                            val i = notiOnRoad[c]
                             when(i.notificationType) {
                                 1 -> {
                                     marker = addMarker(mGoogleMap, LatLng(i.lat,i.long), util.codeToTypeOfNotification(i.notificationType), R.drawable.ic_police_on_road)
+                                    marker.tag = "noti ${c}"
                                     notiOnRoadMarker.add(marker)
                                 }
                                 2-> {
                                     marker = addMarker(mGoogleMap, LatLng(i.lat,i.long), util.codeToTypeOfNotification(i.notificationType), R.drawable.ic_problem_on_road)
+                                    marker.tag = "noti ${c}"
                                     notiOnRoadMarker.add(marker)
                                 }
                                 3 -> {
                                     marker = addMarker(mGoogleMap, LatLng(i.lat,i.long), util.codeToTypeOfNotification(i.notificationType) +" - " + i.speed + "km", R.drawable.ic_speed_limit)
+                                    marker.tag = "noti ${c}"
                                     notiOnRoadMarker.add(marker)
                                 }
                             }
@@ -1426,6 +1498,7 @@ class TourFollowActivity : AppCompatActivity(), OnMapReadyCallback {
                         for (i in memberPos) {
                             if (i.id == mUserId) continue
                             val marker = addMarker(mGoogleMap, LatLng(i.lat, i.long), i.id.toString(), R.drawable.ic_person_pin_circle_black_24dp )
+
                             memberPosMarker.add(marker)
                         }
                         currentFollowingTour.setText(" : ${memberPos.size}")
