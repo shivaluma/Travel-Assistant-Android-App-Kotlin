@@ -54,6 +54,19 @@ _No ads._
 - [**Android Support Libraries**](https://developer.android.com/topic/libraries/support-library), the almighty ;-)
 - And more technologies...
 
+## Special thanks to:
+
+- [**mancj**](https://github.com/mancj) for [**MaterialSearchBar**](https://github.com/mancj/MaterialSearchBar).
+- [**jaredrummler**](https://github.com/jaredrummler) for [**MaterialSpinner**](https://github.com/jaredrummler/MaterialSpinner).
+- [**cbeust**](https://github.com/cbeust) for [**klaxon**](https://github.com/cbeust/klaxon).
+- [**hdodenhof**](https://github.com/hdodenhof) for [**CircleImageView**](https://github.com/hdodenhof/CircleImageView).
+- [**square**](https://github.com/square) for [**picasso**](https://github.com/square/picasso).
+- [**Inconnu08**](https://github.com/Inconnu08) for [**android-ratingreviews**](https://github.com/Inconnu08/android-ratingreviews).
+- [**3llomi**](https://github.com/3llomi) for [**RecordView**](https://github.com/3llomi/RecordView).
+- [**vinc3m1**](https://github.com/vinc3m1) for [**RoundedImageView**](https://github.com/vinc3m1/RoundedImageView).
+- [**hendraanggrian**](https://github.com/hendraanggrian) for [**pikasso**](https://github.com/hendraanggrian/pikasso).
+
+
 ## Contribution
 
 You love TravelGroup? You want new features or bug fixes?  
