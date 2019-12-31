@@ -321,8 +321,8 @@ class StopPointInfo : AppCompatActivity(), OnMapReadyCallback{
                         )
 
                         var tempsum = 0
-                        for (i in 0..raters.size-1) {
-                            tempsum+= (i+1)*raters[i]
+                        for (i in 0..4) {
+                            tempsum+= (i+1)*raters[i].toInt()
                         }
 
 
@@ -331,7 +331,7 @@ class StopPointInfo : AppCompatActivity(), OnMapReadyCallback{
                         var average = "%.1f".format(tempsum.toFloat()/sum)
                         ratingAveragePoint.text = average
                         textView2.text = sum.toString()
-                        ratingBar.rating = average.toFloat()
+                        ratingBar.rating = tempsum.toFloat()/sum
 
                         ratingReviews.createRatingBars(maxValue!!, BarLabels.STYPE1, Constant.colors, raters.reversedArray())
                     }
