@@ -120,6 +120,14 @@ class StopPointInfo : AppCompatActivity(), OnMapReadyCallback{
             val zoom = CameraUpdateFactory.zoomTo(15f)
             mGoogleMap.moveCamera(update)
             mGoogleMap.animateCamera(zoom)
+            // Creating a marker
+            val markerOptions = MarkerOptions()
+            // Setting the position for the marker
+            markerOptions.position(stopPointLatLng)
+            // Setting the title for the marker.
+            // This will be displayed on taping the marker
+            markerOptions.title("This Point")
+            mGoogleMap.addMarker(markerOptions)
         }
     }
 
@@ -224,23 +232,25 @@ class StopPointInfo : AppCompatActivity(), OnMapReadyCallback{
                         if (mapReady) {
                             mGoogleMap.moveCamera(update)
                             mGoogleMap.animateCamera(zoom)
+                            // Creating a marker
+                            val markerOptions = MarkerOptions()
+
+                            // Setting the position for the marker
+                            markerOptions.position(stoppointLatLng)
+
+                            // Setting the title for the marker.
+                            // This will be displayed on taping the marker
+                            markerOptions.title(response.body()!!.name)
+                            name = response.body()!!.name!!
+                            mGoogleMap.addMarker(markerOptions)
                         }
                         else {
                             stopPointLatLng = stoppointLatLng
                         }
 
-                        // Creating a marker
-                        val markerOptions = MarkerOptions()
 
-                        // Setting the position for the marker
-                        markerOptions.position(stoppointLatLng)
 
-                        // Setting the title for the marker.
-                        // This will be displayed on taping the marker
-                        markerOptions.title(response.body()!!.name)
-                        name = response.body()!!.name!!
 
-                        mGoogleMap.addMarker(markerOptions)
                         var type = util.StopPointTypeToString(response.body()!!.serviceTypeId!!)
                         serviceTypeText.text = type
                         stpInfoName.text = response.body()!!.name
