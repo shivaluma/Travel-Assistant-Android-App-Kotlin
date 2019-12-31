@@ -29,6 +29,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.SupportMapFragment
 
 import com.ygaps.travelapp.model.StopPoint
 import com.google.android.gms.maps.model.LatLng
@@ -47,7 +48,7 @@ import org.jetbrains.anko.scrollView
 import java.io.File
 
 
-class StopPointInfo : AppCompatActivity(){
+class StopPointInfo : AppCompatActivity(), OnMapReadyCallback{
 
     lateinit var mGoogleMap : GoogleMap
     var token : String = ""
@@ -58,17 +59,18 @@ class StopPointInfo : AppCompatActivity(){
     var mCurrentPage = 1
     var mCurrentItemPerPage = 3
     var mTotal = 0
+    var mapReady = false
+    lateinit var stopPointLatLng: LatLng
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stop_point_info)
         supportActionBar!!.hide()
 
-        locateStopPoint.onCreate(savedInstanceState)
-        locateStopPoint.getMapAsync {
-            mGoogleMap = it
-            locateStopPoint.onResume()
-        }
+
+        var mapFragment = supportFragmentManager.findFragmentById(R.id.locateStopPoint) as SupportMapFragment
+        mapFragment.getMapAsync(this)
 
 
         token = this.intent.extras!!.getString("token","notoken")!!
@@ -110,6 +112,16 @@ class StopPointInfo : AppCompatActivity(){
         ApiRequestGetListFeedBack(mCurrentPage,mCurrentItemPerPage)
     }
 
+    override fun onMapReady(p0: GoogleMap?) {
+        mapReady = true
+        mGoogleMap = p0!!
+        if (::stopPointLatLng.isInitialized) {
+            val update = CameraUpdateFactory.newLatLng(stopPointLatLng)
+            val zoom = CameraUpdateFactory.zoomTo(15f)
+            mGoogleMap.moveCamera(update)
+            mGoogleMap.animateCamera(zoom)
+        }
+    }
 
     inner class ReviewAdapter(data: ArrayList<feedback>) :
         RecyclerView.Adapter<ReviewAdapter.RecyclerViewHolder>() {
@@ -209,8 +221,13 @@ class StopPointInfo : AppCompatActivity(){
                         val stoppointLatLng : LatLng = LatLng(response.body()!!.lat!!,response.body()!!.long!!)
                         val update = CameraUpdateFactory.newLatLng(stoppointLatLng)
                         val zoom = CameraUpdateFactory.zoomTo(15f)
-                        mGoogleMap.moveCamera(update)
-                        mGoogleMap.animateCamera(zoom)
+                        if (mapReady) {
+                            mGoogleMap.moveCamera(update)
+                            mGoogleMap.animateCamera(zoom)
+                        }
+                        else {
+                            stopPointLatLng = stoppointLatLng
+                        }
 
                         // Creating a marker
                         val markerOptions = MarkerOptions()

@@ -166,12 +166,12 @@
                 android:layout_alignParentEnd="true"/>
         </RelativeLayout>
 
-        <com.ygaps.travelapp.util.CustomMapView
-            android:layout_width="match_parent"
-            android:layout_margin="10dp"
-            android:layout_height="140dp"
+        <fragment
             android:id="@+id/locateStopPoint"
-            />
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_margin="10dp"
+            android:name="com.google.android.gms.maps.SupportMapFragment"/>
 
         <TextView
             android:layout_width="match_parent"
